@@ -1,3 +1,4 @@
+*.psd filter=lfs diff=lfs merge=lfs -text
 client/assets/earth/earth-21600.jpg filter=lfs diff=lfs merge=lfs -text
 client/assets/countries.geo.json filter=lfs diff=lfs merge=lfs -text
 client/assets/icon.png filter=lfs diff=lfs merge=lfs -text
