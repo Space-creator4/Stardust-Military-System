@@ -30,3 +30,4 @@ Desktop.ini
 *.exe
 *.dll
 !client/assets/**
+client/dist-linux/
