@@ -1,0 +1,1387 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Stardust | Chat</title>
+
+    <link rel="stylesheet" href="style.css">
+
+    <style>
+        .chat-page {
+            width: 100%;
+            min-height: 100%;
+            padding: 28px;
+            background: #05070a;
+        }
+
+        .chat-header {
+            height: 70px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #1c252d;
+        }
+
+        .chat-title {
+            font-size: 24px;
+            font-weight: 600;
+            letter-spacing: 5px;
+        }
+
+        .chat-subtitle {
+            margin-top: 6px;
+            color: #697781;
+            font-size: 9px;
+            letter-spacing: 3px;
+        }
+
+        .chat-status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #697781;
+            font-size: 8px;
+            font-weight: 600;
+            letter-spacing: 1.5px;
+        }
+
+        .chat-status .status-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: #d16262;
+            box-shadow: 0 0 9px rgba(98, 209, 139, 0.45);
+        }
+
+        .chat-layout {
+            display: grid;
+            grid-template-columns: 220px minmax(0, 1fr);
+            gap: 12px;
+            height: calc(100vh - 146px);
+            margin-top: 20px;
+        }
+
+        .chat-channels {
+            border: 1px solid #1c252d;
+            background: #080b0f;
+        }
+
+        .channel-header {
+            height: 44px;
+            display: flex;
+            align-items: center;
+            padding: 0 16px;
+            border-bottom: 1px solid #1c252d;
+            color: #aeb8bf;
+            font-size: 8px;
+            font-weight: 600;
+            letter-spacing: 2px;
+        }
+
+        .channel {
+            width: 100%;
+            height: 48px;
+            display: flex;
+            align-items: center;
+            padding: 0 16px;
+            border: 0;
+            border-bottom: 1px solid #151d23;
+            background: transparent;
+            color: #697781;
+            font-family: inherit;
+            font-size: 9px;
+            font-weight: 600;
+            letter-spacing: 1px;
+            text-align: left;
+            cursor: pointer;
+        }
+
+        .channel:hover {
+            background: #0d1217;
+            color: #d8e0e5;
+        }
+
+        .channel.active {
+            background: #0d1217;
+            color: #ffffff;
+            border-left: 2px solid #62d18b;
+        }
+
+        .channel-icon {
+            width: 25px;
+            color: #56636e;
+            font-size: 13px;
+        }
+
+        .channel.active .channel-icon {
+            color: #62d18b;
+        }
+
+        .channel-country {
+            margin-top: 20px;
+            padding: 0 16px 10px;
+            color: #3f4a52;
+            font-size: 7px;
+            font-weight: 600;
+            letter-spacing: 2px;
+        }
+
+        .chat-panel {
+            min-width: 0;
+            min-height: 0;
+            display: flex;
+            flex-direction: column;
+            border: 1px solid #1c252d;
+            background: #080b0f;
+        }
+
+        .chat-panel-header {
+            height: 58px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 18px;
+            flex-shrink: 0;
+            border-bottom: 1px solid #1c252d;
+        }
+
+        .active-channel-name {
+            color: #e7edf1;
+            font-size: 10px;
+            font-weight: 600;
+            letter-spacing: 2px;
+        }
+
+        .active-channel-description {
+            margin-top: 5px;
+            color: #56636e;
+            font-size: 7px;
+            letter-spacing: 1px;
+        }
+
+        .connection-status {
+            color: #d16262;
+            font-size: 7px;
+            font-weight: 600;
+            letter-spacing: 1.5px;
+        }
+
+        #chatMessages {
+            flex: 1;
+            min-height: 0;
+            padding: 18px;
+            overflow-y: auto;
+            background: #06090c;
+        }
+
+        .message {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 16px;
+            font-size: 9px;
+            line-height: 1.6;
+        }
+
+        .message-meta {
+            width: 125px;
+            flex-shrink: 0;
+        }
+
+        .message-user {
+            color: #62d18b;
+            font-size: 8px;
+            font-weight: 600;
+            letter-spacing: 1px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .message-time {
+            margin-top: 3px;
+            color: #3f4a52;
+            font-family: "Courier New", monospace;
+            font-size: 7px;
+        }
+
+        .message-text {
+            color: #9ca8b0;
+            word-break: break-word;
+        }
+
+        .message.system .message-user {
+            color: #697781;
+        }
+
+        .message.system .message-text {
+            color: #697781;
+        }
+
+        .chat-input-area {
+            display: flex;
+            height: 52px;
+            flex-shrink: 0;
+            border-top: 1px solid #1c252d;
+        }
+
+        #chatInput {
+            flex: 1;
+            min-width: 0;
+            padding: 0 16px;
+            border: 0;
+            outline: 0;
+            background: #080b0f;
+            color: #dbe3e8;
+            font-family: inherit;
+            font-size: 9px;
+        }
+
+        #chatInput::placeholder {
+            color: #3f4a52;
+        }
+
+        #sendButton {
+            width: 90px;
+            border: 0;
+            border-left: 1px solid #1c252d;
+            background: #0d1217;
+            color: #9ca8b0;
+            font-family: inherit;
+            font-size: 8px;
+            font-weight: 600;
+            letter-spacing: 1.5px;
+            cursor: pointer;
+        }
+
+        #sendButton:hover {
+            background: #151c22;
+            color: #ffffff;
+        }
+
+        #sendButton:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        .online-panel {
+            margin-top: 20px;
+            padding: 14px 16px;
+            border-top: 1px solid #151d23;
+        }
+
+        .online-label {
+            color: #3f4a52;
+            font-size: 7px;
+            letter-spacing: 2px;
+        }
+
+        .online-count {
+            margin-top: 6px;
+            color: #62d18b;
+            font-family: "Courier New", monospace;
+            font-size: 13px;
+        }
+
+        @media (max-width: 800px) {
+            .chat-layout {
+                grid-template-columns: 1fr;
+            }
+
+            .chat-channels {
+                height: auto;
+            }
+
+            .online-panel {
+                display: none;
+            }
+
+            .channel {
+                display: inline-flex;
+                width: 50%;
+            }
+
+            .channel-country {
+                display: none;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .chat-page {
+                padding: 15px;
+            }
+
+            .chat-header {
+                align-items: flex-start;
+                flex-direction: column;
+                gap: 12px;
+            }
+
+            .chat-layout {
+                height: calc(100vh - 180px);
+            }
+
+            .message-meta {
+                width: 90px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<div id="app">
+
+    <header>
+
+        <div class="brand">
+
+            <div class="logo">
+                ✦
+            </div>
+
+            <div>
+                <h1>STARDUST</h1>
+                <span>MILITARY SYSTEM</span>
+            </div>
+
+        </div>
+
+        <div class="system-status">
+
+            <span
+                class="status-dot"
+                id="systemDot">
+            </span>
+
+            <span id="systemStatusText">
+                CONNECTING...
+            </span>
+
+        </div>
+
+    </header>
+
+    <main>
+
+        <aside class="sidebar">
+
+            <div class="sidebar-section">
+
+                <div class="sidebar-label">
+                    COMMAND
+                </div>
+
+                <a href="/" class="nav">
+                    <span class="nav-icon">◉</span>
+                    <span>COMMAND</span>
+                </a>
+
+                <a href="/map.html" class="nav">
+                    <span class="nav-icon">◎</span>
+                    <span>MAP</span>
+                </a>
+
+                <a href="/force.html" class="nav">
+                    <span class="nav-icon">⚔</span>
+                    <span>FORCES</span>
+                </a>
+
+                <a href="/order.html" class="nav">
+                    <span class="nav-icon">▤</span>
+                    <span>ORDERS</span>
+                </a>
+
+                <a href="/chat.html" class="nav active">
+                    <span class="nav-icon">◌</span>
+                    <span>CHAT</span>
+                </a>
+
+            </div>
+
+            <div class="sidebar-bottom">
+
+                <a href="/settings.html" class="nav">
+                    <span class="nav-icon">⚙</span>
+                    <span>SETTINGS</span>
+                </a>
+
+                <a href="/admin.html" class="nav admin">
+                    <span class="nav-icon">◆</span>
+                    <span>ADMIN CONSOLE</span>
+                </a>
+
+                <a href="/auth/logout" class="nav logout">
+                    <span class="nav-icon">←</span>
+                    <span>LOGOUT</span>
+                </a>
+
+            </div>
+
+        </aside>
+
+        <section class="content">
+
+            <div class="chat-page">
+
+                <div class="chat-header">
+
+                    <div>
+
+                        <div class="chat-title">
+                            CHAT
+                        </div>
+
+                        <div class="chat-subtitle">
+                            COMMAND COMMUNICATION NETWORK
+                        </div>
+
+                    </div>
+
+                    <div class="chat-status">
+
+                        <span
+                            class="status-dot"
+                            id="chatStatusDot">
+                        </span>
+
+                        <span id="chatConnection">
+                            CONNECTING
+                        </span>
+
+                    </div>
+
+                </div>
+
+                <div class="chat-layout">
+
+                    <div class="chat-channels">
+
+                        <div class="channel-header">
+                            CHANNELS
+                        </div>
+
+                        <button
+                            class="channel active"
+                            id="worldChannel">
+
+                            <span class="channel-icon">
+                                ◎
+                            </span>
+
+                            WORLDWIDE
+
+                        </button>
+
+                        <div class="channel-country">
+                            COUNTRY CHANNEL
+                        </div>
+
+                        <button
+                            class="channel"
+                            id="countryChannel">
+
+                            <span class="channel-icon">
+                                ◈
+                            </span>
+
+                            MY COUNTRY
+
+                        </button>
+
+                        <div class="online-panel">
+
+                            <div class="online-label">
+                                ONLINE PERSONNEL
+                            </div>
+
+                            <div
+                                class="online-count"
+                                id="onlineCount">
+                                0
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <div class="chat-panel">
+
+                        <div class="chat-panel-header">
+
+                            <div>
+
+                                <div
+                                    class="active-channel-name"
+                                    id="channelName">
+                                    WORLDWIDE
+                                </div>
+
+                                <div
+                                    class="active-channel-description"
+                                    id="channelDescription">
+                                    GLOBAL COMMAND CHANNEL
+                                </div>
+
+                            </div>
+
+                            <div
+                                class="connection-status"
+                                id="connectionStatus">
+                                OFFLINE
+                            </div>
+
+                        </div>
+
+                        <div id="chatMessages">
+
+                            <div class="message system">
+
+                                <div class="message-meta">
+
+                                    <div class="message-user">
+                                        SYSTEM
+                                    </div>
+
+                                    <div class="message-time">
+                                        --:--:--
+                                    </div>
+
+                                </div>
+
+                                <div class="message-text">
+                                    Initialising command communication network...
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                        <div class="chat-input-area">
+
+                            <input
+                                id="chatInput"
+                                type="text"
+                                placeholder="ENTER MESSAGE..."
+                                autocomplete="off"
+                                maxlength="1000"
+                            >
+
+                            <button
+                                id="sendButton"
+                                disabled>
+                                SEND
+                            </button>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+    </main>
+
+</div>
+
+<script>
+
+let currentUser = null;
+let currentChannel = "world";
+let socket = null;
+let reconnectTimer = null;
+let manuallyClosed = false;
+
+const channelMessages = {
+    world: [],
+    country: []
+};
+
+const MAX_MESSAGE_LENGTH = 1000;
+
+function getElement(id) {
+    return document.getElementById(id);
+}
+
+function getTime() {
+    return new Date().toLocaleTimeString(
+        "en-GB",
+        {
+            hour12: false
+        }
+    );
+}
+
+function addMessage(
+    username,
+    message,
+    system = false,
+    channel = currentChannel,
+    timestamp = null
+) {
+    if (!channelMessages[channel]) {
+        channelMessages[channel] = [];
+    }
+
+    channelMessages[channel].push({
+        username,
+        message,
+        system,
+        timestamp: timestamp || Date.now()
+    });
+
+    if (channel === currentChannel) {
+        renderMessages();
+    }
+}
+
+function renderMessages() {
+
+    const container =
+        getElement("chatMessages");
+
+    if (!container) {
+        return;
+    }
+
+    container.innerHTML = "";
+
+    const messages =
+        channelMessages[currentChannel] || [];
+
+    if (messages.length === 0) {
+
+        const empty =
+            document.createElement("div");
+
+        empty.className =
+            "message system";
+
+        const meta =
+            document.createElement("div");
+
+        meta.className =
+            "message-meta";
+
+        const user =
+            document.createElement("div");
+
+        user.className =
+            "message-user";
+
+        user.textContent =
+            "SYSTEM";
+
+        const time =
+            document.createElement("div");
+
+        time.className =
+            "message-time";
+
+        time.textContent =
+            "--:--:--";
+
+        const text =
+            document.createElement("div");
+
+        text.className =
+            "message-text";
+
+        text.textContent =
+            currentChannel === "world"
+                ? "No worldwide messages."
+                : "No country messages.";
+
+        meta.appendChild(user);
+        meta.appendChild(time);
+
+        empty.appendChild(meta);
+        empty.appendChild(text);
+
+        container.appendChild(empty);
+
+        return;
+    }
+
+    for (const data of messages) {
+
+        const element =
+            document.createElement("div");
+
+        element.className =
+            data.system
+                ? "message system"
+                : "message";
+
+        const meta =
+            document.createElement("div");
+
+        meta.className =
+            "message-meta";
+
+        const user =
+            document.createElement("div");
+
+        user.className =
+            "message-user";
+
+        user.textContent =
+            data.username;
+
+        const time =
+            document.createElement("div");
+
+        time.className =
+            "message-time";
+
+        time.textContent =
+            new Date(
+                data.timestamp
+            ).toLocaleTimeString(
+                "en-GB",
+                {
+                    hour12: false
+                }
+            );
+
+        const text =
+            document.createElement("div");
+
+        text.className =
+            "message-text";
+
+        text.textContent =
+            data.message;
+
+        meta.appendChild(user);
+        meta.appendChild(time);
+
+        element.appendChild(meta);
+        element.appendChild(text);
+
+        container.appendChild(element);
+    }
+
+    container.scrollTop =
+        container.scrollHeight;
+}
+
+function setConnection(connected) {
+
+    const status =
+        getElement("chatConnection");
+
+    const connectionStatus =
+        getElement("connectionStatus");
+
+    const systemStatus =
+        getElement("systemStatusText");
+
+    const chatDot =
+        getElement("chatStatusDot");
+
+    const systemDot =
+        getElement("systemDot");
+
+    const sendButton =
+        getElement("sendButton");
+
+    if (connected) {
+
+        status.textContent =
+            "ONLINE";
+
+        connectionStatus.textContent =
+            "CONNECTED";
+
+        connectionStatus.style.color =
+            "#62d18b";
+
+        systemStatus.textContent =
+            "SYSTEM ONLINE";
+
+        if (chatDot) {
+            chatDot.style.background =
+                "#62d18b";
+        }
+
+        if (systemDot) {
+            systemDot.style.background =
+                "#62d18b";
+        }
+
+        if (sendButton) {
+            sendButton.disabled =
+                false;
+        }
+
+    } else {
+
+        status.textContent =
+            "OFFLINE";
+
+        connectionStatus.textContent =
+            "DISCONNECTED";
+
+        connectionStatus.style.color =
+            "#d16262";
+
+        systemStatus.textContent =
+            "SYSTEM OFFLINE";
+
+        if (chatDot) {
+            chatDot.style.background =
+                "#d16262";
+        }
+
+        if (systemDot) {
+            systemDot.style.background =
+                "#d16262";
+        }
+
+        if (sendButton) {
+            sendButton.disabled =
+                true;
+        }
+    }
+}
+
+async function loadCurrentUser() {
+
+    try {
+
+        const response =
+            await fetch(
+                "/api/me",
+                {
+                    credentials: "include"
+                }
+            );
+
+        if (response.status === 401) {
+
+            addMessage(
+                "SYSTEM",
+                "Authentication required. Please log in with Discord.",
+                true,
+                "world"
+            );
+
+            setConnection(false);
+
+            return false;
+        }
+
+        if (!response.ok) {
+            throw new Error(
+                `HTTP ${response.status}`
+            );
+        }
+
+        const data =
+            await response.json();
+
+        if (
+            !data.authenticated ||
+            !data.user
+        ) {
+
+            addMessage(
+                "SYSTEM",
+                "No authenticated Discord session was found.",
+                true,
+                "world"
+            );
+
+            return false;
+        }
+
+        currentUser =
+            data.user;
+
+        return true;
+
+    } catch (error) {
+
+        console.error(
+            "Failed to load user:",
+            error
+        );
+
+        addMessage(
+            "SYSTEM",
+            "Unable to verify your Stardust session.",
+            true,
+            "world"
+        );
+
+        return false;
+    }
+}
+
+function connectWebSocket() {
+
+    if (
+        socket &&
+        (
+            socket.readyState ===
+            WebSocket.OPEN ||
+            socket.readyState ===
+            WebSocket.CONNECTING
+        )
+    ) {
+        return;
+    }
+
+    const protocol =
+        location.protocol === "https:"
+            ? "wss"
+            : "ws";
+
+    setConnection(false);
+
+    socket =
+        new WebSocket(
+            `${protocol}://${window.location.host}`
+        );
+
+    socket.addEventListener(
+        "open",
+        () => {
+
+            setConnection(true);
+
+            addMessage(
+                "SYSTEM",
+                "Connected to Stardust Command Network.",
+                true,
+                currentChannel
+            );
+
+            if (reconnectTimer) {
+
+                clearTimeout(
+                    reconnectTimer
+                );
+
+                reconnectTimer =
+                    null;
+            }
+        }
+    );
+
+    socket.addEventListener(
+        "close",
+        event => {
+
+            setConnection(false);
+
+            if (manuallyClosed) {
+                return;
+            }
+
+            if (event.code === 4001) {
+
+                addMessage(
+                    "SYSTEM",
+                    "WebSocket authentication failed. Please log in again.",
+                    true,
+                    currentChannel
+                );
+
+                return;
+            }
+
+            if (event.code === 4003) {
+
+                addMessage(
+                    "SYSTEM",
+                    "Access denied: your account is banned.",
+                    true,
+                    currentChannel
+                );
+
+                return;
+            }
+
+            addMessage(
+                "SYSTEM",
+                "Command network connection lost. Reconnecting...",
+                true,
+                currentChannel
+            );
+
+            reconnectTimer =
+                setTimeout(
+                    connectWebSocket,
+                    3000
+                );
+        }
+    );
+
+    socket.addEventListener(
+        "error",
+        error => {
+
+            console.error(
+                "WebSocket error:",
+                error
+            );
+
+            setConnection(false);
+        }
+    );
+
+    socket.addEventListener(
+        "message",
+        event => {
+
+            try {
+
+                const data =
+                    JSON.parse(
+                        event.data
+                    );
+
+                if (
+                    data.type ===
+                    "server_status"
+                ) {
+
+                    const online =
+                        getElement(
+                            "onlineCount"
+                        );
+
+                    if (online) {
+                        online.textContent =
+                            data.onlineUsers;
+                    }
+
+                    return;
+                }
+
+                if (
+                    data.type ===
+                    "welcome"
+                ) {
+
+                    addMessage(
+                        "SYSTEM",
+                        data.message,
+                        true,
+                        currentChannel
+                    );
+
+                    return;
+                }
+
+                if (
+                    data.type ===
+                    "identity"
+                ) {
+
+                    if (data.user) {
+                        currentUser =
+                            data.user;
+                    }
+
+                    return;
+                }
+
+                if (
+                    data.type ===
+                    "chat"
+                ) {
+
+                    const channel =
+                        data.channel ||
+                        "world";
+
+                    addMessage(
+                        data.username,
+                        data.message,
+                        false,
+                        channel,
+                        data.timestamp
+                    );
+
+                    return;
+                }
+
+                if (
+                    data.type ===
+                    "error"
+                ) {
+
+                    addMessage(
+                        "SYSTEM",
+                        data.message,
+                        true,
+                        currentChannel
+                    );
+
+                    return;
+                }
+
+                if (
+                    data.type ===
+                    "rate_limited"
+                ) {
+
+                    addMessage(
+                        "SYSTEM",
+                        data.message,
+                        true,
+                        currentChannel
+                    );
+
+                    return;
+                }
+
+                if (
+                    data.type ===
+                    "banned"
+                ) {
+
+                    addMessage(
+                        "SYSTEM",
+                        "Your account has been banned.",
+                        true,
+                        currentChannel
+                    );
+
+                    return;
+                }
+
+                if (
+                    data.type ===
+                    "kicked"
+                ) {
+
+                    addMessage(
+                        "SYSTEM",
+                        "You have been removed from the command network.",
+                        true,
+                        currentChannel
+                    );
+
+                    return;
+                }
+
+            } catch (error) {
+
+                console.error(
+                    "Invalid server message:",
+                    error
+                );
+            }
+        }
+    );
+}
+
+function sendMessage() {
+
+    const input =
+        getElement("chatInput");
+
+    if (!input) {
+        return;
+    }
+
+    const message =
+        input.value.trim();
+
+    if (!message) {
+        return;
+    }
+
+    if (
+        message.length >
+        MAX_MESSAGE_LENGTH
+    ) {
+
+        addMessage(
+            "SYSTEM",
+            "Message is too long.",
+            true,
+            currentChannel
+        );
+
+        return;
+    }
+
+    if (
+        !socket ||
+        socket.readyState !==
+        WebSocket.OPEN
+    ) {
+
+        addMessage(
+            "SYSTEM",
+            "Not connected to the command network.",
+            true,
+            currentChannel
+        );
+
+        return;
+    }
+
+    socket.send(
+        JSON.stringify({
+            type:
+                "chat",
+
+            channel:
+                currentChannel,
+
+            message
+        })
+    );
+
+    input.value = "";
+}
+
+function selectChannel(channel) {
+
+    if (
+        channel !== "world" &&
+        channel !== "country"
+    ) {
+        return;
+    }
+
+    currentChannel =
+        channel;
+
+    const world =
+        getElement(
+            "worldChannel"
+        );
+
+    const country =
+        getElement(
+            "countryChannel"
+        );
+
+    const name =
+        getElement(
+            "channelName"
+        );
+
+    const description =
+        getElement(
+            "channelDescription"
+        );
+
+    if (
+        channel === "world"
+    ) {
+
+        world.classList.add(
+            "active"
+        );
+
+        country.classList.remove(
+            "active"
+        );
+
+        name.textContent =
+            "WORLDWIDE";
+
+        description.textContent =
+            "GLOBAL COMMAND CHANNEL";
+
+    } else {
+
+        world.classList.remove(
+            "active"
+        );
+
+        country.classList.add(
+            "active"
+        );
+
+        name.textContent =
+            "MY COUNTRY";
+
+        description.textContent =
+            "NATIONAL COMMAND CHANNEL";
+    }
+
+    renderMessages();
+
+    getElement(
+        "chatInput"
+    ).focus();
+}
+
+getElement(
+    "sendButton"
+).addEventListener(
+    "click",
+    sendMessage
+);
+
+getElement(
+    "chatInput"
+).addEventListener(
+    "keydown",
+    event => {
+
+        if (
+            event.key ===
+            "Enter"
+        ) {
+
+            event.preventDefault();
+
+            sendMessage();
+        }
+    }
+);
+
+getElement(
+    "worldChannel"
+).addEventListener(
+    "click",
+    () => {
+        selectChannel("world");
+    }
+);
+
+getElement(
+    "countryChannel"
+).addEventListener(
+    "click",
+    () => {
+        selectChannel("country");
+    }
+);
+
+async function start() {
+
+    renderMessages();
+
+    const authenticated =
+        await loadCurrentUser();
+
+    if (!authenticated) {
+        return;
+    }
+
+    connectWebSocket();
+}
+
+start();
+
+</script>
+<script src="/security.js"></script>
+
+</body>
+</html>

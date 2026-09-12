@@ -1,0 +1,120 @@
+.login-page {
+    width: 100vw;
+    height: 100vh;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    background:
+        radial-gradient(
+            circle at center,
+            #10171e 0%,
+            #080b0f 45%,
+            #05070a 100%
+        );
+}
+
+.login-card {
+    width: 420px;
+
+    border: 1px solid #1c252d;
+    background: #080b0f;
+
+    padding: 42px;
+
+    text-align: center;
+
+    box-shadow:
+        0 0 80px rgba(0, 0, 0, 0.45);
+}
+
+.login-logo {
+    width: 64px;
+    height: 64px;
+
+    margin: 0 auto 20px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border: 1px solid #56636e;
+
+    font-size: 30px;
+}
+
+.login-title {
+    font-size: 24px;
+    letter-spacing: 6px;
+}
+
+.login-subtitle {
+    margin-top: 7px;
+
+    color: #697781;
+
+    font-size: 9px;
+    letter-spacing: 4px;
+}
+
+.login-divider {
+    height: 1px;
+
+    margin: 30px 0;
+
+    background: #1c252d;
+}
+
+.login-description {
+    margin: 0 0 24px;
+
+    color: #697781;
+
+    font-size: 12px;
+    line-height: 1.6;
+}
+
+.discord-login {
+    width: 100%;
+    height: 48px;
+
+    border: 1px solid #5865f2;
+
+    background: #5865f2;
+    color: white;
+
+    font-size: 11px;
+    font-weight: bold;
+
+    letter-spacing: 1px;
+
+    cursor: pointer;
+}
+
+.discord-login:hover {
+    background: #4752c4;
+}
+
+.discord-login span {
+    margin-right: 10px;
+}
+
+.login-status {
+    min-height: 18px;
+
+    margin-top: 16px;
+
+    color: #d16262;
+
+    font-size: 11px;
+}
+
+.login-footer {
+    margin-top: 30px;
+
+    color: #3f4a52;
+
+    font-size: 8px;
+    letter-spacing: 2px;
+}

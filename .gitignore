@@ -1,0 +1,32 @@
+# Dependencies
+node_modules/
+client/node_modules/
+server/node_modules/
+
+# Build output (electron-builder)
+client/dist/
+client/release/
+
+# Secrets - never commit
+server/.env
+
+# Generated content
+server/tiles/
+server/logs/
+logs/
+*.log
+
+# OS files
+Thumbs.db
+Desktop.ini
+.DS_Store
+
+# Editor / IDE
+.vscode/
+.idea/
+*.swp
+
+# Windows
+*.exe
+*.dll
+!client/assets/**

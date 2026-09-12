@@ -1,0 +1,1 @@
+{"name":"stardust-server","version":"1.0.0","description":"Stardust Military System server","main":"server.js","scripts":{"start":"node server.js","tiles":"node generate-tiles.js"},"dependencies":{"cookie-parser":"^1.4.7","dotenv":"^17.4.2","express":"^5.1.0","express-session":"^1.19.0","sharp":"^0.34.3","ws":"^8.21.3"}}

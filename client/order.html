@@ -1,0 +1,1018 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Stardust | Orders</title>
+
+    <link rel="stylesheet" href="/style.css">
+
+    <style>
+        .orders-page {
+            width: 100%;
+            min-height: 100%;
+            padding: 28px;
+            background: #05070a;
+        }
+
+        .orders-header {
+            height: 70px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #1c252d;
+        }
+
+        .orders-title {
+            font-size: 24px;
+            font-weight: 600;
+            letter-spacing: 5px;
+        }
+
+        .orders-subtitle {
+            margin-top: 6px;
+            color: #697781;
+            font-size: 9px;
+            letter-spacing: 3px;
+        }
+
+        .orders-status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #697781;
+            font-size: 8px;
+            font-weight: 600;
+            letter-spacing: 1.5px;
+        }
+
+        .orders-status-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: #d16262;
+            box-shadow: 0 0 9px rgba(98, 209, 139, 0.45);
+        }
+
+        .orders-grid {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) 320px;
+            gap: 12px;
+            margin-top: 20px;
+        }
+
+        .panel {
+            border: 1px solid #1c252d;
+            background: #080b0f;
+        }
+
+        .panel-header {
+            height: 52px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 18px;
+            border-bottom: 1px solid #1c252d;
+            color: #aeb8bf;
+            font-size: 8px;
+            font-weight: 600;
+            letter-spacing: 2px;
+        }
+
+        .panel-indicator {
+            color: #62d18b;
+            font-size: 7px;
+            letter-spacing: 1.5px;
+        }
+
+        .orders-list {
+            min-height: 420px;
+        }
+
+        .order {
+            padding: 17px 18px;
+            border-bottom: 1px solid #151d23;
+            cursor: pointer;
+            transition: background 0.15s ease;
+        }
+
+        .order:hover {
+            background: #0d1217;
+        }
+
+        .order.active {
+            background: #0d1217;
+            border-left: 2px solid #62d18b;
+        }
+
+        .order-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 15px;
+        }
+
+        .order-id {
+            color: #dbe3e8;
+            font-family: "Courier New", monospace;
+            font-size: 9px;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+
+        .order-status {
+            padding: 4px 7px;
+            border: 1px solid #304139;
+            color: #62d18b;
+            font-size: 6px;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+
+        .order-status.pending {
+            color: #d5b866;
+            border-color: #514a31;
+        }
+
+        .order-status.completed {
+            color: #697781;
+            border-color: #30383e;
+        }
+
+        .order-name {
+            margin-top: 8px;
+            color: #aeb8bf;
+            font-size: 10px;
+            font-weight: 600;
+        }
+
+        .order-description {
+            margin-top: 5px;
+            color: #56636e;
+            font-size: 8px;
+            line-height: 1.5;
+        }
+
+        .order-meta {
+            display: flex;
+            gap: 20px;
+            margin-top: 10px;
+            color: #3f4a52;
+            font-family: "Courier New", monospace;
+            font-size: 7px;
+        }
+
+        .create-form {
+            padding: 18px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 7px;
+            color: #56636e;
+            font-size: 7px;
+            font-weight: 600;
+            letter-spacing: 1.5px;
+        }
+
+        .form-input,
+        .form-select,
+        .form-textarea {
+            width: 100%;
+            box-sizing: border-box;
+            border: 1px solid #1c252d;
+            outline: none;
+            background: #06090c;
+            color: #c8d1d6;
+            font-family: inherit;
+            font-size: 8px;
+        }
+
+        .form-input,
+        .form-select {
+            height: 38px;
+            padding: 0 10px;
+        }
+
+        .form-textarea {
+            min-height: 100px;
+            padding: 10px;
+            resize: vertical;
+        }
+
+        .form-input:focus,
+        .form-select:focus,
+        .form-textarea:focus {
+            border-color: #394850;
+        }
+
+        .create-button {
+            width: 100%;
+            height: 40px;
+            border: 1px solid #304139;
+            background: #0d1511;
+            color: #62d18b;
+            font-family: inherit;
+            font-size: 8px;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            cursor: pointer;
+        }
+
+        .create-button:hover {
+            background: #121d16;
+        }
+
+        .order-details {
+            margin-top: 12px;
+            padding: 18px;
+        }
+
+        .detail-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+        }
+
+        .detail {
+            padding: 12px;
+            border: 1px solid #151d23;
+            background: #06090c;
+        }
+
+        .detail-label {
+            color: #3f4a52;
+            font-size: 6px;
+            letter-spacing: 1.5px;
+        }
+
+        .detail-value {
+            margin-top: 7px;
+            color: #aeb8bf;
+            font-family: "Courier New", monospace;
+            font-size: 9px;
+        }
+
+        .empty-orders {
+            min-height: 420px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #3f4a52;
+            font-size: 8px;
+            letter-spacing: 2px;
+        }
+
+        .message {
+            margin-top: 12px;
+            padding: 12px 15px;
+            border: 1px solid #1c252d;
+            background: #080b0f;
+            color: #697781;
+            font-size: 8px;
+        }
+
+        @media (max-width: 1000px) {
+            .orders-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .orders-page {
+                padding: 15px;
+            }
+
+            .orders-header {
+                align-items: flex-start;
+                flex-direction: column;
+                gap: 12px;
+            }
+
+            .detail-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<div id="app">
+
+    <header>
+
+        <div class="brand">
+
+            <div class="logo">
+                ✦
+            </div>
+
+            <div>
+                <h1>STARDUST</h1>
+                <span>MILITARY SYSTEM</span>
+            </div>
+
+        </div>
+
+        <div class="system-status">
+
+            <span
+                class="status-dot"
+                id="systemDot">
+            </span>
+
+            <span id="systemStatusText">
+                CONNECTING...
+            </span>
+
+        </div>
+
+    </header>
+
+    <main>
+
+        <aside class="sidebar">
+
+            <div class="sidebar-section">
+
+                <div class="sidebar-label">
+                    COMMAND
+                </div>
+
+                <a href="/" class="nav">
+                    <span class="nav-icon">◉</span>
+                    <span>COMMAND</span>
+                </a>
+
+                <a href="/map.html" class="nav">
+                    <span class="nav-icon">◎</span>
+                    <span>MAP</span>
+                </a>
+
+                <a href="/force.html" class="nav">
+                    <span class="nav-icon">⚔</span>
+                    <span>FORCES</span>
+                </a>
+
+                <a href="/order.html" class="nav active">
+                    <span class="nav-icon">▤</span>
+                    <span>ORDERS</span>
+                </a>
+
+                <a href="/chat.html" class="nav">
+                    <span class="nav-icon">◌</span>
+                    <span>CHAT</span>
+                </a>
+
+            </div>
+
+            <div class="sidebar-bottom">
+
+                <a href="/settings.html" class="nav">
+                    <span class="nav-icon">⚙</span>
+                    <span>SETTINGS</span>
+                </a>
+
+                <a href="/admin.html" class="nav admin">
+                    <span class="nav-icon">◆</span>
+                    <span>ADMIN CONSOLE</span>
+                </a>
+
+                <a href="/auth/logout" class="nav logout">
+                    <span class="nav-icon">←</span>
+                    <span>LOGOUT</span>
+                </a>
+
+            </div>
+
+        </aside>
+
+        <section class="content">
+
+            <div class="orders-page">
+
+                <div class="orders-header">
+
+                    <div>
+
+                        <div class="orders-title">
+                            ORDERS
+                        </div>
+
+                        <div class="orders-subtitle">
+                            COMMAND ORDER MANAGEMENT
+                        </div>
+
+                    </div>
+
+                    <div class="orders-status">
+
+                        <span
+                            class="orders-status-dot"
+                            id="ordersStatusDot">
+                        </span>
+
+                        <span id="ordersConnection">
+                            CONNECTING
+                        </span>
+
+                    </div>
+
+                </div>
+
+                <div class="orders-grid">
+
+                    <div class="panel">
+
+                        <div class="panel-header">
+
+                            <span>
+                                ACTIVE ORDERS
+                            </span>
+
+                            <span
+                                class="panel-indicator"
+                                id="orderCount">
+                                0 ACTIVE
+                            </span>
+
+                        </div>
+
+                        <div
+                            class="orders-list"
+                            id="ordersList">
+
+                            <div class="empty-orders">
+                                NO ACTIVE ORDERS
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <div class="panel">
+
+                        <div class="panel-header">
+
+                            <span>
+                                CREATE ORDER
+                            </span>
+
+                            <span class="panel-indicator">
+                                COMMAND
+                            </span>
+
+                        </div>
+
+                        <div class="create-form">
+
+                            <div class="form-group">
+
+                                <label class="form-label">
+                                    ORDER NAME
+                                </label>
+
+                                <input
+                                    class="form-input"
+                                    id="orderName"
+                                    maxlength="80"
+                                    placeholder="ENTER ORDER NAME"
+                                >
+
+                            </div>
+
+                            <div class="form-group">
+
+                                <label class="form-label">
+                                    ORDER TYPE
+                                </label>
+
+                                <select
+                                    class="form-select"
+                                    id="orderType">
+
+                                    <option value="ground">
+                                        GROUND
+                                    </option>
+
+                                    <option value="naval">
+                                        NAVAL
+                                    </option>
+
+                                    <option value="air">
+                                        AIR
+                                    </option>
+
+                                    <option value="movement">
+                                        MOVEMENT
+                                    </option>
+
+                                    <option value="exercise">
+                                        EXERCISE
+                                    </option>
+
+                                </select>
+
+                            </div>
+
+                            <div class="form-group">
+
+                                <label class="form-label">
+                                    PRIORITY
+                                </label>
+
+                                <select
+                                    class="form-select"
+                                    id="orderPriority">
+
+                                    <option value="routine">
+                                        ROUTINE
+                                    </option>
+
+                                    <option value="priority">
+                                        PRIORITY
+                                    </option>
+
+                                    <option value="urgent">
+                                        URGENT
+                                    </option>
+
+                                </select>
+
+                            </div>
+
+                            <div class="form-group">
+
+                                <label class="form-label">
+                                    ORDERS
+                                </label>
+
+                                <textarea
+                                    class="form-textarea"
+                                    id="orderDescription"
+                                    maxlength="2000"
+                                    placeholder="ENTER ORDER DETAILS">
+                                </textarea>
+
+                            </div>
+
+                            <button
+                                class="create-button"
+                                id="createOrder">
+                                CREATE ORDER
+                            </button>
+
+                            <div
+                                class="message"
+                                id="formMessage"
+                                style="display:none;">
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <div
+                    class="panel order-details"
+                    id="orderDetails"
+                    style="display:none;">
+
+                    <div class="panel-header">
+
+                        <span>
+                            ORDER DETAILS
+                        </span>
+
+                        <span
+                            class="panel-indicator"
+                            id="selectedOrderStatus">
+                            ACTIVE
+                        </span>
+
+                    </div>
+
+                    <div class="detail-grid">
+
+                        <div class="detail">
+
+                            <div class="detail-label">
+                                ORDER ID
+                            </div>
+
+                            <div
+                                class="detail-value"
+                                id="detailId">
+                                —
+                            </div>
+
+                        </div>
+
+                        <div class="detail">
+
+                            <div class="detail-label">
+                                TYPE
+                            </div>
+
+                            <div
+                                class="detail-value"
+                                id="detailType">
+                                —
+                            </div>
+
+                        </div>
+
+                        <div class="detail">
+
+                            <div class="detail-label">
+                                PRIORITY
+                            </div>
+
+                            <div
+                                class="detail-value"
+                                id="detailPriority">
+                                —
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <div
+                        class="message"
+                        id="detailDescription">
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+    </main>
+
+</div>
+
+<script src="/security.js"></script>
+
+<script>
+
+let orders = [];
+let selectedOrder = null;
+
+function setSystemStatus(online) {
+
+    const text =
+        document.getElementById(
+            "systemStatusText"
+        );
+
+    const connection =
+        document.getElementById(
+            "ordersConnection"
+        );
+
+    const dot =
+        document.getElementById(
+            "systemDot"
+        );
+
+    const ordersDot =
+        document.getElementById(
+            "ordersStatusDot"
+        );
+
+    if (online) {
+
+        text.textContent =
+            "SYSTEM ONLINE";
+
+        connection.textContent =
+            "ONLINE";
+
+        if (dot) {
+            dot.style.background =
+                "#62d18b";
+        }
+
+        if (ordersDot) {
+            ordersDot.style.background =
+                "#62d18b";
+        }
+
+    } else {
+
+        text.textContent =
+            "SYSTEM OFFLINE";
+
+        connection.textContent =
+            "OFFLINE";
+
+        if (dot) {
+            dot.style.background =
+                "#d16262";
+        }
+
+        if (ordersDot) {
+            ordersDot.style.background =
+                "#d16262";
+        }
+    }
+}
+
+function showFormMessage(
+    message
+) {
+
+    const element =
+        document.getElementById(
+            "formMessage"
+        );
+
+    element.textContent =
+        message;
+
+    element.style.display =
+        "block";
+}
+
+function renderOrders() {
+
+    const container =
+        document.getElementById(
+            "ordersList"
+        );
+
+    const count =
+        document.getElementById(
+            "orderCount"
+        );
+
+    count.textContent =
+        `${orders.length} ACTIVE`;
+
+    if (orders.length === 0) {
+
+        container.innerHTML = `
+            <div class="empty-orders">
+                NO ACTIVE ORDERS
+            </div>
+        `;
+
+        return;
+    }
+
+    container.innerHTML = "";
+
+    for (const order of orders) {
+
+        const element =
+            document.createElement(
+                "div"
+            );
+
+        element.className =
+            "order";
+
+        if (
+            selectedOrder &&
+            selectedOrder.id ===
+                order.id
+        ) {
+            element.classList.add(
+                "active"
+            );
+        }
+
+        const top =
+            document.createElement(
+                "div"
+            );
+
+        top.className =
+            "order-top";
+
+        const id =
+            document.createElement(
+                "div"
+            );
+
+        id.className =
+            "order-id";
+
+        id.textContent =
+            order.id;
+
+        const status =
+            document.createElement(
+                "div"
+            );
+
+        status.className =
+            "order-status";
+
+        status.textContent =
+            order.status;
+
+        const name =
+            document.createElement(
+                "div"
+            );
+
+        name.className =
+            "order-name";
+
+        name.textContent =
+            order.name;
+
+        const description =
+            document.createElement(
+                "div"
+            );
+
+        description.className =
+            "order-description";
+
+        description.textContent =
+            order.description;
+
+        const meta =
+            document.createElement(
+                "div"
+            );
+
+        meta.className =
+            "order-meta";
+
+        meta.textContent =
+            `${order.type.toUpperCase()}  •  ${order.priority.toUpperCase()}`;
+
+        top.appendChild(id);
+        top.appendChild(status);
+
+        element.appendChild(top);
+        element.appendChild(name);
+        element.appendChild(description);
+        element.appendChild(meta);
+
+        element.addEventListener(
+            "click",
+            () => {
+                selectOrder(order);
+            }
+        );
+
+        container.appendChild(
+            element
+        );
+    }
+}
+
+function selectOrder(order) {
+
+    selectedOrder =
+        order;
+
+    document.getElementById(
+        "orderDetails"
+    ).style.display =
+        "block";
+
+    document.getElementById(
+        "detailId"
+    ).textContent =
+        order.id;
+
+    document.getElementById(
+        "detailType"
+    ).textContent =
+        order.type.toUpperCase();
+
+    document.getElementById(
+        "detailPriority"
+    ).textContent =
+        order.priority.toUpperCase();
+
+    document.getElementById(
+        "selectedOrderStatus"
+    ).textContent =
+        order.status.toUpperCase();
+
+    document.getElementById(
+        "detailDescription"
+    ).textContent =
+        order.description;
+
+    renderOrders();
+}
+
+function createOrder() {
+
+    const name =
+        document.getElementById(
+            "orderName"
+        ).value.trim();
+
+    const type =
+        document.getElementById(
+            "orderType"
+        ).value;
+
+    const priority =
+        document.getElementById(
+            "orderPriority"
+        ).value;
+
+    const description =
+        document.getElementById(
+            "orderDescription"
+        ).value.trim();
+
+    if (!name) {
+
+        showFormMessage(
+            "ORDER NAME IS REQUIRED."
+        );
+
+        return;
+    }
+
+    if (!description) {
+
+        showFormMessage(
+            "ORDER DETAILS ARE REQUIRED."
+        );
+
+        return;
+    }
+
+    const order = {
+
+        id:
+            "ORD-" +
+            Date.now()
+                .toString()
+                .slice(-8),
+
+        name,
+
+        type,
+
+        priority,
+
+        description,
+
+        status:
+            "ACTIVE",
+
+        createdAt:
+            Date.now()
+    };
+
+    orders.unshift(
+        order
+    );
+
+    document.getElementById(
+        "orderName"
+    ).value = "";
+
+    document.getElementById(
+        "orderDescription"
+    ).value = "";
+
+    document.getElementById(
+        "formMessage"
+    ).style.display =
+        "none";
+
+    selectOrder(
+        order
+    );
+}
+
+document
+    .getElementById(
+        "createOrder"
+    )
+    .addEventListener(
+        "click",
+        createOrder
+    );
+
+setSystemStatus(true);
+
+renderOrders();
+
+</script>
+
+</body>
+</html>

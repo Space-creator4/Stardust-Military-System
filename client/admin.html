@@ -1,0 +1,841 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin | Stardust Military System</title>
+
+<style>
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    background: #070b12;
+    color: #e7edf5;
+    min-height: 100vh;
+}
+
+body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    background:
+        linear-gradient(rgba(255,255,255,0.015) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.015) 1px, transparent 1px);
+    background-size: 32px 32px;
+}
+
+.sidebar {
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 230px;
+    height: 100vh;
+    background: #0a0f18;
+    border-right: 1px solid #1d2938;
+    padding: 22px 14px;
+    z-index: 10;
+}
+
+.logo {
+    padding: 4px 12px 25px;
+    border-bottom: 1px solid #1b2634;
+    margin-bottom: 20px;
+}
+
+.logo-main {
+    font-size: 19px;
+    font-weight: 800;
+    letter-spacing: 2px;
+}
+
+.logo-sub {
+    font-size: 10px;
+    color: #65758a;
+    letter-spacing: 2px;
+    margin-top: 5px;
+}
+
+.nav-title {
+    font-size: 9px;
+    color: #4f6075;
+    letter-spacing: 2px;
+    margin: 18px 12px 8px;
+}
+
+.nav a {
+    display: flex;
+    align-items: center;
+    height: 42px;
+    padding: 0 12px;
+    margin-bottom: 4px;
+    border-radius: 5px;
+    color: #8796a8;
+    text-decoration: none;
+    font-size: 13px;
+    transition: 0.15s;
+}
+
+.nav a:hover {
+    background: #111a27;
+    color: #dce6f1;
+}
+
+.nav a.active {
+    background: #172333;
+    color: #fff;
+    border-left: 2px solid #4b8cff;
+}
+
+.main {
+    margin-left: 230px;
+    min-height: 100vh;
+    padding: 25px;
+}
+
+.topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 25px;
+}
+
+.page-title {
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: 1px;
+}
+
+.page-subtitle {
+    color: #68798d;
+    font-size: 12px;
+    margin-top: 5px;
+}
+
+.admin-badge {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: #0d141f;
+    border: 1px solid #202d3d;
+    border-radius: 6px;
+    padding: 9px 13px;
+    font-size: 12px;
+}
+
+.admin-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #42d47d;
+    box-shadow: 0 0 10px rgba(66,212,125,.7);
+}
+
+.status-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+.stat {
+    background: #0c131e;
+    border: 1px solid #1d2938;
+    border-radius: 7px;
+    padding: 18px;
+}
+
+.stat-label {
+    color: #64758a;
+    font-size: 10px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+}
+
+.stat-value {
+    margin-top: 9px;
+    font-size: 25px;
+    font-weight: 700;
+}
+
+.stat-value.online {
+    color: #42d47d;
+}
+
+.stat-value.warning {
+    color: #f0b94d;
+}
+
+.panel {
+    background: #0b121c;
+    border: 1px solid #1d2938;
+    border-radius: 7px;
+    overflow: hidden;
+}
+
+.panel-header {
+    height: 55px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 17px;
+    border-bottom: 1px solid #1d2938;
+}
+
+.panel-title {
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 1px;
+}
+
+.panel-meta {
+    color: #617187;
+    font-size: 11px;
+}
+
+.users {
+    width: 100%;
+}
+
+.user-row {
+    display: grid;
+    grid-template-columns: minmax(180px, 1fr) 130px 100px 230px;
+    align-items: center;
+    min-height: 68px;
+    padding: 8px 17px;
+    border-bottom: 1px solid #151f2c;
+}
+
+.user-row:last-child {
+    border-bottom: none;
+}
+
+.user-row:hover {
+    background: #0e1722;
+}
+
+.user-info {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+}
+
+.avatar {
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    background: #182435;
+    object-fit: cover;
+    border: 1px solid #2a3a4f;
+}
+
+.username {
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.userid {
+    color: #56677b;
+    font-size: 9px;
+    margin-top: 3px;
+}
+
+.user-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: #6f8196;
+    font-size: 11px;
+}
+
+.status-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #42d47d;
+}
+
+.action-group {
+    display: flex;
+    justify-content: flex-end;
+    gap: 6px;
+}
+
+button {
+    border: 1px solid #263548;
+    background: #111b28;
+    color: #aebdcd;
+    padding: 7px 10px;
+    border-radius: 4px;
+    font-size: 10px;
+    cursor: pointer;
+    transition: .15s;
+}
+
+button:hover {
+    background: #182638;
+    color: white;
+}
+
+button.danger {
+    border-color: #55252b;
+    color: #e9828b;
+}
+
+button.danger:hover {
+    background: #3a171c;
+}
+
+button.warning {
+    border-color: #594824;
+    color: #e6c36d;
+}
+
+button.warning:hover {
+    background: #382d17;
+}
+
+button.primary {
+    border-color: #294b78;
+    color: #82b7ff;
+}
+
+button.primary:hover {
+    background: #162c48;
+}
+
+.empty {
+    padding: 45px;
+    text-align: center;
+    color: #536477;
+    font-size: 12px;
+}
+
+.notice {
+    display: none;
+    position: fixed;
+    right: 25px;
+    bottom: 25px;
+    background: #101a27;
+    border: 1px solid #29384b;
+    border-radius: 6px;
+    padding: 13px 16px;
+    font-size: 12px;
+    z-index: 50;
+    box-shadow: 0 10px 30px rgba(0,0,0,.4);
+}
+
+.notice.show {
+    display: block;
+}
+
+.notice.success {
+    border-color: #245c3d;
+}
+
+.notice.error {
+    border-color: #6a2830;
+    color: #ef9299;
+}
+
+@media (max-width: 1000px) {
+    .sidebar {
+        width: 190px;
+    }
+
+    .main {
+        margin-left: 190px;
+    }
+
+    .status-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .user-row {
+        grid-template-columns: 1fr;
+        gap: 10px;
+        padding: 14px 17px;
+    }
+
+    .action-group {
+        justify-content: flex-start;
+    }
+}
+
+@media (max-width: 650px) {
+    .sidebar {
+        position: relative;
+        width: 100%;
+        height: auto;
+        border-right: none;
+        border-bottom: 1px solid #1d2938;
+    }
+
+    .main {
+        margin-left: 0;
+    }
+
+    .status-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<aside class="sidebar">
+
+    <div class="logo">
+        <div class="logo-main">STARDUST</div>
+        <div class="logo-sub">MILITARY SYSTEM</div>
+    </div>
+
+    <div class="nav-title">COMMAND</div>
+
+    <nav class="nav">
+        <a href="/index.html">COMMAND</a>
+        <a href="/map.html">WORLD</a>
+        <a href="/force.html">FORCES</a>
+        <a href="/orders.html">ORDERS</a>
+        <a href="/chat.html">CHAT</a>
+    </nav>
+
+    <div class="nav-title">SYSTEM</div>
+
+    <nav class="nav">
+        <a href="/settings.html">SETTINGS</a>
+        <a href="/admin.html" class="active">ADMIN</a>
+        <a href="/auth/logout">LOGOUT</a>
+    </nav>
+
+</aside>
+
+<main class="main">
+
+    <header class="topbar">
+
+        <div>
+            <div class="page-title">ADMINISTRATION</div>
+            <div class="page-subtitle">
+                STARDUST SYSTEM CONTROL // RESTRICTED ACCESS
+            </div>
+        </div>
+
+        <div class="admin-badge">
+            <span class="admin-dot"></span>
+            <span id="adminName">ADMINISTRATOR</span>
+        </div>
+
+    </header>
+
+    <section class="status-grid">
+
+        <div class="stat">
+            <div class="stat-label">Server</div>
+            <div class="stat-value online" id="serverStatus">
+                ONLINE
+            </div>
+        </div>
+
+        <div class="stat">
+            <div class="stat-label">Online Personnel</div>
+            <div class="stat-value" id="onlineCount">
+                0
+            </div>
+        </div>
+
+        <div class="stat">
+            <div class="stat-label">Muted</div>
+            <div class="stat-value warning" id="mutedCount">
+                0
+            </div>
+        </div>
+
+        <div class="stat">
+            <div class="stat-label">Banned</div>
+            <div class="stat-value warning" id="bannedCount">
+                0
+            </div>
+        </div>
+
+    </section>
+
+    <section class="panel">
+
+        <div class="panel-header">
+            <div class="panel-title">
+                CONNECTED PERSONNEL
+            </div>
+
+            <div class="panel-meta" id="lastUpdate">
+                UPDATING...
+            </div>
+        </div>
+
+        <div class="users" id="users">
+            <div class="empty">
+                Loading personnel...
+            </div>
+        </div>
+
+    </section>
+
+</main>
+
+<div class="notice" id="notice"></div>
+
+<script>
+
+const usersContainer = document.getElementById("users");
+const onlineCount = document.getElementById("onlineCount");
+const mutedCount = document.getElementById("mutedCount");
+const bannedCount = document.getElementById("bannedCount");
+const serverStatus = document.getElementById("serverStatus");
+const adminName = document.getElementById("adminName");
+const lastUpdate = document.getElementById("lastUpdate");
+const notice = document.getElementById("notice");
+
+function showNotice(message, type = "success") {
+    notice.textContent = message;
+    notice.className = "notice show " + type;
+
+    setTimeout(() => {
+        notice.className = "notice";
+    }, 3000);
+}
+
+async function api(url, options = {}) {
+
+    const response = await fetch(url, {
+        credentials: "same-origin",
+        ...options,
+        headers: {
+            "Content-Type": "application/json",
+            ...(options.headers || {})
+        }
+    });
+
+    let data = {};
+
+    try {
+        data = await response.json();
+    } catch {}
+
+    if (!response.ok) {
+        throw new Error(data.error || "Request failed");
+    }
+
+    return data;
+}
+
+async function loadCurrentUser() {
+
+    try {
+
+        const data = await api("/api/me");
+
+        if (!data.user) {
+            window.location.href = "/login.html";
+            return false;
+        }
+
+        if (!data.user.isAdmin) {
+            window.location.href = "/index.html";
+            return false;
+        }
+
+        adminName.textContent =
+            data.user.global_name ||
+            data.user.username ||
+            "ADMINISTRATOR";
+
+        return true;
+
+    } catch {
+
+        window.location.href = "/login.html";
+        return false;
+    }
+}
+
+async function loadStatus() {
+
+    try {
+
+        const data = await api("/api/admin/status");
+
+        serverStatus.textContent = "ONLINE";
+        serverStatus.className = "stat-value online";
+
+        const users =
+            data.online ||
+            data.users ||
+            [];
+
+        onlineCount.textContent = users.length;
+
+        mutedCount.textContent =
+            data.mutedCount ??
+            data.muted?.length ??
+            0;
+
+        bannedCount.textContent =
+            data.bannedCount ??
+            data.banned?.length ??
+            0;
+
+        renderUsers(users);
+
+        lastUpdate.textContent =
+            "UPDATED " +
+            new Date().toLocaleTimeString([], {
+                hour: "2-digit",
+                minute: "2-digit",
+                second: "2-digit"
+            });
+
+    } catch (error) {
+
+        serverStatus.textContent = "OFFLINE";
+        serverStatus.className = "stat-value warning";
+
+        showNotice(error.message, "error");
+    }
+}
+
+function renderUsers(users) {
+
+    if (!users.length) {
+
+        usersContainer.innerHTML =
+            '<div class="empty">NO PERSONNEL CURRENTLY CONNECTED</div>';
+
+        return;
+    }
+
+    usersContainer.innerHTML = "";
+
+    users.forEach(user => {
+
+        const row = document.createElement("div");
+
+        row.className = "user-row";
+
+        const avatar = user.avatar
+            ? `https://cdn.discordapp.com/avatars/${encodeURIComponent(user.id)}/${encodeURIComponent(user.avatar)}.png?size=64`
+            : "";
+
+        const displayName =
+            user.global_name ||
+            user.username ||
+            "UNKNOWN";
+
+        const userId =
+            user.id ||
+            "UNKNOWN";
+
+        row.innerHTML = `
+
+            <div class="user-info">
+
+                ${
+                    avatar
+                    ? `<img class="avatar" src="${avatar}" alt="">`
+                    : `<div class="avatar"></div>`
+                }
+
+                <div>
+
+                    <div class="username">
+                        ${escapeHtml(displayName)}
+                    </div>
+
+                    <div class="userid">
+                        ${escapeHtml(userId)}
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div>
+
+                <span class="user-status">
+
+                    <span class="status-dot"></span>
+
+                    CONNECTED
+
+                </span>
+
+            </div>
+
+            <div>
+
+                <span class="user-status">
+
+                    ${escapeHtml(user.country || "NO COUNTRY")}
+
+                </span>
+
+            </div>
+
+            <div class="action-group">
+
+                <button
+                    class="primary"
+                    onclick="kickUser('${escapeJs(userId)}')"
+                >
+                    KICK
+                </button>
+
+                <button
+                    class="warning"
+                    onclick="muteUser('${escapeJs(userId)}')"
+                >
+                    MUTE
+                </button>
+
+                <button
+                    class="danger"
+                    onclick="banUser('${escapeJs(userId)}')"
+                >
+                    BAN
+                </button>
+
+            </div>
+        `;
+
+        usersContainer.appendChild(row);
+    });
+}
+
+async function kickUser(id) {
+
+    if (!confirm("Kick this user from Stardust?")) {
+        return;
+    }
+
+    try {
+
+        await api("/api/admin/kick", {
+            method: "POST",
+            body: JSON.stringify({
+                userId: id
+            })
+        });
+
+        showNotice("USER KICKED");
+
+        await loadStatus();
+
+    } catch (error) {
+
+        showNotice(error.message, "error");
+    }
+}
+
+async function muteUser(id) {
+
+    if (!confirm("Mute this user?")) {
+        return;
+    }
+
+    try {
+
+        await api("/api/admin/mute", {
+            method: "POST",
+            body: JSON.stringify({
+                userId: id
+            })
+        });
+
+        showNotice("USER MUTED");
+
+        await loadStatus();
+
+    } catch (error) {
+
+        showNotice(error.message, "error");
+    }
+}
+
+async function banUser(id) {
+
+    if (!confirm("BAN this user? This will prevent them from connecting.")) {
+        return;
+    }
+
+    try {
+
+        await api("/api/admin/ban", {
+            method: "POST",
+            body: JSON.stringify({
+                userId: id
+            })
+        });
+
+        showNotice("USER BANNED");
+
+        await loadStatus();
+
+    } catch (error) {
+
+        showNotice(error.message, "error");
+    }
+}
+
+function escapeHtml(value) {
+
+    return String(value)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+}
+
+function escapeJs(value) {
+
+    return String(value)
+        .replaceAll("\\", "\\\\")
+        .replaceAll("'", "\\'");
+}
+
+async function initialise() {
+
+    const authorized = await loadCurrentUser();
+
+    if (!authorized) {
+        return;
+    }
+
+    await loadStatus();
+}
+
+initialise();
+
+setInterval(async () => {
+
+    const data = await api("/api/me").catch(() => null);
+
+    if (!data || !data.user || !data.user.isAdmin) {
+        window.location.href = "/login.html";
+        return;
+    }
+
+    loadStatus();
+
+}, 5000);
+
+</script>
+<stylescript src="/style.css"></stylescript>
+
+</body>
+</html>

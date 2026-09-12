@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stardust | Forces</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="force.css">
+</head>
+
+<body>
+
+<div id="app">
+
+    <header>
+        <div class="brand">
+            <div class="logo">✦</div>
+            <div>
+                <h1>STARDUST</h1>
+                <span>MILITARY SYSTEM</span>
+            </div>
+        </div>
+
+        <div class="system-status">
+            <span class="status-dot"></span>
+            <span id="systemStatusText">SYSTEM ONLINE</span>
+        </div>
+    </header>
+
+    <main>
+
+        <aside class="sidebar">
+
+            <div class="sidebar-section">
+
+                <div class="sidebar-label">
+                    COMMAND
+                </div>
+
+                <a href="/" class="nav">
+                    <span class="nav-icon">◉</span>
+                    <span>COMMAND</span>
+                </a>
+
+                <a href="/map.html" class="nav">
+                    <span class="nav-icon">◎</span>
+                    <span>MAP</span>
+                </a>
+
+                <a href="/force.html" class="nav active">
+                    <span class="nav-icon">⚔</span>
+                    <span>FORCES</span>
+                </a>
+
+                <a href="/order.html" class="nav">
+                    <span class="nav-icon">▤</span>
+                    <span>ORDERS</span>
+                </a>
+
+                <a href="/chat.html" class="nav">
+                    <span class="nav-icon">◌</span>
+                    <span>CHAT</span>
+                </a>
+
+            </div>
+
+            <div class="sidebar-bottom">
+
+                <a href="/settings.html" class="nav">
+                    <span class="nav-icon">⚙</span>
+                    <span>SETTINGS</span>
+                </a>
+
+                <a href="/admin.html" class="nav admin">
+                    <span class="nav-icon">◆</span>
+                    <span>ADMIN CONSOLE</span>
+                </a>
+
+                <a href="/auth/logout" class="nav logout">
+                    <span class="nav-icon">←</span>
+                    <span>LOGOUT</span>
+                </a>
+
+            </div>
+
+        </aside>
+
+        <section class="content">
+
+            <div class="welcome">
+
+                <div>
+                    <p class="eyebrow">
+                        FORCE MANAGEMENT
+                    </p>
+
+                    <h2>FORCES</h2>
+
+                    <p>
+                        Monitor and command your active forces.
+                    </p>
+                </div>
+
+                <div class="clock" id="clock">
+                    00:00:00
+                </div>
+
+            </div>
+
+            <div class="force-dashboard">
+
+                <section class="panel">
+
+                    <div class="panel-header">
+                        GROUND FORCES
+
+                        <span class="panel-indicator">
+                            <span id="groundCount">0</span> ACTIVE
+                        </span>
+                    </div>
+
+                    <div class="force-list">
+
+                        <button class="force-item" data-force="infantry">
+
+                            <div class="force-symbol">
+                                ⚔
+                            </div>
+
+                            <div class="force-information">
+                                <strong>INFANTRY</strong>
+                                <span>
+                                    Infantry formations and personnel
+                                </span>
+                            </div>
+
+                            <div class="force-number">
+                                <span id="infantryCount">0</span>
+                                <small>UNITS</small>
+                            </div>
+
+                        </button>
+
+                        <button class="force-item" data-force="armour">
+
+                            <div class="force-symbol">
+                                ▣
+                            </div>
+
+                            <div class="force-information">
+                                <strong>ARMOUR</strong>
+                                <span>
+                                    Armoured ground formations
+                                </span>
+                            </div>
+
+                            <div class="force-number">
+                                <span id="armourCount">0</span>
+                                <small>UNITS</small>
+                            </div>
+
+                        </button>
+
+                        <button class="force-item" data-force="mechanized">
+
+                            <div class="force-symbol">
+                                ◆
+                            </div>
+
+                            <div class="force-information">
+                                <strong>MECHANIZED</strong>
+                                <span>
+                                    Mechanized formations
+                                </span>
+                            </div>
+
+                            <div class="force-number">
+                                <span id="mechanizedCount">0</span>
+                                <small>UNITS</small>
+                            </div>
+
+                        </button>
+
+                        <button class="force-item" data-force="recon">
+
+                            <div class="force-symbol">
+                                ◎
+                            </div>
+
+                            <div class="force-information">
+                                <strong>RECONNAISSANCE</strong>
+                                <span>
+                                    Reconnaissance formations
+                                </span>
+                            </div>
+
+                            <div class="force-number">
+                                <span id="reconCount">0</span>
+                                <small>UNITS</small>
+                            </div>
+
+                        </button>
+
+                        <button class="force-item" data-force="artillery">
+
+                            <div class="force-symbol">
+                                ▰
+                            </div>
+
+                            <div class="force-information">
+                                <strong>ARTILLERY</strong>
+                                <span>
+                                    Simulated fire-support units
+                                </span>
+                            </div>
+
+                            <div class="force-number">
+                                <span id="artilleryCount">0</span>
+                                <small>UNITS</small>
+                            </div>
+
+                        </button>
+
+                        <button class="force-item" data-force="logistics">
+
+                            <div class="force-symbol">
+                                +
+                            </div>
+
+                            <div class="force-information">
+                                <strong>LOGISTICS</strong>
+                                <span>
+                                    Supply and support formations
+                                </span>
+                            </div>
+
+                            <div class="force-number">
+                                <span id="logisticsCount">0</span>
+                                <small>UNITS</small>
+                            </div>
+
+                        </button>
+
+                    </div>
+
+                </section>
+
+                <section class="panel">
+
+                    <div class="panel-header">
+                        FORCE STATUS
+
+                        <span class="panel-indicator">
+                            LIVE
+                        </span>
+                    </div>
+
+                    <div class="force-stats">
+
+                        <div class="info-card">
+                            <span>TOTAL UNITS</span>
+                            <strong id="totalUnits">0</strong>
+                        </div>
+
+                        <div class="info-card">
+                            <span>PERSONNEL</span>
+                            <strong id="totalPersonnel">0</strong>
+                        </div>
+
+                        <div class="info-card">
+                            <span>MOVING UNITS</span>
+                            <strong id="movingUnits">0</strong>
+                        </div>
+
+                        <div class="info-card">
+                            <span>OPERATIONAL</span>
+                            <strong class="green" id="operationalUnits">
+                                0
+                            </strong>
+                        </div>
+
+                    </div>
+
+                </section>
+
+                <section class="panel">
+
+                    <div class="panel-header">
+                        STRATEGIC ASSETS
+
+                        <span class="panel-indicator">
+                            SIMULATION
+                        </span>
+                    </div>
+
+                    <div class="strategic-list">
+
+                        <button
+                            class="strategic-item"
+                            id="missileButton"
+                        >
+                            <div class="strategic-symbol">
+                                ▲
+                            </div>
+
+                            <div>
+                                <strong>MISSILE SYSTEMS</strong>
+                                <span>
+                                    Fictional simulated strike assets
+                                </span>
+                            </div>
+
+                            <b id="missileCount">0</b>
+                        </button>
+
+                        <button
+                            class="strategic-item"
+                            id="satelliteButton"
+                        >
+                            <div class="strategic-symbol">
+                                ◈
+                            </div>
+
+                            <div>
+                                <strong>RECON SATELLITES</strong>
+                                <span>
+                                    Orbital reconnaissance assets
+                                </span>
+                            </div>
+
+                            <b id="satelliteCount">0</b>
+                        </button>
+
+                    </div>
+
+                </section>
+
+                <section class="panel">
+
+                    <div class="panel-header">
+                        QUICK COMMAND
+                    </div>
+
+                    <div class="quick-command">
+
+                        <button
+                            class="command-button primary"
+                            id="createUnitButton"
+                        >
+                            <span>+</span>
+                            CREATE GROUND UNIT
+                        </button>
+
+                        <button
+                            class="command-button"
+                            id="liveMapButton"
+                        >
+                            <span>◎</span>
+                            OPEN LIVE MAP
+                        </button>
+
+                        <button
+                            class="command-button"
+                            id="ordersButton"
+                        >
+                            <span>▤</span>
+                            VIEW ORDERS
+                        </button>
+
+                    </div>
+
+                </section>
+
+            </div>
+
+        </section>
+
+    </main>
+
+</div>
+
+<script src="/force.js"></script>
+<script src="/security.js"></script>
+
+</body>
+</html>

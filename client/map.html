@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Stardust | Map</title>
+
+    <link rel="stylesheet" href="style.css">
+
+    <link
+        rel="stylesheet"
+        href="https://cesium.com/downloads/cesiumjs/releases/1.145/Build/Cesium/Widgets/widgets.css"
+    >
+
+    <script>
+        window.CESIUM_BASE_URL =
+            "https://cesium.com/downloads/cesiumjs/releases/1.145/Build/Cesium/";
+    </script>
+
+    <script
+        src="https://cesium.com/downloads/cesiumjs/releases/1.145/Build/Cesium/Cesium.js">
+    </script>
+
+    <style>
+        .map-page {
+            width: 100%;
+            height: 100%;
+            padding: 28px;
+            background: #05070a;
+        }
+
+        .map-header {
+            height: 70px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #1c252d;
+        }
+
+        .map-title {
+            font-size: 24px;
+            font-weight: 600;
+            letter-spacing: 5px;
+        }
+
+        .map-subtitle {
+            margin-top: 6px;
+            color: #697781;
+            font-size: 9px;
+            letter-spacing: 3px;
+        }
+
+        .map-status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #697781;
+            font-size: 8px;
+            font-weight: 600;
+            letter-spacing: 1.5px;
+        }
+
+        .map-status .status-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: #62d18b;
+            box-shadow: 0 0 9px rgba(98, 209, 139, 0.45);
+        }
+
+        .map-container {
+            position: relative;
+            width: 100%;
+            height: calc(100vh - 126px);
+            margin-top: 20px;
+            overflow: hidden;
+            border: 1px solid #1c252d;
+            background: #020407;
+        }
+
+        #mapGlobe {
+            width: 100%;
+            height: 100%;
+        }
+
+        .map-overlay {
+            position: absolute;
+            top: 16px;
+            left: 16px;
+            z-index: 10;
+            width: 220px;
+            border: 1px solid #1c252d;
+            background: rgba(8, 11, 15, 0.94);
+            backdrop-filter: blur(8px);
+        }
+
+        .overlay-title {
+            padding: 13px 15px;
+            border-bottom: 1px solid #1c252d;
+            color: #aeb8bf;
+            font-size: 8px;
+            font-weight: 600;
+            letter-spacing: 2px;
+        }
+
+        .map-control {
+            width: 100%;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            padding: 0 15px;
+            border: 0;
+            border-bottom: 1px solid #151d23;
+            background: transparent;
+            color: #697781;
+            font-family: inherit;
+            font-size: 8px;
+            font-weight: 600;
+            letter-spacing: 1px;
+            text-align: left;
+            cursor: pointer;
+        }
+
+        .map-control:last-child {
+            border-bottom: 0;
+        }
+
+        .map-control:hover {
+            background: #0d1217;
+            color: #ffffff;
+        }
+
+        .map-control.active {
+            color: #ffffff;
+        }
+
+        .map-control:disabled {
+            opacity: 0.45;
+            cursor: not-allowed;
+        }
+
+        .map-info {
+            position: absolute;
+            right: 16px;
+            bottom: 16px;
+            z-index: 10;
+            width: 230px;
+            border: 1px solid #1c252d;
+            background: rgba(8, 11, 15, 0.94);
+            backdrop-filter: blur(8px);
+        }
+
+        .map-info-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 11px 15px;
+            border-bottom: 1px solid #151d23;
+        }
+
+        .map-info-row:last-child {
+            border-bottom: 0;
+        }
+
+        .map-info-row span:first-child {
+            color: #56636e;
+            font-size: 7px;
+            letter-spacing: 1.5px;
+        }
+
+        .map-info-row span:last-child {
+            color: #aeb8bf;
+            font-family: "Courier New", monospace;
+            font-size: 8px;
+        }
+
+        .cesium-viewer-bottom {
+            left: 8px !important;
+            bottom: 4px !important;
+        }
+
+        .cesium-widget-credits {
+            font-size: 9px;
+        }
+
+        @media (max-width: 700px) {
+            .map-page {
+                padding: 15px;
+            }
+
+            .map-header {
+                align-items: flex-start;
+                flex-direction: column;
+                gap: 12px;
+            }
+
+            .map-container {
+                height: calc(100vh - 160px);
+            }
+
+            .map-overlay {
+                width: 180px;
+            }
+
+            .map-info {
+                display: none;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<div id="app">
+
+    <header>
+
+        <div class="brand">
+
+            <div class="logo">
+                ✦
+            </div>
+
+            <div>
+                <h1>STARDUST</h1>
+                <span>MILITARY SYSTEM</span>
+            </div>
+
+        </div>
+
+        <div class="system-status" id="systemStatus">
+
+            <span class="status-dot"></span>
+
+            <span id="systemStatusText">
+                CONNECTING...
+            </span>
+
+        </div>
+
+    </header>
+
+    <main>
+
+        <aside class="sidebar">
+
+            <div class="sidebar-section">
+
+                <div class="sidebar-label">
+                    COMMAND
+                </div>
+
+                <a href="/" class="nav">
+                    <span class="nav-icon">◉</span>
+                    <span>COMMAND</span>
+                </a>
+
+                <a href="/map.html" class="nav active">
+                    <span class="nav-icon">◎</span>
+                    <span>MAP</span>
+                </a>
+
+                <a href="/force.html" class="nav">
+                    <span class="nav-icon">⚔</span>
+                    <span>FORCES</span>
+                </a>
+
+                <a href="/order.html" class="nav">
+                    <span class="nav-icon">▤</span>
+                    <span>ORDERS</span>
+                </a>
+
+                <a href="/chat.html" class="nav">
+                    <span class="nav-icon">◌</span>
+                    <span>CHAT</span>
+                </a>
+
+            </div>
+
+            <div class="sidebar-bottom">
+
+                <a href="/settings.html" class="nav">
+                    <span class="nav-icon">⚙</span>
+                    <span>SETTINGS</span>
+                </a>
+
+                <a href="/admin.html" class="nav admin">
+                    <span class="nav-icon">◆</span>
+                    <span>ADMIN CONSOLE</span>
+                </a>
+
+                <a href="/auth/logout" class="nav logout">
+                    <span class="nav-icon">←</span>
+                    <span>LOGOUT</span>
+                </a>
+
+            </div>
+
+        </aside>
+
+        <section class="content">
+
+            <div class="map-page">
+
+                <div class="map-header">
+
+                    <div>
+                        <div class="map-title">
+                            MAP
+                        </div>
+
+                        <div class="map-subtitle">
+                            GLOBAL OPERATIONS MAP
+                        </div>
+                    </div>
+
+                    <div class="map-status">
+
+                        <span class="status-dot"></span>
+
+                        <span id="mapStatusText">
+                            INITIALIZING MAP
+                        </span>
+
+                    </div>
+
+                </div>
+
+                <div class="map-container">
+
+                    <div id="mapGlobe"></div>
+
+                    <div class="map-overlay">
+
+                        <div class="overlay-title">
+                            MAP CONTROLS
+                        </div>
+
+                        <button
+                            class="map-control"
+                            id="homeMap">
+                            RESET VIEW
+                        </button>
+
+                        <button
+                            class="map-control"
+                            id="zoomIn">
+                            ZOOM IN
+                        </button>
+
+                        <button
+                            class="map-control"
+                            id="zoomOut">
+                            ZOOM OUT
+                        </button>
+
+                        <button
+                            class="map-control active"
+                            id="toggleBorders">
+                            COUNTRY BORDERS: ON
+                        </button>
+
+                        <button
+                            class="map-control active"
+                            id="buildingsToggle">
+                            3D BUILDINGS: LOADING
+                        </button>
+
+                    </div>
+
+                    <div class="map-info">
+
+                        <div class="map-info-row">
+                            <span>CURSOR LATITUDE</span>
+                            <span id="latitude">--</span>
+                        </div>
+
+                        <div class="map-info-row">
+                            <span>CURSOR LONGITUDE</span>
+                            <span id="longitude">--</span>
+                        </div>
+
+                        <div class="map-info-row">
+                            <span>ACTIVE MARKERS</span>
+                            <span>0</span>
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+    </main>
+
+</div>
+<script src="/renderer.js"></script>
+<script src="/security.js"></script>
+
+</body>
+</html>

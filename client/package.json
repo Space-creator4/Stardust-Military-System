@@ -1,0 +1,50 @@
+{
+  "name": "stardust-military-system",
+  "version": "1.0.0",
+  "description": "Stardust Military System",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "dist": "electron-builder --win --publish never",
+    "dist:portable": "electron-builder --win portable --publish never"
+  },
+  "build": {
+    "appId": "uk.co.stardust.militarysystem",
+    "productName": "Stardust Military System",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "main.js",
+      "*.html",
+      "*.css",
+      "renderer.js",
+      "script.js",
+      "security.js",
+      "force.js",
+      "login.js",
+      "assets/**/*"
+    ],
+    "win": {
+      "target": [
+        "nsis",
+        "portable",
+        "zip"
+      ]
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true
+    }
+  },
+  "devDependencies": {
+    "electron": "latest",
+    "electron-builder": "^26.15.3"
+  },
+  "dependencies": {
+    "cesium": "^1.145.0",
+    "express": "^5.2.1",
+    "globe.gl": "^2.46.2",
+    "three": "^0.186.0"
+  }
+}

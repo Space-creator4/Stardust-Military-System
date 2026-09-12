@@ -1,0 +1,239 @@
+.force-dashboard {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(300px, 420px);
+    gap: 16px;
+}
+
+.force-dashboard > .panel:first-child {
+    grid-row: span 2;
+}
+
+.force-dashboard > .panel {
+    min-width: 0;
+}
+
+.force-list {
+    display: flex;
+    flex-direction: column;
+}
+
+.force-item {
+    width: 100%;
+    display: grid;
+    grid-template-columns: 48px 1fr 80px;
+    align-items: center;
+    gap: 14px;
+    padding: 15px 16px;
+    border: 0;
+    border-bottom: 1px solid #151b20;
+    background: transparent;
+    color: inherit;
+    text-align: left;
+    cursor: pointer;
+    transition: background 0.15s ease;
+}
+
+.force-item:hover {
+    background: #0d1216;
+}
+
+.force-item:active {
+    background: #11171c;
+}
+
+.force-symbol {
+    width: 38px;
+    height: 38px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid #303a42;
+    border-radius: 4px;
+    color: #cbd3d8;
+    font-size: 16px;
+}
+
+.force-information {
+    min-width: 0;
+}
+
+.force-information strong {
+    display: block;
+    color: #dce2e6;
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 0.8px;
+}
+
+.force-information span {
+    display: block;
+    margin-top: 5px;
+    color: #66727a;
+    font-size: 10px;
+}
+
+.force-number {
+    text-align: right;
+}
+
+.force-number span {
+    display: block;
+    color: #dce2e6;
+    font-size: 18px;
+    font-weight: 800;
+}
+
+.force-number small {
+    display: block;
+    margin-top: 3px;
+    color: #59646c;
+    font-size: 8px;
+    font-weight: 800;
+    letter-spacing: 1px;
+}
+
+.force-stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1px;
+    background: #1d252b;
+}
+
+.force-stats .info-card {
+    min-height: 85px;
+    border: 0;
+    border-radius: 0;
+    background: #080c10;
+}
+
+.strategic-list {
+    display: flex;
+    flex-direction: column;
+}
+
+.strategic-item {
+    width: 100%;
+    display: grid;
+    grid-template-columns: 42px 1fr 40px;
+    align-items: center;
+    gap: 13px;
+    padding: 15px 16px;
+    border: 0;
+    border-bottom: 1px solid #151b20;
+    background: transparent;
+    color: inherit;
+    text-align: left;
+    cursor: pointer;
+}
+
+.strategic-item:hover {
+    background: #0d1216;
+}
+
+.strategic-symbol {
+    width: 34px;
+    height: 34px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid #303a42;
+    border-radius: 4px;
+    color: #cbd3d8;
+    font-size: 14px;
+}
+
+.strategic-item strong {
+    display: block;
+    color: #dce2e6;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.7px;
+}
+
+.strategic-item span {
+    display: block;
+    margin-top: 5px;
+    color: #66727a;
+    font-size: 9px;
+}
+
+.strategic-item b {
+    color: #dce2e6;
+    font-size: 17px;
+    text-align: right;
+}
+
+.quick-command {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    padding: 14px;
+}
+
+.command-button {
+    min-height: 55px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 9px;
+    padding: 10px 14px;
+    border: 1px solid #29333a;
+    border-radius: 4px;
+    background: #0a0e12;
+    color: #cbd3d8;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.7px;
+    cursor: pointer;
+}
+
+.command-button:hover {
+    background: #10161b;
+    border-color: #46525b;
+}
+
+.command-button.primary {
+    border-color: #3d5547;
+}
+
+.command-button span {
+    font-size: 15px;
+    color: #8d989f;
+}
+
+@media (max-width: 1200px) {
+    .force-dashboard {
+        grid-template-columns: 1fr;
+    }
+
+    .force-dashboard > .panel:first-child {
+        grid-row: auto;
+    }
+
+    .quick-command {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
+@media (max-width: 700px) {
+    .force-item {
+        grid-template-columns: 42px 1fr 55px;
+        padding: 13px;
+    }
+
+    .force-information span {
+        display: none;
+    }
+
+    .force-stats {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .quick-command {
+        grid-template-columns: 1fr;
+    }
+
+    .strategic-item {
+        grid-template-columns: 38px 1fr 35px;
+    }
+}
