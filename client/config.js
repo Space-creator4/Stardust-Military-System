@@ -26,9 +26,11 @@
                 ? "wss:"
                 : "ws:";
 
-        var host = new URL(
-            window.stardustApi("/")
-        ).host;
+        var api = window.stardustApi("/");
+
+        var host = /^https?:\/\//i.test(api)
+            ? new URL(api).host
+            : window.location.host;
 
         return protocol + "//" + host;
 
