@@ -14,9 +14,10 @@
 
 body {
     font-family: Arial, Helvetica, sans-serif;
-    background: #070b12;
+    background: #060a11;
     color: #e7edf5;
     min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
 }
 
 body::before {
@@ -25,59 +26,91 @@ body::before {
     inset: 0;
     pointer-events: none;
     background:
-        linear-gradient(rgba(255,255,255,0.015) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(255,255,255,0.015) 1px, transparent 1px);
-    background-size: 32px 32px;
+        linear-gradient(rgba(255,255,255,0.014) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.014) 1px, transparent 1px);
+    background-size: 34px 34px;
+}
+
+::-webkit-scrollbar {
+    width: 6px;
+}
+
+::-webkit-scrollbar-track {
+    background: #060a11;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #1d2938;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #2b3b50;
 }
 
 .sidebar {
     position: fixed;
     left: 0;
     top: 0;
-    width: 230px;
+    width: 232px;
     height: 100vh;
     background: #0a0f18;
-    border-right: 1px solid #1d2938;
+    border-right: 1px solid #1b2634;
     padding: 22px 14px;
     z-index: 10;
+    overflow-y: auto;
 }
 
 .logo {
-    padding: 4px 12px 25px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 2px 10px 22px;
     border-bottom: 1px solid #1b2634;
     margin-bottom: 20px;
 }
 
+.logo-mark {
+    width: 34px;
+    height: 34px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid #2a3a4f;
+    border-radius: 5px;
+    color: #4b8cff;
+    font-size: 15px;
+}
+
 .logo-main {
-    font-size: 19px;
+    font-size: 17px;
     font-weight: 800;
     letter-spacing: 2px;
 }
 
 .logo-sub {
-    font-size: 10px;
-    color: #65758a;
+    font-size: 9px;
+    color: #5b6c81;
     letter-spacing: 2px;
-    margin-top: 5px;
+    margin-top: 4px;
 }
 
 .nav-title {
     font-size: 9px;
     color: #4f6075;
     letter-spacing: 2px;
-    margin: 18px 12px 8px;
+    margin: 16px 12px 8px;
 }
 
 .nav a {
     display: flex;
     align-items: center;
-    height: 42px;
+    height: 40px;
     padding: 0 12px;
-    margin-bottom: 4px;
+    margin-bottom: 3px;
     border-radius: 5px;
     color: #8796a8;
     text-decoration: none;
-    font-size: 13px;
+    font-size: 12px;
     transition: 0.15s;
 }
 
@@ -87,34 +120,59 @@ body::before {
 }
 
 .nav a.active {
-    background: #172333;
+    background: #16273c;
     color: #fff;
-    border-left: 2px solid #4b8cff;
+    box-shadow: inset 2px 0 0 #4b8cff;
+}
+
+.nav a.logout:hover {
+    color: #e9828b;
+    background: #1a1013;
 }
 
 .main {
-    margin-left: 230px;
+    margin-left: 232px;
     min-height: 100vh;
-    padding: 25px;
+    padding: 26px 28px 40px;
 }
 
 .topbar {
     display: flex;
-    align-items: center;
+    align-items: flex-end;
     justify-content: space-between;
-    margin-bottom: 25px;
+    gap: 20px;
+    margin-bottom: 24px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #16202e;
 }
 
 .page-title {
     font-size: 22px;
     font-weight: 700;
-    letter-spacing: 1px;
+    letter-spacing: 2px;
 }
 
 .page-subtitle {
     color: #68798d;
-    font-size: 12px;
-    margin-top: 5px;
+    font-size: 11px;
+    margin-top: 6px;
+    letter-spacing: 0.5px;
+}
+
+.topbar-right {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.system-nominal {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    color: #42d47d;
+    font-size: 10px;
+    letter-spacing: 1.5px;
+    font-weight: 600;
 }
 
 .admin-badge {
@@ -134,33 +192,78 @@ body::before {
     border-radius: 50%;
     background: #42d47d;
     box-shadow: 0 0 10px rgba(66,212,125,.7);
+    animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+    0%, 100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.4;
+    }
 }
 
 .status-grid {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
     gap: 12px;
-    margin-bottom: 20px;
+    margin-bottom: 16px;
 }
 
 .stat {
+    position: relative;
+    overflow: hidden;
     background: #0c131e;
     border: 1px solid #1d2938;
     border-radius: 7px;
-    padding: 18px;
+    padding: 16px 16px 15px;
+}
+
+.stat::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: #2b3b50;
+}
+
+.stat.stat-green::before {
+    background: #42d47d;
+}
+
+.stat.stat-blue::before {
+    background: #4b8cff;
+}
+
+.stat.stat-amber::before {
+    background: #f0b94d;
+}
+
+.stat.stat-red::before {
+    background: #e9828b;
+}
+
+.stat.stat-cyan::before {
+    background: #38c6d0;
 }
 
 .stat-label {
     color: #64758a;
-    font-size: 10px;
-    letter-spacing: 1.5px;
+    font-size: 9px;
+    letter-spacing: 1.8px;
     text-transform: uppercase;
 }
 
 .stat-value {
-    margin-top: 9px;
-    font-size: 25px;
+    margin-top: 10px;
+    font-family: "Courier New", monospace;
+    font-size: 24px;
     font-weight: 700;
+    letter-spacing: 0.5px;
 }
 
 .stat-value.online {
@@ -171,31 +274,81 @@ body::before {
     color: #f0b94d;
 }
 
+.stat-value.danger {
+    color: #e9828b;
+}
+
+.stat-value.version {
+    font-size: 18px;
+    color: #8fb7e8;
+}
+
+.stat-meta {
+    margin-top: 9px;
+    color: #4f6075;
+    font-size: 9px;
+    letter-spacing: 0.6px;
+}
+
 .panel {
     background: #0b121c;
     border: 1px solid #1d2938;
     border-radius: 7px;
     overflow: hidden;
+    margin-bottom: 16px;
 }
 
 .panel-header {
-    height: 55px;
+    min-height: 54px;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 0 17px;
+    gap: 12px;
+    padding: 0 18px;
     border-bottom: 1px solid #1d2938;
 }
 
 .panel-title {
-    font-size: 13px;
+    font-size: 12px;
     font-weight: 700;
-    letter-spacing: 1px;
+    letter-spacing: 1.5px;
 }
 
 .panel-meta {
     color: #617187;
+    font-size: 10px;
+    letter-spacing: 0.5px;
+}
+
+.deploy-body {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 18px;
+    padding: 18px;
+    flex-wrap: wrap;
+}
+
+.deploy-info {
+    min-width: 0;
+}
+
+.deploy-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    color: #8fb7e8;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+}
+
+.deploy-hint {
+    color: #5b6c81;
     font-size: 11px;
+    margin-top: 7px;
+    line-height: 1.5;
+    max-width: 520px;
 }
 
 .users {
@@ -208,11 +361,13 @@ body::before {
 
 .user-row {
     display: grid;
-    grid-template-columns: minmax(180px, 1fr) 130px 100px 230px;
+    grid-template-columns: minmax(200px, 1fr) 130px 150px 250px;
     align-items: center;
-    min-height: 68px;
-    padding: 8px 17px;
-    border-bottom: 1px solid #151f2c;
+    gap: 10px;
+    min-height: 66px;
+    padding: 10px 18px;
+    border-bottom: 1px solid #131d29;
+    transition: background 0.15s;
 }
 
 .user-row:last-child {
@@ -227,24 +382,30 @@ body::before {
     display: flex;
     align-items: center;
     gap: 11px;
+    min-width: 0;
 }
 
 .avatar {
-    width: 35px;
-    height: 35px;
+    width: 36px;
+    height: 36px;
     border-radius: 50%;
     background: #182435;
     object-fit: cover;
     border: 1px solid #2a3a4f;
+    flex-shrink: 0;
 }
 
 .username {
     font-size: 13px;
     font-weight: 600;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .userid {
     color: #56677b;
+    font-family: "Courier New", monospace;
     font-size: 9px;
     margin-top: 3px;
 }
@@ -262,6 +423,7 @@ body::before {
     height: 7px;
     border-radius: 50%;
     background: #42d47d;
+    box-shadow: 0 0 8px rgba(66,212,125,.6);
 }
 
 .action-group {
@@ -274,16 +436,20 @@ button {
     border: 1px solid #263548;
     background: #111b28;
     color: #aebdcd;
-    padding: 7px 10px;
+    padding: 7px 11px;
     border-radius: 4px;
+    font-family: inherit;
     font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
     cursor: pointer;
-    transition: .15s;
+    transition: 0.15s;
 }
 
 button:hover {
     background: #182638;
     color: white;
+    border-color: #33475f;
 }
 
 button.danger {
@@ -313,25 +479,42 @@ button.primary:hover {
     background: #162c48;
 }
 
+button.primary:disabled {
+    opacity: 0.55;
+    cursor: default;
+}
+
+.trigger {
+    display: inline-flex;
+    align-items: center;
+    gap: 9px;
+    padding: 11px 16px;
+    font-size: 10px;
+    letter-spacing: 1px;
+}
+
 .empty {
-    padding: 45px;
+    padding: 48px;
     text-align: center;
     color: #536477;
     font-size: 12px;
+    letter-spacing: 1px;
 }
 
 .notice {
     display: none;
     position: fixed;
-    right: 25px;
-    bottom: 25px;
+    right: 26px;
+    bottom: 26px;
+    max-width: 360px;
     background: #101a27;
     border: 1px solid #29384b;
+    border-left: 3px solid #4b8cff;
     border-radius: 6px;
-    padding: 13px 16px;
+    padding: 13px 17px;
     font-size: 12px;
     z-index: 50;
-    box-shadow: 0 10px 30px rgba(0,0,0,.4);
+    box-shadow: 0 12px 34px rgba(0,0,0,.5);
 }
 
 .notice.show {
@@ -339,31 +522,27 @@ button.primary:hover {
 }
 
 .notice.success {
-    border-color: #245c3d;
+    border-left-color: #42d47d;
 }
 
 .notice.error {
-    border-color: #6a2830;
+    border-left-color: #e9828b;
     color: #ef9299;
 }
 
-@media (max-width: 1000px) {
+@media (max-width: 1100px) {
     .sidebar {
-        width: 190px;
+        width: 196px;
     }
 
     .main {
-        margin-left: 190px;
-    }
-
-    .status-grid {
-        grid-template-columns: repeat(2, 1fr);
+        margin-left: 196px;
     }
 
     .user-row {
         grid-template-columns: 1fr;
         gap: 10px;
-        padding: 14px 17px;
+        padding: 14px 18px;
     }
 
     .action-group {
@@ -371,21 +550,32 @@ button.primary:hover {
     }
 }
 
-@media (max-width: 650px) {
+@media (max-width: 680px) {
     .sidebar {
         position: relative;
         width: 100%;
         height: auto;
         border-right: none;
-        border-bottom: 1px solid #1d2938;
+        border-bottom: 1px solid #1b2634;
     }
 
     .main {
         margin-left: 0;
+        padding: 20px 16px 32px;
+    }
+
+    .topbar {
+        align-items: flex-start;
+        flex-direction: column;
     }
 
     .status-grid {
         grid-template-columns: 1fr 1fr;
+    }
+
+    .deploy-body {
+        flex-direction: column;
+        align-items: stretch;
     }
 }
 </style>
@@ -396,8 +586,11 @@ button.primary:hover {
 <aside class="sidebar">
 
     <div class="logo">
-        <div class="logo-main">STARDUST</div>
-        <div class="logo-sub">MILITARY SYSTEM</div>
+        <div class="logo-mark">◆</div>
+        <div>
+            <div class="logo-main">STARDUST</div>
+            <div class="logo-sub">MILITARY SYSTEM</div>
+        </div>
     </div>
 
     <div class="nav-title">COMMAND</div>
@@ -415,7 +608,7 @@ button.primary:hover {
     <nav class="nav">
         <a href="/settings.html">SETTINGS</a>
         <a href="/admin.html" class="active">ADMIN</a>
-        <a href="/auth/logout">LOGOUT</a>
+        <a href="/auth/logout" class="logout">LOGOUT</a>
     </nav>
 
 </aside>
@@ -431,48 +624,62 @@ button.primary:hover {
             </div>
         </div>
 
-        <div class="admin-badge">
-            <span class="admin-dot"></span>
-            <span id="adminName">ADMINISTRATOR</span>
+        <div class="topbar-right">
+
+            <div class="system-nominal">
+                <span class="admin-dot"></span>
+                SYSTEM NOMINAL
+            </div>
+
+            <div class="admin-badge">
+                <span class="admin-dot"></span>
+                <span id="adminName">ADMINISTRATOR</span>
+            </div>
+
         </div>
 
     </header>
 
     <section class="status-grid">
 
-        <div class="stat">
+        <div class="stat stat-green">
             <div class="stat-label">Server</div>
             <div class="stat-value online" id="serverStatus">
                 ONLINE
             </div>
+            <div class="stat-meta">COMMAND NODE</div>
         </div>
 
-        <div class="stat">
+        <div class="stat stat-blue">
             <div class="stat-label">Online Personnel</div>
             <div class="stat-value" id="onlineCount">
                 0
             </div>
+            <div class="stat-meta">CONNECTED NOW</div>
         </div>
 
-        <div class="stat">
+        <div class="stat stat-amber">
             <div class="stat-label">Muted</div>
             <div class="stat-value warning" id="mutedCount">
                 0
             </div>
+            <div class="stat-meta">CHAT RESTRICTED</div>
         </div>
 
-        <div class="stat">
+        <div class="stat stat-red">
             <div class="stat-label">Banned</div>
-            <div class="stat-value warning" id="bannedCount">
+            <div class="stat-value danger" id="bannedCount">
                 0
             </div>
+            <div class="stat-meta">ACCESS DENIED</div>
         </div>
 
-        <div class="stat">
+        <div class="stat stat-cyan">
             <div class="stat-label">Client Version</div>
-            <div class="stat-value" id="clientVersion">
+            <div class="stat-value version" id="clientVersion">
                 ...
             </div>
+            <div class="stat-meta">DEPLOYED BUILD</div>
         </div>
 
     </section>
@@ -489,9 +696,17 @@ button.primary:hover {
             </div>
         </div>
 
-        <div class="users panel-pad">
+        <div class="deploy-body">
 
-            <button class="primary" id="triggerUpdateButton">
+            <div class="deploy-info">
+                <div class="deploy-tag">⇅ AUTO-UPDATE FEED</div>
+                <div class="deploy-hint">
+                    Signals every connected client to check the update feed
+                    for the latest build.
+                </div>
+            </div>
+
+            <button class="primary trigger" id="triggerUpdateButton">
                 TRIGGER UPDATE CHECK
             </button>
 
@@ -523,6 +738,7 @@ button.primary:hover {
 
 <div class="notice" id="notice"></div>
 
+<script src="/config.js"></script>
 <script>
 
 const usersContainer = document.getElementById("users");
@@ -545,8 +761,8 @@ function showNotice(message, type = "success") {
 
 async function api(url, options = {}) {
 
-    const response = await fetch(url, {
-        credentials: "same-origin",
+    const response = await fetch(window.stardustApi(url), {
+        credentials: "include",
         ...options,
         headers: {
             "Content-Type": "application/json",
@@ -931,7 +1147,6 @@ setInterval(async () => {
 }, 5000);
 
 </script>
-<stylescript src="/style.css"></stylescript>
 
 </body>
 </html>

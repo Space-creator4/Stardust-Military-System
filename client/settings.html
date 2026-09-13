@@ -718,6 +718,7 @@
 
 </div>
 
+<script src="/config.js"></script>
 <script src="/userdata.js"></script>
 <script src="/security.js"></script>
 
@@ -852,7 +853,7 @@ async function loadSettings() {
 
     try {
 
-        const response = await fetch("/api/settings", {
+        const response = await fetch(window.stardustApi("/api/settings"), {
             credentials: "include"
         });
 
@@ -980,7 +981,7 @@ async function claimCountry() {
 
     try {
 
-        const response = await fetch("/api/country/claim", {
+        const response = await fetch(window.stardustApi("/api/country/claim"), {
             method: "POST",
             credentials: "include",
             headers: {
@@ -1019,7 +1020,7 @@ async function relinquishCountry() {
 
     try {
 
-        const response = await fetch("/api/country/relinquish", {
+        const response = await fetch(window.stardustApi("/api/country/relinquish"), {
             method: "POST",
             credentials: "include",
             headers: {
@@ -1170,7 +1171,7 @@ async function loadLeaders() {
 
     try {
 
-        const response = await fetch("/api/country/leaders", {
+        const response = await fetch(window.stardustApi("/api/country/leaders"), {
             credentials: "include"
         });
 
@@ -1192,7 +1193,7 @@ async function loadLeaders() {
 
 async function fetchMe() {
 
-    const response = await fetch("/api/me", {
+    const response = await fetch(window.stardustApi("/api/me"), {
         credentials: "include"
     });
 
@@ -1213,7 +1214,7 @@ async function loadCurrentUser() {
 
     try {
 
-        const response = await fetch("/api/me", {
+        const response = await fetch(window.stardustApi("/api/me"), {
             credentials: "include"
         });
 
@@ -1249,7 +1250,7 @@ async function pushSettings(payload) {
 
     try {
 
-        const response = await fetch("/api/settings", {
+        const response = await fetch(window.stardustApi("/api/settings"), {
             method: "POST",
             credentials: "include",
             headers: {

@@ -619,6 +619,7 @@
 
 </div>
 
+<script src="/config.js"></script>
 <script src="/userdata.js"></script>
 <script>
 
@@ -981,7 +982,7 @@ async function loadCurrentUser() {
 
         const response =
             await fetch(
-                "/api/me",
+                window.stardustApi("/api/me"),
                 {
                     credentials: "include"
                 }
@@ -1071,7 +1072,7 @@ function connectWebSocket() {
 
     socket =
         new WebSocket(
-            `${protocol}://${window.location.host}`
+            window.stardustWsUrl()
         );
 
     socket.addEventListener(

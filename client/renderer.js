@@ -1676,12 +1676,7 @@ function getDiscordName() {
 }
 
 function getWebSocketURL() {
-    const protocol =
-        window.location.protocol === "https:"
-            ? "wss:"
-            : "ws:";
-
-    return `${protocol}//${window.location.host}`;
+    return window.stardustWsUrl();
 }
 
 function connectChat() {
@@ -1935,7 +1930,7 @@ async function loadCurrentUser() {
     try {
         const response =
             await fetch(
-                "/api/user",
+                window.stardustApi("/api/user"),
                 {
                     credentials: "include",
                     cache: "no-cache"

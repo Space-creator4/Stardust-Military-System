@@ -101,411 +101,457 @@
                     </p>
                 </div>
 
-                <div class="clock" id="clock">
-                    00:00:00
+                <div class="welcome-hud">
+
+                    <div class="link-state">
+                        <span class="live-dot"></span>
+                        <span>LIVE COMMAND LINK</span>
+                    </div>
+
+                    <div class="clock" id="clock">
+                        00:00:00
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="stat-strip">
+
+                <div class="stat-tile">
+
+                    <span class="stat-label">
+                        TOTAL UNITS
+                    </span>
+
+                    <strong class="stat-value" id="totalUnits">
+                        0
+                    </strong>
+
+                    <span class="stat-sub">
+                        ALL DEPLOYED FORMATIONS
+                    </span>
+
+                </div>
+
+                <div class="stat-tile info">
+
+                    <span class="stat-label">
+                        PERSONNEL
+                    </span>
+
+                    <strong class="stat-value" id="totalPersonnel">
+                        0
+                    </strong>
+
+                    <span class="stat-sub">
+                        TOTAL STRENGTH UNDER COMMAND
+                    </span>
+
+                </div>
+
+                <div class="stat-tile online">
+
+                    <span class="stat-label">
+                        OPERATIONAL
+                    </span>
+
+                    <strong class="stat-value" id="operationalUnits">
+                        0
+                    </strong>
+
+                    <span class="stat-sub">
+                        READY FOR DEPLOYMENT
+                    </span>
+
+                </div>
+
+                <div class="stat-tile moving">
+
+                    <span class="stat-label">
+                        MOVING
+                    </span>
+
+                    <strong class="stat-value" id="movingUnits">
+                        0
+                    </strong>
+
+                    <span class="stat-sub">
+                        FORCES CURRENTLY IN TRANSIT
+                    </span>
+
                 </div>
 
             </div>
 
             <div class="force-dashboard">
 
-                <section class="panel">
+                <div class="force-main">
 
-                    <div class="panel-header">
-                        GROUND FORCES
+                    <section class="panel panel-green">
 
-                        <span class="panel-indicator">
-                            <span id="groundCount">0</span> ACTIVE
-                        </span>
-                    </div>
+                        <div class="panel-header">
+                            GROUND FORCES
 
-                    <div class="force-list">
-
-                        <button class="force-item" data-force="infantry">
-
-                            <div class="force-symbol">
-                                ⚔
-                            </div>
-
-                            <div class="force-information">
-                                <strong>INFANTRY</strong>
-                                <span>
-                                    Infantry formations and personnel
-                                </span>
-                            </div>
-
-                            <div class="force-number">
-                                <span id="infantryCount">0</span>
-                                <small>UNITS</small>
-                            </div>
-
-                        </button>
-
-                        <button class="force-item" data-force="armour">
-
-                            <div class="force-symbol">
-                                ▣
-                            </div>
-
-                            <div class="force-information">
-                                <strong>ARMOUR</strong>
-                                <span>
-                                    Armoured ground formations
-                                </span>
-                            </div>
-
-                            <div class="force-number">
-                                <span id="armourCount">0</span>
-                                <small>UNITS</small>
-                            </div>
-
-                        </button>
-
-                        <button class="force-item" data-force="mechanized">
-
-                            <div class="force-symbol">
-                                ◆
-                            </div>
-
-                            <div class="force-information">
-                                <strong>MECHANIZED</strong>
-                                <span>
-                                    Mechanized formations
-                                </span>
-                            </div>
-
-                            <div class="force-number">
-                                <span id="mechanizedCount">0</span>
-                                <small>UNITS</small>
-                            </div>
-
-                        </button>
-
-                        <button class="force-item" data-force="recon">
-
-                            <div class="force-symbol">
-                                ◎
-                            </div>
-
-                            <div class="force-information">
-                                <strong>RECONNAISSANCE</strong>
-                                <span>
-                                    Reconnaissance formations
-                                </span>
-                            </div>
-
-                            <div class="force-number">
-                                <span id="reconCount">0</span>
-                                <small>UNITS</small>
-                            </div>
-
-                        </button>
-
-                        <button class="force-item" data-force="artillery">
-
-                            <div class="force-symbol">
-                                ▰
-                            </div>
-
-                            <div class="force-information">
-                                <strong>ARTILLERY</strong>
-                                <span>
-                                    Simulated fire-support units
-                                </span>
-                            </div>
-
-                            <div class="force-number">
-                                <span id="artilleryCount">0</span>
-                                <small>UNITS</small>
-                            </div>
-
-                        </button>
-
-                        <button class="force-item" data-force="logistics">
-
-                            <div class="force-symbol">
-                                +
-                            </div>
-
-                            <div class="force-information">
-                                <strong>LOGISTICS</strong>
-                                <span>
-                                    Supply and support formations
-                                </span>
-                            </div>
-
-                            <div class="force-number">
-                                <span id="logisticsCount">0</span>
-                                <small>UNITS</small>
-                            </div>
-
-                        </button>
-
-                    </div>
-
-                </section>
-
-                <section class="panel">
-
-                    <div class="panel-header">
-                        FORCE STATUS
-
-                        <span class="panel-indicator">
-                            LIVE
-                        </span>
-                    </div>
-
-                    <div class="force-stats">
-
-                        <div class="info-card">
-                            <span>TOTAL UNITS</span>
-                            <strong id="totalUnits">0</strong>
+                            <span class="panel-indicator">
+                                <span id="groundCount">0</span> ACTIVE
+                            </span>
                         </div>
 
-                        <div class="info-card">
-                            <span>PERSONNEL</span>
-                            <strong id="totalPersonnel">0</strong>
+                        <div class="force-list">
+
+                            <button class="force-item" data-force="infantry">
+
+                                <div class="force-symbol">
+                                    ⚔
+                                </div>
+
+                                <div class="force-information">
+                                    <strong>INFANTRY</strong>
+                                    <span>
+                                        Infantry formations and personnel
+                                    </span>
+                                </div>
+
+                                <div class="force-number">
+                                    <span id="infantryCount">0</span>
+                                    <small>UNITS</small>
+                                </div>
+
+                            </button>
+
+                            <button class="force-item" data-force="armour">
+
+                                <div class="force-symbol">
+                                    ▣
+                                </div>
+
+                                <div class="force-information">
+                                    <strong>ARMOUR</strong>
+                                    <span>
+                                        Armoured ground formations
+                                    </span>
+                                </div>
+
+                                <div class="force-number">
+                                    <span id="armourCount">0</span>
+                                    <small>UNITS</small>
+                                </div>
+
+                            </button>
+
+                            <button class="force-item" data-force="mechanized">
+
+                                <div class="force-symbol">
+                                    ◆
+                                </div>
+
+                                <div class="force-information">
+                                    <strong>MECHANIZED</strong>
+                                    <span>
+                                        Mechanized formations
+                                    </span>
+                                </div>
+
+                                <div class="force-number">
+                                    <span id="mechanizedCount">0</span>
+                                    <small>UNITS</small>
+                                </div>
+
+                            </button>
+
+                            <button class="force-item" data-force="recon">
+
+                                <div class="force-symbol">
+                                    ◎
+                                </div>
+
+                                <div class="force-information">
+                                    <strong>RECONNAISSANCE</strong>
+                                    <span>
+                                        Reconnaissance formations
+                                    </span>
+                                </div>
+
+                                <div class="force-number">
+                                    <span id="reconCount">0</span>
+                                    <small>UNITS</small>
+                                </div>
+
+                            </button>
+
+                            <button class="force-item" data-force="artillery">
+
+                                <div class="force-symbol">
+                                    ▰
+                                </div>
+
+                                <div class="force-information">
+                                    <strong>ARTILLERY</strong>
+                                    <span>
+                                        Simulated fire-support units
+                                    </span>
+                                </div>
+
+                                <div class="force-number">
+                                    <span id="artilleryCount">0</span>
+                                    <small>UNITS</small>
+                                </div>
+
+                            </button>
+
+                            <button class="force-item" data-force="logistics">
+
+                                <div class="force-symbol">
+                                    +
+                                </div>
+
+                                <div class="force-information">
+                                    <strong>LOGISTICS</strong>
+                                    <span>
+                                        Supply and support formations
+                                    </span>
+                                </div>
+
+                                <div class="force-number">
+                                    <span id="logisticsCount">0</span>
+                                    <small>UNITS</small>
+                                </div>
+
+                            </button>
+
                         </div>
 
-                        <div class="info-card">
-                            <span>MOVING UNITS</span>
-                            <strong id="movingUnits">0</strong>
+                    </section>
+
+                    <section class="panel panel-cyan">
+
+                        <div class="panel-header">
+                            DEPLOYED UNITS
+
+                            <span class="panel-indicator">
+                                <span id="unitCount">0</span> REGISTERED
+                            </span>
                         </div>
 
-                        <div class="info-card">
-                            <span>OPERATIONAL</span>
-                            <strong class="green" id="operationalUnits">
-                                0
-                            </strong>
+                        <div class="unit-list" id="unitList">
+
+                            <div class="unit-empty" id="unitEmpty">
+                                NO UNITS DEPLOYED
+                            </div>
+
                         </div>
 
-                    </div>
+                    </section>
 
-                </section>
+                </div>
 
-                <section class="panel">
+                <div class="force-side">
 
-                    <div class="panel-header">
-                        STRATEGIC ASSETS
+                    <section class="panel panel-amber">
 
-                        <span class="panel-indicator">
-                            SIMULATION
-                        </span>
-                    </div>
+                        <div class="panel-header">
+                            STRATEGIC ASSETS
 
-                    <div class="strategic-list">
+                            <span class="panel-indicator">
+                                SIMULATION
+                            </span>
+                        </div>
 
-                        <button
-                            class="strategic-item"
-                            id="missileButton"
-                        >
-                            <div class="strategic-symbol">
-                                ▲
+                        <div class="strategic-list">
+
+                            <button
+                                class="strategic-item"
+                                id="missileButton"
+                            >
+                                <div class="strategic-symbol">
+                                    ▲
+                                </div>
+
+                                <div>
+                                    <strong>MISSILE SYSTEMS</strong>
+                                    <span>
+                                        Fictional simulated strike assets
+                                    </span>
+                                </div>
+
+                                <b id="missileCount">0</b>
+                            </button>
+
+                            <button
+                                class="strategic-item"
+                                id="satelliteButton"
+                            >
+                                <div class="strategic-symbol">
+                                    ◈
+                                </div>
+
+                                <div>
+                                    <strong>RECON SATELLITES</strong>
+                                    <span>
+                                        Orbital reconnaissance assets
+                                    </span>
+                                </div>
+
+                                <b id="satelliteCount">0</b>
+                            </button>
+
+                        </div>
+
+                    </section>
+
+                    <section class="panel panel-blue">
+
+                        <div class="panel-header">
+                            QUICK COMMAND
+                        </div>
+
+                        <div class="quick-command">
+
+                            <button
+                                class="command-button primary"
+                                id="createUnitButton"
+                            >
+                                <span>+</span>
+                                CREATE GROUND UNIT
+                            </button>
+
+                            <button
+                                class="command-button"
+                                id="liveMapButton"
+                            >
+                                <span>◎</span>
+                                OPEN LIVE MAP
+                            </button>
+
+                            <button
+                                class="command-button"
+                                id="ordersButton"
+                            >
+                                <span>▤</span>
+                                VIEW ORDERS
+                            </button>
+
+                        </div>
+
+                    </section>
+
+                    <section class="panel panel-muted">
+
+                        <div class="panel-header">
+                            RAISE UNIT
+
+                            <span class="panel-indicator">
+                                FIELD COMMAND
+                            </span>
+                        </div>
+
+                        <form class="unit-form" id="unitForm">
+
+                            <div>
+                                <label>DESIGNATION</label>
+                                <input
+                                    type="text"
+                                    id="unitName"
+                                    maxlength="80"
+                                    placeholder="1ST INFANTRY BATTALION"
+                                >
                             </div>
 
                             <div>
-                                <strong>MISSILE SYSTEMS</strong>
-                                <span>
-                                    Fictional simulated strike assets
-                                </span>
-                            </div>
-
-                            <b id="missileCount">0</b>
-                        </button>
-
-                        <button
-                            class="strategic-item"
-                            id="satelliteButton"
-                        >
-                            <div class="strategic-symbol">
-                                ◈
+                                <label>TYPE</label>
+                                <select id="unitType">
+                                    <option value="infantry">INFANTRY</option>
+                                    <option value="armour">ARMOUR</option>
+                                    <option value="mechanized">MECHANIZED</option>
+                                    <option value="recon">RECONNAISSANCE</option>
+                                    <option value="artillery">ARTILLERY</option>
+                                    <option value="logistics">LOGISTICS</option>
+                                </select>
                             </div>
 
                             <div>
-                                <strong>RECON SATELLITES</strong>
-                                <span>
-                                    Orbital reconnaissance assets
-                                </span>
+                                <label>PERSONNEL</label>
+                                <input
+                                    type="number"
+                                    id="unitPersonnel"
+                                    min="1"
+                                    max="1000000"
+                                    value="1000"
+                                >
                             </div>
 
-                            <b id="satelliteCount">0</b>
-                        </button>
+                            <div>
+                                <label>COUNTRY / FACTION</label>
+                                <input
+                                    type="text"
+                                    id="unitCountry"
+                                    maxlength="60"
+                                    placeholder="AUTO / CLAIMED COUNTRY"
+                                >
+                            </div>
 
-                    </div>
+                            <div>
+                                <label>LATITUDE</label>
+                                <input
+                                    type="number"
+                                    id="unitLat"
+                                    min="-90"
+                                    max="90"
+                                    step="0.0001"
+                                    placeholder="51.5074"
+                                >
+                            </div>
 
-                </section>
+                            <div>
+                                <label>LONGITUDE</label>
+                                <input
+                                    type="number"
+                                    id="unitLon"
+                                    min="-180"
+                                    max="180"
+                                    step="0.0001"
+                                    placeholder="-0.1278"
+                                >
+                            </div>
 
-                <section class="panel">
+                            <div>
+                                <label>STATUS</label>
+                                <select id="unitStatus">
+                                    <option value="OPERATIONAL">OPERATIONAL</option>
+                                    <option value="MOVING">MOVING</option>
+                                    <option value="RESERVE">RESERVE</option>
+                                </select>
+                            </div>
 
-                    <div class="panel-header">
-                        QUICK COMMAND
-                    </div>
+                        </form>
 
-                    <div class="quick-command">
+                        <div class="unit-form-actions">
 
-                        <button
-                            class="command-button primary"
-                            id="createUnitButton"
-                        >
-                            <span>+</span>
-                            CREATE GROUND UNIT
-                        </button>
+                            <button
+                                class="raise-button"
+                                id="raiseUnitButton"
+                            >
+                                + RAISE UNIT
+                            </button>
 
-                        <button
-                            class="command-button"
-                            id="liveMapButton"
-                        >
-                            <span>◎</span>
-                            OPEN LIVE MAP
-                        </button>
+                            <span class="unit-message" id="unitMessage"></span>
 
-                        <button
-                            class="command-button"
-                            id="ordersButton"
-                        >
-                            <span>▤</span>
-                            VIEW ORDERS
-                        </button>
+                        </div>
 
-                    </div>
+                    </section>
 
-                </section>
-
-            </div>
-
-        </section>
-
-        <section class="panel">
-
-            <div class="panel-header">
-                DEPLOYED UNITS
-
-                <span class="panel-indicator">
-                    <span id="unitCount">0</span> REGISTERED
-                </span>
-            </div>
-
-            <div class="unit-list" id="unitList">
-
-                <div class="unit-empty" id="unitEmpty">
-                    NO UNITS DEPLOYED
                 </div>
 
             </div>
 
         </section>
 
-        <section class="panel">
-
-            <div class="panel-header">
-                RAISE UNIT
-
-                <span class="panel-indicator">
-                    FIELD COMMAND
-                </span>
-            </div>
-
-            <form class="unit-form" id="unitForm">
-
-                <div>
-                    <label>DESIGNATION</label>
-                    <input
-                        type="text"
-                        id="unitName"
-                        maxlength="80"
-                        placeholder="1ST INFANTRY BATTALION"
-                    >
-                </div>
-
-                <div>
-                    <label>TYPE</label>
-                    <select id="unitType">
-                        <option value="infantry">INFANTRY</option>
-                        <option value="armour">ARMOUR</option>
-                        <option value="mechanized">MECHANIZED</option>
-                        <option value="recon">RECONNAISSANCE</option>
-                        <option value="artillery">ARTILLERY</option>
-                        <option value="logistics">LOGISTICS</option>
-                    </select>
-                </div>
-
-                <div>
-                    <label>PERSONNEL</label>
-                    <input
-                        type="number"
-                        id="unitPersonnel"
-                        min="1"
-                        max="1000000"
-                        value="1000"
-                    >
-                </div>
-
-                <div>
-                    <label>COUNTRY / FACTION</label>
-                    <input
-                        type="text"
-                        id="unitCountry"
-                        maxlength="60"
-                        placeholder="AUTO / CLAIMED COUNTRY"
-                    >
-                </div>
-
-                <div>
-                    <label>LATITUDE</label>
-                    <input
-                        type="number"
-                        id="unitLat"
-                        min="-90"
-                        max="90"
-                        step="0.0001"
-                        placeholder="51.5074"
-                    >
-                </div>
-
-                <div>
-                    <label>LONGITUDE</label>
-                    <input
-                        type="number"
-                        id="unitLon"
-                        min="-180"
-                        max="180"
-                        step="0.0001"
-                        placeholder="-0.1278"
-                    >
-                </div>
-
-                <div>
-                    <label>STATUS</label>
-                    <select id="unitStatus">
-                        <option value="OPERATIONAL">OPERATIONAL</option>
-                        <option value="MOVING">MOVING</option>
-                        <option value="RESERVE">RESERVE</option>
-                    </select>
-                </div>
-
-            </form>
-
-            <div class="unit-form-actions">
-
-                <button
-                    class="raise-button"
-                    id="raiseUnitButton"
-                >
-                    + RAISE UNIT
-                </button>
-
-                <span class="unit-message" id="unitMessage"></span>
-
-            </div>
-
-        </section>
-
-    </section>
-
-</main>
+    </main>
 
 </div>
 
+<script src="/config.js"></script>
 <script src="/force.js"></script>
 <script src="/security.js"></script>
 

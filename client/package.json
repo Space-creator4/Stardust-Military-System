@@ -33,6 +33,7 @@
       "force.js",
       "login.js",
       "userdata.js",
+      "config.js",
       "countries.json",
       "assets/**/*"
     ],

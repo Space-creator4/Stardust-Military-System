@@ -14,6 +14,14 @@ const clientPath = path.join(__dirname, "..", "client");
 const tilesPath = path.join(__dirname, "tiles");
 const IS_PRODUCTION =
     String(process.env.NODE_ENV || "").toLowerCase() === "production";
+const APP_ORIGINS =
+    (process.env.APP_ORIGINS || "")
+        .split(",")
+        .map(origin => origin.trim())
+        .filter(Boolean);
+const APP_ORIGIN =
+    process.env.APP_ORIGIN ||
+    (APP_ORIGINS[0] || "");
 const SESSION_SECRET =
     process.env.SESSION_SECRET ||
     crypto.randomBytes(32).toString("hex");
@@ -24,7 +32,7 @@ const sessionMiddleware = session({
     proxy: IS_PRODUCTION,
     cookie: {
         httpOnly: true,
-        sameSite: "lax",
+        sameSite: IS_PRODUCTION ? "none" : "lax",
         secure: IS_PRODUCTION,
         maxAge: 7 * 24 * 60 * 60 * 1000
     }
@@ -46,6 +54,61 @@ app.use(
     })
 );
 app.use(sessionMiddleware);
+app.use(
+    (req, res, next) => {
+        const origin = req.headers.origin;
+
+        if (
+            req.method === "OPTIONS"
+        ) {
+            if (
+                origin &&
+                APP_ORIGINS.includes(origin)
+            ) {
+                res.setHeader(
+                    "Access-Control-Allow-Origin",
+                    origin
+                );
+                res.setHeader(
+                    "Access-Control-Allow-Credentials",
+                    "true"
+                );
+                res.setHeader(
+                    "Access-Control-Allow-Methods",
+                    "GET,HEAD,PUT,PATCH,POST,DELETE"
+                );
+                res.setHeader(
+                    "Access-Control-Allow-Headers",
+                    "Content-Type"
+                );
+
+                return res.sendStatus(204);
+            }
+
+            return next();
+        }
+
+        if (
+            origin &&
+            APP_ORIGINS.includes(origin)
+        ) {
+            res.setHeader(
+                "Access-Control-Allow-Origin",
+                origin
+            );
+            res.setHeader(
+                "Access-Control-Allow-Credentials",
+                "true"
+            );
+            res.setHeader(
+                "Vary",
+                "Origin"
+            );
+        }
+
+        next();
+    }
+);
 app.use(
     "/tiles",
     express.static(tilesPath)
@@ -987,6 +1050,31 @@ app.get("/api/version", (req, res) => {
         timestamp: Date.now()
     });
 });
+function frontendLoginUrl(params = {}) {
+    if (!APP_ORIGIN) {
+        return null;
+    }
+    const url = new URL(APP_ORIGIN);
+    url.pathname = "/login.html";
+    for (const [key, value] of Object.entries(params)) {
+        url.searchParams.set(key, value);
+    }
+    return url.toString();
+}
+
+function oauthError(res, message, status) {
+    if (APP_ORIGIN) {
+        return res.redirect(
+            frontendLoginUrl({ error: "auth_failed" })
+        );
+    }
+    return res.status(status).send(message);
+}
+
+function authRedirect(res, fallback) {
+    return res.redirect(APP_ORIGIN || fallback);
+}
+
 app.get("/", (req, res) => {
     if (!req.session.user) {
         return res.sendFile(
@@ -1089,22 +1177,22 @@ app.get(
             : null;
 
     if (!code || !state) {
-        return res
-            .status(400)
-            .send(
-                "Missing Discord OAuth information."
-            );
+        return oauthError(
+            res,
+            "Missing Discord OAuth information.",
+            400
+        );
     }
 
     if (
         !req.session.oauthState ||
         state !== req.session.oauthState
     ) {
-        return res
-            .status(403)
-            .send(
-                "Invalid OAuth state."
-            );
+        return oauthError(
+            res,
+            "Invalid OAuth state.",
+            403
+        );
     }
 
     delete req.session.oauthState;
@@ -1149,11 +1237,11 @@ app.get(
                 tokenData
             );
 
-            return res
-                .status(500)
-                .send(
-                    "Discord login failed."
-                );
+            return oauthError(
+                res,
+                "Discord login failed.",
+                500
+            );
         }
 
         const userResponse =
@@ -1176,11 +1264,11 @@ app.get(
                 user
             );
 
-            return res
-                .status(500)
-                .send(
-                    "Could not retrieve Discord account."
-                );
+            return oauthError(
+                res,
+                "Could not retrieve Discord account.",
+                500
+            );
         }
 
         req.session.user = {
@@ -1207,14 +1295,14 @@ app.get(
                         error
                     );
 
-                    return res
-                        .status(500)
-                        .send(
-                            "Could not save login session."
-                        );
+                    return oauthError(
+                        res,
+                        "Could not save login session.",
+                        500
+                    );
                 }
 
-                return res.redirect("/");
+                return authRedirect(res, "/");
             }
         );
     } catch (error) {
@@ -1223,11 +1311,11 @@ app.get(
             error
         );
 
-        return res
-            .status(500)
-            .send(
-                "Discord authentication failed."
-            );
+        return oauthError(
+            res,
+            "Discord authentication failed.",
+            500
+        );
     }
 }
 );
@@ -1863,13 +1951,15 @@ app.get(
                 "connect.sid",
                 {
                     httpOnly: true,
-                    sameSite: "lax",
+                    sameSite: IS_PRODUCTION ? "none" : "lax",
                     secure: IS_PRODUCTION
                 }
             );
 
             return res.redirect(
-                "/login.html"
+                APP_ORIGIN
+                    ? `${APP_ORIGIN}/login.html`
+                    : "/login.html"
             );
         }
     );

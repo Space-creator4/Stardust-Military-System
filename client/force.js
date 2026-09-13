@@ -456,12 +456,7 @@ function makeActionButton(text, onClick) {
 }
 
 function getWebSocketURL() {
-    const protocol =
-        window.location.protocol === "https:"
-            ? "wss:"
-            : "ws:";
-
-    return `${protocol}//${window.location.host}`;
+    return window.stardustWsUrl();
 }
 
 function scheduleReconnect() {
