@@ -9,6 +9,10 @@
     <link rel="stylesheet" href="/style.css">
 
     <style>
+        body {
+            font-family: "Segoe UI", system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif;
+        }
+
         .settings-page {
             width: 100%;
             min-height: 100%;
@@ -22,10 +26,11 @@
             align-items: center;
             justify-content: space-between;
             padding-bottom: 20px;
-            border-bottom: 1px solid #1c252d;
+            border-bottom: 1px solid #1d2a33;
         }
 
         .settings-title {
+            color: #e3ebf1;
             font-size: 24px;
             font-weight: 600;
             letter-spacing: 5px;
@@ -33,16 +38,17 @@
 
         .settings-subtitle {
             margin-top: 6px;
-            color: #697781;
-            font-size: 9px;
+            color: #6d7d89;
+            font-size: 8px;
             letter-spacing: 3px;
+            text-transform: uppercase;
         }
 
         .settings-status {
             display: flex;
             align-items: center;
             gap: 8px;
-            color: #697781;
+            color: #6d7d89;
             font-size: 8px;
             font-weight: 600;
             letter-spacing: 1.5px;
@@ -52,8 +58,8 @@
             width: 7px;
             height: 7px;
             border-radius: 50%;
-            background: #d16262;
-            box-shadow: 0 0 9px rgba(98, 209, 139, 0.45);
+            background: #e5533b;
+            box-shadow: 0 0 9px rgba(229, 83, 59, 0.15);
         }
 
         .settings-grid {
@@ -64,27 +70,30 @@
         }
 
         .panel {
-            border: 1px solid #1c252d;
-            background: #080b0f;
+            border: 1px solid #1d2a33;
+            background: #0a0f14;
+            border-radius: 3px;
         }
 
         .panel-header {
-            height: 52px;
+            height: 42px;
             display: flex;
             align-items: center;
             justify-content: space-between;
             padding: 0 18px;
-            border-bottom: 1px solid #1c252d;
-            color: #aeb8bf;
+            border-bottom: 1px solid #1d2a33;
+            color: #6d7d89;
             font-size: 8px;
             font-weight: 600;
             letter-spacing: 2px;
+            text-transform: uppercase;
         }
 
         .panel-indicator {
-            color: #62d18b;
+            color: #5ee6a0;
             font-size: 7px;
             letter-spacing: 1.5px;
+            text-transform: uppercase;
         }
 
         .settings-form {
@@ -98,10 +107,11 @@
         .form-label {
             display: block;
             margin-bottom: 7px;
-            color: #56636e;
-            font-size: 7px;
+            color: #6d7d89;
+            font-size: 8px;
             font-weight: 600;
-            letter-spacing: 1.5px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
         }
 
         .form-input {
@@ -109,16 +119,22 @@
             box-sizing: border-box;
             height: 38px;
             padding: 0 10px;
-            border: 1px solid #1c252d;
+            border: 1px solid #1d2a33;
             outline: none;
-            background: #06090c;
-            color: #c8d1d6;
+            background: #0a0f14;
+            color: #e3ebf1;
             font-family: inherit;
-            font-size: 8px;
+            font-size: 9px;
+            border-radius: 3px;
         }
 
         .form-input:focus {
-            border-color: #394850;
+            border-color: #4cc9f0;
+        }
+
+        .form-input:focus-visible {
+            outline: 1px solid #4cc9f0;
+            outline-offset: 2px;
         }
 
         .form-color {
@@ -126,36 +142,52 @@
             box-sizing: border-box;
             height: 38px;
             padding: 4px 6px;
-            border: 1px solid #1c252d;
+            border: 1px solid #1d2a33;
             outline: none;
-            background: #06090c;
+            background: #0a0f14;
             cursor: pointer;
+            border-radius: 3px;
+        }
+
+        .form-color:focus-visible {
+            outline: 1px solid #4cc9f0;
+            outline-offset: 2px;
         }
 
         .save-button {
             width: 100%;
             height: 40px;
-            border: 1px solid #304139;
-            background: #0d1511;
-            color: #62d18b;
+            border: 1px solid #1d2a33;
+            background: #0d141b;
+            color: #5ee6a0;
             font-family: inherit;
             font-size: 8px;
             font-weight: 700;
             letter-spacing: 1.5px;
+            text-transform: uppercase;
             cursor: pointer;
+            border-radius: 3px;
+            transition: color 0.15s ease, background-color 0.15s ease, border-color 0.15s ease;
         }
 
         .save-button:hover {
-            background: #121d16;
+            background: #101b15;
+            border-color: #5ee6a0;
+        }
+
+        .save-button:focus-visible {
+            outline: 1px solid #5ee6a0;
+            outline-offset: 2px;
         }
 
         .message {
             margin-top: 12px;
             padding: 12px 15px;
-            border: 1px solid #1c252d;
-            background: #080b0f;
-            color: #697781;
+            border: 1px solid #1d2a33;
+            background: #0a0f14;
+            color: #6d7d89;
             font-size: 8px;
+            border-radius: 3px;
             display: none;
         }
 
@@ -168,16 +200,16 @@
             align-items: center;
             gap: 14px;
             padding-bottom: 15px;
-            border-bottom: 1px solid #151d23;
+            border-bottom: 1px solid #1d2a33;
         }
 
         .account-avatar {
             width: 44px;
             height: 44px;
             border-radius: 50%;
-            border: 1px solid #1c252d;
-            background: #06090c;
-            color: #3f4a52;
+            border: 1px solid #2b3e4c;
+            background: #0a0f14;
+            color: #45545f;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -192,7 +224,7 @@
         }
 
         .account-name {
-            color: #dbe3e8;
+            color: #e3ebf1;
             font-size: 10px;
             font-weight: 600;
             letter-spacing: 1px;
@@ -200,25 +232,26 @@
 
         .account-meta {
             margin-top: 5px;
-            color: #3f4a52;
+            color: #45545f;
             font-family: "Courier New", monospace;
             font-size: 7px;
         }
 
         .account-field {
             padding: 12px 0;
-            border-bottom: 1px solid #151d23;
+            border-bottom: 1px solid #1d2a33;
         }
 
         .account-field-label {
-            color: #3f4a52;
+            color: #45545f;
             font-size: 6px;
             letter-spacing: 1.5px;
+            text-transform: uppercase;
         }
 
         .account-field-value {
             margin-top: 6px;
-            color: #aeb8bf;
+            color: #e3ebf1;
             font-family: "Courier New", monospace;
             font-size: 9px;
         }
@@ -226,16 +259,18 @@
         .claim-status {
             margin-bottom: 12px;
             padding: 10px 12px;
-            border-left: 2px solid #1c252d;
-            background: #06090c;
-            color: #3f4a52;
+            border-left: 2px solid #2b3e4c;
+            background: #0d141b;
+            color: #45545f;
             font-size: 7px;
             letter-spacing: 1.5px;
+            text-transform: uppercase;
+            border-radius: 3px;
         }
 
         .claim-status.claimed {
-            border-left-color: #62d18b;
-            color: #62d18b;
+            border-left-color: #5ee6a0;
+            color: #5ee6a0;
         }
 
         .claim-actions {
@@ -246,40 +281,51 @@
         .claim-button {
             flex: 1;
             height: 36px;
-            border: 1px solid #304139;
-            background: #0d1511;
-            color: #62d18b;
+            border: 1px solid #1d2a33;
+            background: #0d141b;
+            color: #5ee6a0;
             font-family: inherit;
             font-size: 8px;
             font-weight: 700;
             letter-spacing: 1.5px;
+            text-transform: uppercase;
             cursor: pointer;
+            border-radius: 3px;
+            transition: color 0.15s ease, background-color 0.15s ease, border-color 0.15s ease;
         }
 
         .claim-button:hover {
-            background: #121d16;
+            background: #101b15;
+            border-color: #5ee6a0;
+        }
+
+        .claim-button:focus-visible {
+            outline: 1px solid #5ee6a0;
+            outline-offset: 2px;
         }
 
         .claim-button.secondary {
-            border-color: #1c252d;
-            background: #0a0d10;
-            color: #697781;
+            border-color: #1d2a33;
+            background: #0a0f14;
+            color: #6d7d89;
         }
 
         .claim-button.secondary:hover {
             background: #101419;
+            border-color: #2b3e4c;
+            color: #e3ebf1;
         }
 
         .claim-message {
             margin-top: 10px;
             font-size: 7px;
             letter-spacing: 1.5px;
-            color: #697781;
+            color: #6d7d89;
             display: none;
         }
 
         .claim-message.error {
-            color: #d16262;
+            color: #e5533b;
         }
 
         .roster-panel {
@@ -295,7 +341,8 @@
             align-items: center;
             gap: 12px;
             padding: 10px 8px;
-            border-bottom: 1px solid #131a20;
+            border-bottom: 1px solid #1d2a33;
+            contain: content;
         }
 
         .roster-row:last-child {
@@ -306,31 +353,39 @@
             width: 8px;
             height: 8px;
             flex-shrink: 0;
-            background: #62d18b;
-            box-shadow: 0 0 8px rgba(98, 209, 139, 0.4);
+            background: #5ee6a0;
+            box-shadow: 0 0 8px rgba(94, 230, 160, 0.15);
         }
 
         .roster-country {
             flex: 1;
             min-width: 0;
-            color: #aeb8bf;
+            color: #e3ebf1;
             font-size: 9px;
             font-weight: 600;
             letter-spacing: 1px;
         }
 
         .roster-commander {
-            color: #3f4a52;
+            color: #45545f;
             font-family: "Courier New", monospace;
             font-size: 8px;
         }
 
         .roster-empty {
             padding: 16px;
-            color: #3f4a52;
+            color: #45545f;
             font-size: 8px;
             letter-spacing: 2px;
+            text-transform: uppercase;
             text-align: center;
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .save-button,
+            .claim-button {
+                transition: none;
+            }
         }
 
         @media (max-width: 1000px) {
@@ -536,7 +591,7 @@
                                     type="color"
                                     class="form-color"
                                     id="settingThemeColor"
-                                    value="#62d18b"
+                                    value="#5ee6a0"
                                 >
 
                             </div>
@@ -748,11 +803,11 @@ function setSystemStatus(online) {
         }
 
         if (dot) {
-            dot.style.background = "#62d18b";
+            dot.style.background = "#5ee6a0";
         }
 
         if (settingsDot) {
-            settingsDot.style.background = "#62d18b";
+            settingsDot.style.background = "#5ee6a0";
         }
 
     } else {
@@ -766,11 +821,11 @@ function setSystemStatus(online) {
         }
 
         if (dot) {
-            dot.style.background = "#d16262";
+            dot.style.background = "#e5533b";
         }
 
         if (settingsDot) {
-            settingsDot.style.background = "#d16262";
+            settingsDot.style.background = "#e5533b";
         }
     }
 }
@@ -785,7 +840,7 @@ function showMessage(message, error) {
 
     element.textContent = message;
     element.style.display = "block";
-    element.style.color = error ? "#d16262" : "#697781";
+    element.style.color = error ? "#e5533b" : "#6d7d89";
 }
 
 function buildAvatar(user) {
@@ -892,7 +947,7 @@ async function loadSettings() {
             theme_color:
                 local.theme_color ||
                 settings.theme_color ||
-                "#62d18b"
+                "#5ee6a0"
         };
 
         getElement("settingDisplayName").value =
@@ -1079,7 +1134,7 @@ function renderLeaders(leaders) {
         flag.style.background =
             factionColorFor(leader.country);
         flag.style.boxShadow =
-            `0 0 8px ${factionColorFor(leader.country)}66`;
+            `0 0 8px ${factionColorFor(leader.country)}26`;
 
         const country = document.createElement("div");
         country.className = "roster-country";
@@ -1164,7 +1219,7 @@ function factionColorFor(country) {
 
     const key = normalizeFactionName(country);
 
-    return factionColors[key] || "#62d18b";
+    return factionColors[key] || "#5ee6a0";
 }
 
 async function loadLeaders() {
@@ -1274,7 +1329,7 @@ async function pushSettings(payload) {
             window.stardustUserData.saveLocalSettings({
                 display_name: data.settings.display_name || payload.display_name || "",
                 country: data.settings.country || payload.country || "",
-                theme_color: data.settings.theme_color || payload.theme_color || "#62d18b"
+                theme_color: data.settings.theme_color || payload.theme_color || "#5ee6a0"
             });
         }
 

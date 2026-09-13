@@ -479,6 +479,18 @@ function scheduleReconnect() {
         );
 }
 
+let forceRenderQueued = false;
+
+function queueForceRender() {
+    if (forceRenderQueued) return;
+    forceRenderQueued = true;
+    requestAnimationFrame(() => {
+        forceRenderQueued = false;
+        updateCounts();
+        renderUnitList();
+    });
+}
+
 function connectWebSocket() {
     if (
         socket &&
@@ -532,8 +544,7 @@ function connectWebSocket() {
                             ? data.units
                             : [])
                     );
-                    updateCounts();
-                    renderUnitList();
+                    queueForceRender();
                 }
 
                 if (

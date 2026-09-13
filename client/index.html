@@ -42,9 +42,9 @@
 
         </div>
 
-        <div class="system-status" id="systemStatus">
+        <div class="system-status" id="systemStatus" role="status" aria-live="polite">
 
-            <span class="status-dot"></span>
+            <span class="status-dot" aria-hidden="true"></span>
 
             <span id="systemStatusText">
                 CONNECTING...
@@ -245,7 +245,9 @@
 
                     <div
                         class="chat"
-                        id="chat">
+                        id="chat"
+                        role="log"
+                        aria-live="polite">
 
                         <div class="message system">
 
@@ -267,9 +269,10 @@
                             id="chatInput"
                             placeholder="Enter command message..."
                             autocomplete="off"
+                            aria-label="Command channel message"
                         >
 
-                        <button id="sendButton">
+                        <button id="sendButton" aria-label="Send message">
                             SEND
                         </button>
 

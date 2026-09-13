@@ -23,6 +23,10 @@
     </script>
 
     <style>
+        body {
+            font-family: "Segoe UI", system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif;
+        }
+
         .map-page {
             width: 100%;
             height: 100%;
@@ -36,10 +40,11 @@
             align-items: center;
             justify-content: space-between;
             padding-bottom: 20px;
-            border-bottom: 1px solid #1c252d;
+            border-bottom: 1px solid #1d2a33;
         }
 
         .map-title {
+            color: #e3ebf1;
             font-size: 24px;
             font-weight: 600;
             letter-spacing: 5px;
@@ -47,16 +52,17 @@
 
         .map-subtitle {
             margin-top: 6px;
-            color: #697781;
-            font-size: 9px;
+            color: #6d7d89;
+            font-size: 8px;
             letter-spacing: 3px;
+            text-transform: uppercase;
         }
 
         .map-status {
             display: flex;
             align-items: center;
             gap: 8px;
-            color: #697781;
+            color: #6d7d89;
             font-size: 8px;
             font-weight: 600;
             letter-spacing: 1.5px;
@@ -66,23 +72,27 @@
             width: 7px;
             height: 7px;
             border-radius: 50%;
-            background: #62d18b;
-            box-shadow: 0 0 9px rgba(98, 209, 139, 0.45);
+            background: #5ee6a0;
+            box-shadow: 0 0 9px rgba(94, 230, 160, 0.15);
         }
 
         .force-filter-chip {
             padding: 4px 9px;
-            border: 1px solid #2a3a4f;
-            background: #0d141f;
-            color: #4d9bf0;
+            border: 1px solid #2b3e4c;
+            background: #0d141b;
+            color: #4cc9f0;
             font-size: 7px;
             letter-spacing: 1.5px;
+            text-transform: uppercase;
             cursor: pointer;
+            border-radius: 3px;
+            transition: color 0.15s ease, border-color 0.15s ease, background-color 0.15s ease;
         }
 
         .force-filter-chip:hover {
-            color: #ffffff;
-            border-color: #4d9bf0;
+            color: #e3ebf1;
+            border-color: #4cc9f0;
+            background: #101a22;
         }
 
         .map-container {
@@ -91,8 +101,9 @@
             height: calc(100vh - 126px);
             margin-top: 20px;
             overflow: hidden;
-            border: 1px solid #1c252d;
-            background: #020407;
+            border: 1px solid #1d2a33;
+            background: #05070a;
+            border-radius: 3px;
         }
 
         #mapGlobe {
@@ -106,18 +117,22 @@
             left: 16px;
             z-index: 10;
             width: 220px;
-            border: 1px solid #1c252d;
-            background: rgba(8, 11, 15, 0.94);
-            backdrop-filter: blur(8px);
+            border: 1px solid #1d2a33;
+            background: rgba(13, 20, 27, 0.96);
+            border-radius: 3px;
         }
 
         .overlay-title {
-            padding: 13px 15px;
-            border-bottom: 1px solid #1c252d;
-            color: #aeb8bf;
+            height: 42px;
+            display: flex;
+            align-items: center;
+            padding: 0 15px;
+            border-bottom: 1px solid #1d2a33;
+            color: #6d7d89;
             font-size: 8px;
             font-weight: 600;
             letter-spacing: 2px;
+            text-transform: uppercase;
         }
 
         .map-control {
@@ -127,15 +142,18 @@
             align-items: center;
             padding: 0 15px;
             border: 0;
-            border-bottom: 1px solid #151d23;
+            border-left: 2px solid transparent;
+            border-bottom: 1px solid #1d2a33;
             background: transparent;
-            color: #697781;
+            color: #6d7d89;
             font-family: inherit;
             font-size: 8px;
             font-weight: 600;
             letter-spacing: 1px;
             text-align: left;
+            text-transform: uppercase;
             cursor: pointer;
+            transition: color 0.15s ease, background-color 0.15s ease, border-color 0.15s ease;
         }
 
         .map-control:last-child {
@@ -143,17 +161,24 @@
         }
 
         .map-control:hover {
-            background: #0d1217;
-            color: #ffffff;
+            background: #0d141b;
+            color: #e3ebf1;
         }
 
         .map-control.active {
-            color: #ffffff;
+            color: #e3ebf1;
+            border-left-color: #5ee6a0;
         }
 
         .map-control:disabled {
             opacity: 0.45;
             cursor: not-allowed;
+        }
+
+        .map-control:focus-visible,
+        .force-filter-chip:focus-visible {
+            outline: 1px solid #4cc9f0;
+            outline-offset: 2px;
         }
 
         .map-info {
@@ -162,16 +187,17 @@
             bottom: 16px;
             z-index: 10;
             width: 230px;
-            border: 1px solid #1c252d;
-            background: rgba(8, 11, 15, 0.94);
-            backdrop-filter: blur(8px);
+            border: 1px solid #1d2a33;
+            background: rgba(13, 20, 27, 0.96);
+            border-radius: 3px;
         }
 
         .map-info-row {
             display: flex;
+            align-items: center;
             justify-content: space-between;
             padding: 11px 15px;
-            border-bottom: 1px solid #151d23;
+            border-bottom: 1px solid #1d2a33;
         }
 
         .map-info-row:last-child {
@@ -179,13 +205,14 @@
         }
 
         .map-info-row span:first-child {
-            color: #56636e;
+            color: #45545f;
             font-size: 7px;
             letter-spacing: 1.5px;
+            text-transform: uppercase;
         }
 
         .map-info-row span:last-child {
-            color: #aeb8bf;
+            color: #e3ebf1;
             font-family: "Courier New", monospace;
             font-size: 8px;
         }
@@ -197,6 +224,13 @@
 
         .cesium-widget-credits {
             font-size: 9px;
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .force-filter-chip,
+            .map-control {
+                transition: none;
+            }
         }
 
         @media (max-width: 700px) {

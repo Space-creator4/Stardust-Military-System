@@ -2,6 +2,71 @@
     box-sizing: border-box;
 }
 
+/* ---------- Shared control base (per-page CSS overrides after this) ---------- */
+
+#app button,
+#app input,
+#app select,
+#app textarea {
+    font-family: inherit;
+}
+
+.content button,
+.content input,
+.content select,
+.content textarea {
+    -webkit-appearance: none;
+    appearance: none;
+    border-radius: 3px;
+    outline: none;
+}
+
+.content button {
+    border: 1px solid #2b3e4c;
+    background: #0d141b;
+    color: #e3ebf1;
+    font-family: inherit;
+    font-size: 9px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    cursor: pointer;
+    transition:
+        background-color 0.15s ease,
+        border-color 0.15s ease,
+        color 0.15s ease;
+}
+
+.content button:hover {
+    background: #101a22;
+    border-color: #4cc9f0;
+    color: #ffffff;
+}
+
+.content input,
+.content select,
+.content textarea {
+    min-width: 0;
+    border: 1px solid #1d2a33;
+    background: #0a0f14;
+    color: #e3ebf1;
+    font-family: inherit;
+    font-size: 10px;
+    transition:
+        border-color 0.15s ease,
+        background-color 0.15s ease;
+}
+
+.content input:focus,
+.content select:focus,
+.content textarea:focus {
+    border-color: #4cc9f0;
+}
+
+.content input::placeholder,
+.content textarea::placeholder {
+    color: #45545f;
+}
+
 html,
 body {
     margin: 0;
@@ -9,8 +74,8 @@ body {
     width: 100%;
     height: 100%;
     background: #05070a;
-    color: #e7edf1;
-    font-family: Arial, Helvetica, sans-serif;
+    color: #e3ebf1;
+    font-family: "Segoe UI", system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif;
 }
 
 body {
@@ -33,8 +98,8 @@ header {
 
     padding: 0 24px;
 
-    background: #080b0f;
-    border-bottom: 1px solid #1c252d;
+    background: #0a0f14;
+    border-bottom: 1px solid #1d2a33;
 }
 
 .brand {
@@ -51,14 +116,19 @@ header {
     align-items: center;
     justify-content: center;
 
-    border: 1px solid #34414b;
+    border: 1px solid #2b3e4c;
+    border-radius: 3px;
 
-    color: #dbe3e8;
+    background: #0d141b;
+
+    color: #4cc9f0;
     font-size: 18px;
 }
 
 .brand h1 {
     margin: 0;
+
+    color: #e3ebf1;
 
     font-size: 16px;
     font-weight: 600;
@@ -71,9 +141,10 @@ header {
 
     margin-top: 3px;
 
-    color: #56636e;
+    color: #6d7d89;
 
-    font-size: 7px;
+    font-size: 8px;
+    font-weight: 600;
     letter-spacing: 3px;
 }
 
@@ -82,12 +153,12 @@ header {
     align-items: center;
     gap: 8px;
 
-    color: #697781;
+    color: #6d7d89;
 
     font-size: 8px;
     font-weight: 600;
 
-    letter-spacing: 1.5px;
+    letter-spacing: 2px;
 }
 
 .status-dot {
@@ -96,9 +167,9 @@ header {
 
     border-radius: 50%;
 
-    background: #62d18b;
+    background: #5ee6a0;
 
-    box-shadow: 0 0 9px rgba(98, 209, 139, 0.45);
+    box-shadow: 0 0 9px rgba(94, 230, 160, 0.15);
 }
 
 main {
@@ -119,9 +190,9 @@ main {
 
     padding: 24px 16px;
 
-    background: #080b0f;
+    background: #0a0f14;
 
-    border-right: 1px solid #1c252d;
+    border-right: 1px solid #1d2a33;
 }
 
 .sidebar-section {
@@ -133,9 +204,9 @@ main {
 .sidebar-label {
     margin: 0 12px 10px;
 
-    color: #3f4a52;
+    color: #45545f;
 
-    font-size: 7px;
+    font-size: 8px;
     font-weight: 600;
 
     letter-spacing: 2.5px;
@@ -153,10 +224,11 @@ main {
     padding: 0 12px;
 
     border: 1px solid transparent;
+    border-radius: 3px;
 
     background: transparent;
 
-    color: #697781;
+    color: #6d7d89;
 
     text-decoration: none;
 
@@ -169,25 +241,27 @@ main {
     cursor: pointer;
 
     transition:
-        background 0.15s ease,
+        background-color 0.15s ease,
         border-color 0.15s ease,
         color 0.15s ease;
 }
 
 .nav:hover {
-    background: #0d1217;
+    background: #0d141b;
 
-    border-color: #1c252d;
+    border-color: #1d2a33;
 
-    color: #d8e0e5;
+    color: #e3ebf1;
 }
 
 .nav.active {
-    background: #0d1217;
+    background: #0d141b;
 
-    border-color: #34414b;
+    border-color: #2b3e4c;
 
-    color: #ffffff;
+    color: #e3ebf1;
+
+    box-shadow: inset 2px 0 0 #5ee6a0;
 }
 
 .nav-icon {
@@ -196,13 +270,13 @@ main {
     display: flex;
     justify-content: center;
 
-    color: #56636e;
+    color: #45545f;
 
     font-size: 12px;
 }
 
 .nav.active .nav-icon {
-    color: #e7edf1;
+    color: #5ee6a0;
 }
 
 .sidebar-bottom {
@@ -215,13 +289,13 @@ main {
 
 .nav.admin:hover {
     color: #d9c47a;
-    border-color: #403a25;
+    border-color: #3a3427;
     background: #100f0a;
 }
 
 .nav.logout:hover {
-    color: #d16262;
-    border-color: #3a2525;
+    color: #e5533b;
+    border-color: #3a2020;
     background: #110b0b;
 }
 
@@ -244,13 +318,13 @@ main {
 
     padding-bottom: 24px;
 
-    border-bottom: 1px solid #1c252d;
+    border-bottom: 1px solid #1d2a33;
 }
 
 .eyebrow {
     margin: 0 0 7px;
 
-    color: #56636e;
+    color: #45545f;
 
     font-size: 8px;
     font-weight: 600;
@@ -261,7 +335,7 @@ main {
 .welcome h2 {
     margin: 0;
 
-    color: #e7edf1;
+    color: #e3ebf1;
 
     font-size: 24px;
     font-weight: 600;
@@ -272,7 +346,7 @@ main {
 .welcome > div > p:last-child {
     margin: 8px 0 0;
 
-    color: #697781;
+    color: #6d7d89;
 
     font-size: 10px;
 }
@@ -280,9 +354,9 @@ main {
 .clock {
     min-width: 100px;
 
-    color: #9ca8b0;
+    color: #e3ebf1;
 
-    font-family: "Courier New", monospace;
+    font-family: "Courier New", Courier, monospace;
 
     font-size: 16px;
     font-weight: 600;
@@ -305,9 +379,9 @@ main {
 .earth-panel {
     min-width: 0;
 
-    border: 1px solid #1c252d;
+    border: 1px solid #1d2a33;
 
-    background: #080b0f;
+    background: #0a0f14;
 }
 
 .panel-title,
@@ -320,9 +394,9 @@ main {
 
     padding: 0 16px;
 
-    border-bottom: 1px solid #1c252d;
+    border-bottom: 1px solid #1d2a33;
 
-    color: #aeb8bf;
+    color: #6d7d89;
 
     font-size: 8px;
     font-weight: 600;
@@ -335,7 +409,7 @@ main {
     align-items: center;
     gap: 6px;
 
-    color: #62d18b;
+    color: #5ee6a0;
 
     font-size: 7px;
 }
@@ -346,20 +420,18 @@ main {
 
     border-radius: 50%;
 
-    background: #62d18b;
+    background: #5ee6a0;
 
-    box-shadow: 0 0 7px rgba(98, 209, 139, 0.5);
+    box-shadow: 0 0 7px rgba(94, 230, 160, 0.15);
 }
 
 #globe {
     width: 100%;
-    height: 520px;
-
+    height: 100%;
+    min-height: 400px;
     position: relative;
-
     overflow: hidden;
-
-    background: #020407;
+    background: #05070a;
 }
 
 #globe .cesium-viewer,
@@ -397,31 +469,34 @@ main {
 
     padding: 18px;
 
-    border: 1px solid #1c252d;
+    border: 1px solid #1d2a33;
+    border-radius: 3px;
 
-    background: #080b0f;
+    background: #0a0f14;
 }
 
 .info-card span {
-    color: #697781;
+    color: #6d7d89;
 
     font-size: 8px;
     font-weight: 600;
 
-    letter-spacing: 1.5px;
+    letter-spacing: 2px;
 }
 
 .info-card strong {
-    color: #e7edf1;
+    color: #e3ebf1;
+
+    font-family: "Courier New", Courier, monospace;
 
     font-size: 28px;
-    font-weight: 500;
+    font-weight: 600;
 
     letter-spacing: 1px;
 }
 
 .info-card strong.green {
-    color: #62d18b;
+    color: #5ee6a0;
 
     font-size: 11px;
 
@@ -441,15 +516,16 @@ main {
 .panel {
     min-width: 0;
 
-    border: 1px solid #1c252d;
+    border: 1px solid #1d2a33;
+    border-radius: 3px;
 
-    background: #080b0f;
+    background: #0a0f14;
 }
 
 .panel-indicator {
-    color: #56636e;
+    color: #45545f;
 
-    font-size: 7px;
+    font-size: 8px;
 
     letter-spacing: 1px;
 }
@@ -461,7 +537,7 @@ main {
     align-items: center;
     justify-content: center;
 
-    color: #3f4a52;
+    color: #45545f;
 
     font-size: 8px;
     font-weight: 600;
@@ -476,7 +552,10 @@ main {
 
     overflow-y: auto;
 
-    background: #06090c;
+    background: #05070a;
+
+    content-visibility: auto;
+    contain-intrinsic-size: 150px 150px;
 }
 
 .message {
@@ -493,7 +572,7 @@ main {
 .message b {
     flex-shrink: 0;
 
-    color: #62d18b;
+    color: #5ee6a0;
 
     font-size: 8px;
 
@@ -501,11 +580,11 @@ main {
 }
 
 .message span {
-    color: #89959d;
+    color: #6d7d89;
 }
 
 .message.system b {
-    color: #697781;
+    color: #45545f;
 }
 
 .chat-input {
@@ -513,7 +592,7 @@ main {
 
     height: 42px;
 
-    border-top: 1px solid #1c252d;
+    border-top: 1px solid #1d2a33;
 }
 
 .chat-input input {
@@ -526,27 +605,27 @@ main {
     border: 0;
     outline: 0;
 
-    background: #06090c;
+    background: #05070a;
 
-    color: #dbe3e8;
+    color: #e3ebf1;
 
     font-family: inherit;
     font-size: 9px;
 }
 
 .chat-input input::placeholder {
-    color: #3f4a52;
+    color: #45545f;
 }
 
 .chat-input button {
     width: 70px;
 
     border: 0;
-    border-left: 1px solid #1c252d;
+    border-left: 1px solid #1d2a33;
 
-    background: #0d1217;
+    background: #0d141b;
 
-    color: #9ca8b0;
+    color: #6d7d89;
 
     font-size: 8px;
     font-weight: 600;
@@ -555,12 +634,19 @@ main {
 
     cursor: pointer;
 
-    transition: 0.15s ease;
+    transition:
+        background-color 0.15s ease,
+        color 0.15s ease;
 }
 
 .chat-input button:hover {
-    background: #151c22;
+    background: #101a22;
     color: #ffffff;
+}
+
+:focus-visible {
+    outline: 1px solid #4cc9f0;
+    outline-offset: 2px;
 }
 
 ::-webkit-scrollbar {
@@ -572,11 +658,34 @@ main {
 }
 
 ::-webkit-scrollbar-thumb {
-    background: #1c252d;
+    background: #1d2a33;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-    background: #34414b;
+    background: #2b3e4c;
+}
+
+#globe {
+    width: 100%;
+    height: 100%;
+    min-height: 400px;
+    position: relative;
+    overflow: hidden;
+}
+
+.earth-panel {
+    position: relative;
+    overflow: hidden;
+}
+
+.earth-panel #globe {
+    position: absolute;
+    inset: 0;
+}
+
+.earth-panel .panel-title {
+    position: relative;
+    z-index: 10;
 }
 
 @media (max-width: 1100px) {
@@ -664,25 +773,13 @@ main {
     }
 }
 
-#globe {
-    width: 100%;
-    height: 100%;
-    min-height: 400px;
-    position: relative;
-    overflow: hidden;
-}
-
-.earth-panel {
-    position: relative;
-    overflow: hidden;
-}
-
-.earth-panel #globe {
-    position: absolute;
-    inset: 0;
-}
-
-.earth-panel .panel-title {
-    position: relative;
-    z-index: 10;
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.001ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.001ms !important;
+        scroll-behavior: auto !important;
+    }
 }

@@ -9,6 +9,10 @@
     <link rel="stylesheet" href="style.css">
 
     <style>
+        body {
+            font-family: "Segoe UI", system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif;
+        }
+
         .chat-page {
             width: 100%;
             min-height: 100%;
@@ -22,10 +26,11 @@
             align-items: center;
             justify-content: space-between;
             padding-bottom: 20px;
-            border-bottom: 1px solid #1c252d;
+            border-bottom: 1px solid #1d2a33;
         }
 
         .chat-title {
+            color: #e3ebf1;
             font-size: 24px;
             font-weight: 600;
             letter-spacing: 5px;
@@ -33,16 +38,17 @@
 
         .chat-subtitle {
             margin-top: 6px;
-            color: #697781;
-            font-size: 9px;
+            color: #6d7d89;
+            font-size: 8px;
             letter-spacing: 3px;
+            text-transform: uppercase;
         }
 
         .chat-status {
             display: flex;
             align-items: center;
             gap: 8px;
-            color: #697781;
+            color: #6d7d89;
             font-size: 8px;
             font-weight: 600;
             letter-spacing: 1.5px;
@@ -52,8 +58,8 @@
             width: 7px;
             height: 7px;
             border-radius: 50%;
-            background: #d16262;
-            box-shadow: 0 0 9px rgba(98, 209, 139, 0.45);
+            background: #e5533b;
+            box-shadow: 0 0 9px rgba(229, 83, 59, 0.15);
         }
 
         .chat-layout {
@@ -65,8 +71,11 @@
         }
 
         .chat-channels {
-            border: 1px solid #1c252d;
-            background: #080b0f;
+            display: flex;
+            flex-direction: column;
+            border: 1px solid #1d2a33;
+            background: #0a0f14;
+            border-radius: 3px;
         }
 
         .channel-header {
@@ -74,11 +83,12 @@
             display: flex;
             align-items: center;
             padding: 0 16px;
-            border-bottom: 1px solid #1c252d;
-            color: #aeb8bf;
+            border-bottom: 1px solid #1d2a33;
+            color: #6d7d89;
             font-size: 8px;
             font-weight: 600;
             letter-spacing: 2px;
+            text-transform: uppercase;
         }
 
         .channel {
@@ -88,45 +98,49 @@
             align-items: center;
             padding: 0 16px;
             border: 0;
-            border-bottom: 1px solid #151d23;
+            border-left: 2px solid transparent;
+            border-bottom: 1px solid #1d2a33;
             background: transparent;
-            color: #697781;
+            color: #6d7d89;
             font-family: inherit;
             font-size: 9px;
             font-weight: 600;
             letter-spacing: 1px;
             text-align: left;
+            text-transform: uppercase;
             cursor: pointer;
+            transition: color 0.15s ease, background-color 0.15s ease, border-color 0.15s ease;
         }
 
         .channel:hover {
-            background: #0d1217;
-            color: #d8e0e5;
+            background: #0d141b;
+            color: #e3ebf1;
         }
 
         .channel.active {
-            background: #0d1217;
-            color: #ffffff;
-            border-left: 2px solid #62d18b;
+            background: #0d141b;
+            color: #e3ebf1;
+            border-left-color: #5ee6a0;
         }
 
         .channel-icon {
             width: 25px;
-            color: #56636e;
+            color: #45545f;
             font-size: 13px;
         }
 
         .channel.active .channel-icon {
-            color: #62d18b;
+            color: #5ee6a0;
         }
 
         .channel-country {
             margin-top: 20px;
             padding: 0 16px 10px;
-            color: #3f4a52;
+            color: #45545f;
             font-size: 7px;
             font-weight: 600;
             letter-spacing: 2px;
+            text-transform: uppercase;
         }
 
         .chat-panel {
@@ -134,8 +148,9 @@
             min-height: 0;
             display: flex;
             flex-direction: column;
-            border: 1px solid #1c252d;
-            background: #080b0f;
+            border: 1px solid #1d2a33;
+            background: #0a0f14;
+            border-radius: 3px;
         }
 
         .chat-panel-header {
@@ -145,28 +160,31 @@
             justify-content: space-between;
             padding: 0 18px;
             flex-shrink: 0;
-            border-bottom: 1px solid #1c252d;
+            border-bottom: 1px solid #1d2a33;
         }
 
         .active-channel-name {
-            color: #e7edf1;
+            color: #e3ebf1;
             font-size: 10px;
             font-weight: 600;
             letter-spacing: 2px;
+            text-transform: uppercase;
         }
 
         .active-channel-description {
             margin-top: 5px;
-            color: #56636e;
+            color: #45545f;
             font-size: 7px;
             letter-spacing: 1px;
+            text-transform: uppercase;
         }
 
         .connection-status {
-            color: #d16262;
+            color: #e5533b;
             font-size: 7px;
             font-weight: 600;
             letter-spacing: 1.5px;
+            text-transform: uppercase;
         }
 
         #chatMessages {
@@ -174,7 +192,7 @@
             min-height: 0;
             padding: 18px;
             overflow-y: auto;
-            background: #06090c;
+            background: #0a0f14;
         }
 
         .message {
@@ -183,6 +201,7 @@
             margin-bottom: 16px;
             font-size: 9px;
             line-height: 1.6;
+            contain: content;
         }
 
         .message-meta {
@@ -191,7 +210,7 @@
         }
 
         .message-user {
-            color: #62d18b;
+            color: #5ee6a0;
             font-size: 8px;
             font-weight: 600;
             letter-spacing: 1px;
@@ -202,7 +221,7 @@
 
         .message-time {
             margin-top: 3px;
-            color: #3f4a52;
+            color: #45545f;
             font-family: "Courier New", monospace;
             font-size: 7px;
         }
@@ -216,8 +235,9 @@
             max-width: 190px;
             margin-top: 1px;
             padding: 2px 7px;
-            border: 1px solid #22303a;
-            background: #080b0f;
+            border: 1px solid #2b3e4c;
+            background: #0d141b;
+            border-radius: 3px;
         }
 
         .chat-country-dot {
@@ -225,11 +245,11 @@
             height: 6px;
             flex-shrink: 0;
             border-radius: 50%;
-            background: #62d18b;
+            background: #5ee6a0;
         }
 
         .chat-country-name {
-            color: #7f8c95;
+            color: #6d7d89;
             font-size: 6.5px;
             letter-spacing: 1px;
             overflow: hidden;
@@ -238,23 +258,23 @@
         }
 
         .message-text {
-            color: #9ca8b0;
+            color: #6d7d89;
             word-break: break-word;
         }
 
         .message.system .message-user {
-            color: #697781;
+            color: #6d7d89;
         }
 
         .message.system .message-text {
-            color: #697781;
+            color: #45545f;
         }
 
         .chat-input-area {
             display: flex;
             height: 52px;
             flex-shrink: 0;
-            border-top: 1px solid #1c252d;
+            border-top: 1px solid #1d2a33;
         }
 
         #chatInput {
@@ -263,32 +283,39 @@
             padding: 0 16px;
             border: 0;
             outline: 0;
-            background: #080b0f;
-            color: #dbe3e8;
+            background: #0a0f14;
+            color: #e3ebf1;
             font-family: inherit;
             font-size: 9px;
         }
 
         #chatInput::placeholder {
-            color: #3f4a52;
+            color: #45545f;
+        }
+
+        #chatInput:focus-visible {
+            outline: 1px solid #4cc9f0;
+            outline-offset: -2px;
         }
 
         #sendButton {
             width: 90px;
             border: 0;
-            border-left: 1px solid #1c252d;
-            background: #0d1217;
-            color: #9ca8b0;
+            border-left: 1px solid #1d2a33;
+            background: #0d141b;
+            color: #6d7d89;
             font-family: inherit;
             font-size: 8px;
             font-weight: 600;
             letter-spacing: 1.5px;
+            text-transform: uppercase;
             cursor: pointer;
+            transition: color 0.15s ease, background-color 0.15s ease;
         }
 
         #sendButton:hover {
-            background: #151c22;
-            color: #ffffff;
+            background: #16222b;
+            color: #e3ebf1;
         }
 
         #sendButton:disabled {
@@ -296,23 +323,41 @@
             cursor: not-allowed;
         }
 
+        #sendButton:focus-visible {
+            outline: 1px solid #4cc9f0;
+            outline-offset: 2px;
+        }
+
         .online-panel {
             margin-top: 20px;
             padding: 14px 16px;
-            border-top: 1px solid #151d23;
+            border-top: 1px solid #1d2a33;
         }
 
         .online-label {
-            color: #3f4a52;
+            color: #45545f;
             font-size: 7px;
             letter-spacing: 2px;
+            text-transform: uppercase;
         }
 
         .online-count {
             margin-top: 6px;
-            color: #62d18b;
+            color: #5ee6a0;
             font-family: "Courier New", monospace;
             font-size: 13px;
+        }
+
+        .channel:focus-visible {
+            outline: 1px solid #4cc9f0;
+            outline-offset: -2px;
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .channel,
+            #sendButton {
+                transition: none;
+            }
         }
 
         @media (max-width: 800px) {
@@ -662,7 +707,7 @@ function normalizeChatName(value) {
 function chatCountryColor(country) {
     return chatFactionColors[
         normalizeChatName(country)
-    ] || "#62d18b";
+    ] || "#5ee6a0";
 }
 
 async function loadChatFactionColors() {
@@ -723,8 +768,23 @@ function addMessage(
     });
 
     if (channel === currentChannel) {
-        renderMessages();
+        scheduleRenderMessages();
     }
+}
+
+let messagesRenderQueued = false;
+
+function scheduleRenderMessages() {
+    if (messagesRenderQueued) {
+        return;
+    }
+
+    messagesRenderQueued = true;
+
+    requestAnimationFrame(() => {
+        messagesRenderQueued = false;
+        renderMessages();
+    });
 }
 
 function renderMessages() {
@@ -925,19 +985,19 @@ function setConnection(connected) {
             "CONNECTED";
 
         connectionStatus.style.color =
-            "#62d18b";
+            "#5ee6a0";
 
         systemStatus.textContent =
             "SYSTEM ONLINE";
 
         if (chatDot) {
             chatDot.style.background =
-                "#62d18b";
+                "#5ee6a0";
         }
 
         if (systemDot) {
             systemDot.style.background =
-                "#62d18b";
+                "#5ee6a0";
         }
 
         if (sendButton) {
@@ -954,19 +1014,19 @@ function setConnection(connected) {
             "DISCONNECTED";
 
         connectionStatus.style.color =
-            "#d16262";
+            "#e5533b";
 
         systemStatus.textContent =
             "SYSTEM OFFLINE";
 
         if (chatDot) {
             chatDot.style.background =
-                "#d16262";
+                "#e5533b";
         }
 
         if (systemDot) {
             systemDot.style.background =
-                "#d16262";
+                "#e5533b";
         }
 
         if (sendButton) {

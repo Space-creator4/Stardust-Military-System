@@ -28,9 +28,15 @@
 
         var api = window.stardustApi("/");
 
-        var host = /^https?:\/\//i.test(api)
-            ? new URL(api).host
-            : window.location.host;
+        var host;
+
+        if (/^https?:\/\//i.test(api)) {
+            var anchor = document.createElement("a");
+            anchor.href = api;
+            host = anchor.host;
+        } else {
+            host = window.location.host;
+        }
 
         return protocol + "//" + host;
 

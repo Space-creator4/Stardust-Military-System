@@ -1054,6 +1054,9 @@ async function createGlobe() {
         new Cesium.Viewer(
             container,
             {
+                requestRenderMode: true,
+                maximumRenderTimeChange: Infinity,
+
                 terrainProvider:
                     new Cesium.EllipsoidTerrainProvider(),
 
@@ -1159,9 +1162,13 @@ async function createGlobe() {
         );
     }
 
+    viewer.scene.requestRender();
+
     await loadCountryFactions();
 
     await loadCountries(viewer);
+
+    viewer.scene.requestRender();
 
     setupCountryInteraction(viewer);
 
@@ -1367,6 +1374,8 @@ function renderUnitMarkers(viewer) {
             });
         }
     }
+
+    viewer.scene.requestRender();
 }
 
 function updateMarkerCount() {
@@ -1379,6 +1388,21 @@ function updateMarkerCount() {
         activeMarkers.textContent =
             markerEntities.size;
     }
+}
+
+let unitRenderQueued = false;
+
+function scheduleUnitRender() {
+    if (unitRenderQueued) {
+        return;
+    }
+
+    unitRenderQueued = true;
+
+    requestAnimationFrame(() => {
+        unitRenderQueued = false;
+        renderUnitMarkers(window.stardustViewer);
+    });
 }
 
 function bindMapControls(viewer) {
@@ -1503,6 +1527,8 @@ function bindMapControls(viewer) {
                     bordersVisible
                         ? "COUNTRY BORDERS: ON"
                         : "COUNTRY BORDERS: OFF";
+
+                viewer.scene.requestRender();
             }
         );
     }
@@ -1530,6 +1556,8 @@ function bindMapControls(viewer) {
                     buildingsVisible
                         ? "3D BUILDINGS: ON"
                         : "3D BUILDINGS: OFF";
+
+                viewer.scene.requestRender();
             }
         );
 
@@ -1630,32 +1658,56 @@ function addChatMessage(username, message) {
         return;
     }
 
-    const element =
-        document.createElement("div");
+    pendingChatMessages.push({ username, message });
 
-    element.className = "message";
+    if (!chatRenderQueued) {
+        chatRenderQueued = true;
+        requestAnimationFrame(flushChatMessages);
+    }
+}
 
-    const usernameElement =
-        document.createElement("b");
+const pendingChatMessages = [];
+let chatRenderQueued = false;
 
-    usernameElement.textContent =
-        username;
+function flushChatMessages() {
+    chatRenderQueued = false;
 
-    const messageElement =
-        document.createElement("span");
+    if (!chat) {
+        pendingChatMessages.length = 0;
+        return;
+    }
 
-    messageElement.textContent =
-        message;
+    const batch = pendingChatMessages.slice();
+    pendingChatMessages.length = 0;
 
-    element.appendChild(
-        usernameElement
-    );
+    for (const item of batch) {
+        const element =
+            document.createElement("div");
 
-    element.appendChild(
-        messageElement
-    );
+        element.className = "message";
 
-    chat.appendChild(element);
+        const usernameElement =
+            document.createElement("b");
+
+        usernameElement.textContent =
+            item.username;
+
+        const messageElement =
+            document.createElement("span");
+
+        messageElement.textContent =
+            item.message;
+
+        element.appendChild(
+            usernameElement
+        );
+
+        element.appendChild(
+            messageElement
+        );
+
+        chat.appendChild(element);
+    }
 
     chat.scrollTop =
         chat.scrollHeight;
@@ -1776,9 +1828,7 @@ if (
                     window.stardustUnits =
                         stardustUnits;
 
-                    renderUnitMarkers(
-                        window.stardustViewer
-                    );
+                    scheduleUnitRender();
                 }
 
                 if (
@@ -2012,9 +2062,7 @@ window.addEventListener(
                         null;
                     filterChip.style.display =
                         "none";
-                    renderUnitMarkers(
-                        window.stardustViewer
-                    );
+                    scheduleUnitRender();
                 }
             );
         }
