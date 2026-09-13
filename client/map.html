@@ -70,6 +70,21 @@
             box-shadow: 0 0 9px rgba(98, 209, 139, 0.45);
         }
 
+        .force-filter-chip {
+            padding: 4px 9px;
+            border: 1px solid #2a3a4f;
+            background: #0d141f;
+            color: #4d9bf0;
+            font-size: 7px;
+            letter-spacing: 1.5px;
+            cursor: pointer;
+        }
+
+        .force-filter-chip:hover {
+            color: #ffffff;
+            border-color: #4d9bf0;
+        }
+
         .map-container {
             position: relative;
             width: 100%;
@@ -323,6 +338,12 @@
                             INITIALIZING MAP
                         </span>
 
+                        <span
+                            class="force-filter-chip"
+                            id="forceFilterChip"
+                            style="display: none">
+                        </span>
+
                     </div>
 
                 </div>
@@ -383,7 +404,7 @@
 
                         <div class="map-info-row">
                             <span>ACTIVE MARKERS</span>
-                            <span>0</span>
+                            <span id="activeMarkers">0</span>
                         </div>
 
                     </div>

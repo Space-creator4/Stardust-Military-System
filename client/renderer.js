@@ -15,6 +15,22 @@ let currentUser = null;
 let socket = null;
 let reconnectTimer = null;
 let reconnectDelay = 1000;
+let stardustUnits = [];
+let markerEntities = new Map();
+let unitForceFilter = null;
+let highlightUnitId = null;
+let unitFlyDone = false;
+let countryTileEntities = [];
+let osmBuildingsPrimitive = null;
+
+const UNIT_TYPE_COLORS = {
+    infantry: "#62d18b",
+    armour: "#f0b94d",
+    mechanized: "#4d9bf0",
+    recon: "#38a6a5",
+    artillery: "#e31a1c",
+    logistics: "#b084d9"
+};
 
 const DEFAULT_COUNTRY_COLOR = "#d1dbdd";
 
@@ -748,7 +764,7 @@ function drawCountryPolygon(
     const color =
         getCountryColor(countryCode);
 
-    return viewer.entities.add({
+    const entity = viewer.entities.add({
         name: countryCode,
 
         polygon: {
@@ -779,6 +795,10 @@ function drawCountryPolygon(
             mapChartColor: color
         }
     });
+
+    countryTileEntities.push(entity);
+
+    return entity;
 }
 
 function drawCountryGeometry(
@@ -1125,6 +1145,9 @@ async function createGlobe() {
                 osmBuildings
             );
 
+            osmBuildingsPrimitive =
+                osmBuildings;
+
             console.log(
                 "Cesium OSM Buildings loaded."
             );
@@ -1149,7 +1172,424 @@ async function createGlobe() {
     window.stardustFactions = COUNTRY_FACTIONS;
     window.stardustCountryFactionByName = FACTION_BY_NAME;
 
+    bindMapControls(viewer);
+
+    renderUnitMarkers(viewer);
+
     return viewer;
+}
+
+function unitColor(unit) {
+    if (
+        unit &&
+        unit.country
+    ) {
+        const lookup =
+            FACTION_BY_NAME[
+                normalizeCountryName(
+                    unit.country
+                )
+            ];
+
+        if (lookup && lookup.color) {
+            return lookup.color;
+        }
+    }
+
+    return (
+        UNIT_TYPE_COLORS[
+            unit && unit.type
+        ] || UNIT_TYPE_COLORS.infantry
+    );
+}
+
+function clearUnitMarkers() {
+    const viewer =
+        window.stardustViewer;
+
+    if (!viewer) {
+        return;
+    }
+
+    for (const entity of
+            markerEntities.values()) {
+        viewer.entities.remove(entity);
+    }
+
+    markerEntities.clear();
+}
+
+function renderUnitMarkers(viewer) {
+    if (!viewer) {
+        return;
+    }
+
+    clearUnitMarkers();
+
+    const filtered =
+        unitForceFilter
+            ? stardustUnits.filter(
+                unit =>
+                    unit.type ===
+                    unitForceFilter
+            )
+            : stardustUnits;
+
+    for (const unit of filtered) {
+        if (
+            !Number.isFinite(unit.lat) ||
+            !Number.isFinite(unit.lon)
+        ) {
+            continue;
+        }
+
+        const position =
+            Cesium.Cartesian3.fromDegrees(
+                unit.lon,
+                unit.lat,
+                500
+            );
+
+        const color =
+            Cesium.Color.fromCssColorString(
+                unitColor(unit)
+            );
+
+        const isHighlight =
+            highlightUnitId &&
+            unit.id ===
+                highlightUnitId;
+
+        const label = isHighlight
+            ? `◉ ${unit.name}`
+            : unit.name;
+
+        const entity =
+            viewer.entities.add({
+                id: `unit-${unit.id}`,
+                name: unit.name,
+                position,
+                point: {
+                    pixelSize:
+                        isHighlight
+                            ? 14
+                            : 9,
+                    color,
+                    outlineColor:
+                        isHighlight
+                            ? Cesium.Color.WHITE
+                            : Cesium.Color.BLACK
+                            .withAlpha(0.9),
+                    outlineWidth:
+                        isHighlight
+                            ? 3
+                            : 1.5,
+                    heightReference:
+                        Cesium.HeightReference.NONE
+                },
+                label: {
+                    text: label,
+                    font:
+                        "700 10px \"Segoe UI\", sans-serif",
+                    fillColor:
+                        isHighlight
+                            ? Cesium.Color.WHITE
+                            : Cesium.Color
+                                .fromCssColorString(
+                                    "#d6dde2"
+                                ),
+                    pixelOffset:
+                        new Cesium.Cartesian2(
+                            0,
+                            -16
+                        ),
+                    showBackground: true,
+                    backgroundColor:
+                        Cesium.Color
+                            .BLACK.withAlpha(
+                                0.6
+                            ),
+                    position:
+                        new Cesium.ConstantPositionProperty(
+                            position
+                        ),
+                    horizontalOrigin:
+                        Cesium.HorizontalOrigin
+                            .CENTER,
+                    verticalOrigin:
+                        Cesium.VerticalOrigin
+                            .BOTTOM,
+                    disableDepthTestDistance:
+                        Number.POSITIVE_INFINITY,
+                    style:
+                        Cesium.LabelStyle
+                            .FILL
+                },
+                properties: {
+                    unit: true,
+                    unitId: unit.id,
+                    unitType: unit.type,
+                    unitStatus: unit.status,
+                    unitPersonnel:
+                        unit.personnel,
+                    unitCountry:
+                        unit.country || ""
+                }
+            });
+
+        markerEntities.set(
+            unit.id,
+            entity
+        );
+    }
+
+    updateMarkerCount();
+
+    if (
+        highlightUnitId &&
+        !unitFlyDone
+    ) {
+        const target =
+            markerEntities.get(
+                highlightUnitId
+            );
+
+        if (target) {
+            unitFlyDone = true;
+
+            viewer.camera.flyTo({
+                destination:
+                    target.position
+                        .getValue(
+                            Cesium.JulianDate.now()
+                        ),
+                duration: 1.6
+            });
+        }
+    }
+}
+
+function updateMarkerCount() {
+    const activeMarkers =
+        document.getElementById(
+            "activeMarkers"
+        );
+
+    if (activeMarkers) {
+        activeMarkers.textContent =
+            markerEntities.size;
+    }
+}
+
+function bindMapControls(viewer) {
+    const homeMap =
+        document.getElementById(
+            "homeMap"
+        );
+
+    const zoomIn =
+        document.getElementById(
+            "zoomIn"
+        );
+
+    const zoomOut =
+        document.getElementById(
+            "zoomOut"
+        );
+
+    const toggleBorders =
+        document.getElementById(
+            "toggleBorders"
+        );
+
+    const buildingsToggle =
+        document.getElementById(
+            "buildingsToggle"
+        );
+
+    const latitude =
+        document.getElementById(
+            "latitude"
+        );
+
+    const longitude =
+        document.getElementById(
+            "longitude"
+        );
+
+    const isMapPage =
+        homeMap ||
+        latitude;
+
+    if (!isMapPage) {
+        return;
+    }
+
+    const DEFAULT_VIEW =
+        Cesium.Cartesian3.fromDegrees(
+            0,
+            25,
+            20000000
+        );
+
+    if (homeMap) {
+        homeMap.addEventListener(
+            "click",
+            () => {
+                viewer.camera.flyTo({
+                    destination:
+                        DEFAULT_VIEW,
+                    duration: 1.2
+                });
+            }
+        );
+    }
+
+    if (zoomIn) {
+        zoomIn.addEventListener(
+            "click",
+            () => {
+                viewer.camera.zoomIn(
+                    viewer.camera
+                        .positionCartographic
+                        .height *
+                        0.35
+                );
+            }
+        );
+    }
+
+    if (zoomOut) {
+        zoomOut.addEventListener(
+            "click",
+            () => {
+                viewer.camera.zoomOut(
+                    Math.max(
+                        viewer.camera
+                            .positionCartographic
+                            .height *
+                            0.35,
+                        250000
+                    )
+                );
+            }
+        );
+    }
+
+    if (toggleBorders) {
+        let bordersVisible = true;
+
+        toggleBorders.addEventListener(
+            "click",
+            () => {
+                bordersVisible =
+                    !bordersVisible;
+
+                for (const entity of
+                        countryTileEntities) {
+                    if (
+                        entity &&
+                        entity.polygon
+                    ) {
+                        entity.show =
+                            bordersVisible;
+                    }
+                }
+
+                toggleBorders.classList
+                    .toggle("active");
+
+                toggleBorders.textContent =
+                    bordersVisible
+                        ? "COUNTRY BORDERS: ON"
+                        : "COUNTRY BORDERS: OFF";
+            }
+        );
+    }
+
+    if (buildingsToggle) {
+        let buildingsVisible = true;
+
+        buildingsToggle.addEventListener(
+            "click",
+            () => {
+                buildingsVisible =
+                    !buildingsVisible;
+
+                if (
+                    osmBuildingsPrimitive
+                ) {
+                    osmBuildingsPrimitive.show =
+                        buildingsVisible;
+                }
+
+                buildingsToggle.classList
+                    .toggle("active");
+
+                buildingsToggle.textContent =
+                    buildingsVisible
+                        ? "3D BUILDINGS: ON"
+                        : "3D BUILDINGS: OFF";
+            }
+        );
+
+        if (
+            osmBuildingsPrimitive
+        ) {
+            buildingsToggle.textContent =
+                "3D BUILDINGS: ON";
+        }
+    }
+
+    if (latitude && longitude) {
+        const handler =
+            new Cesium.ScreenSpaceEventHandler(
+                viewer.scene.canvas
+            );
+
+        handler.setInputAction(
+            movement => {
+                const cartesian =
+                    viewer.camera.pickEllipsoid(
+                        movement.endPosition,
+                        viewer.scene.globe
+                            .ellipsoid
+                    );
+
+                if (!cartesian) {
+                    return;
+                }
+
+                const cartographic =
+                    Cesium.Cartographic
+                        .fromCartesian(
+                            cartesian
+                        );
+
+                const lat =
+                    Cesium.Math
+                        .toDegrees(
+                            cartographic.latitude
+                        );
+
+                const lon =
+                    Cesium.Math
+                        .toDegrees(
+                            cartographic.longitude
+                        );
+
+                latitude.textContent =
+                    lat.toFixed(3) +
+                    "°";
+
+                longitude.textContent =
+                    lon.toFixed(3) +
+                    "°";
+            },
+            Cesium.ScreenSpaceEventType
+                .MOUSE_MOVE
+        );
+    }
 }
 
 function startStardustGlobe() {
@@ -1315,9 +1755,9 @@ function connectChat() {
                             ""
                     );
                 }
-
-                if (
-                    data.type === "user"
+if (
+                    data.type ===
+                    "user"
                 ) {
                     currentUser =
                         data.user ||
@@ -1325,6 +1765,25 @@ function connectChat() {
 
                     window.currentUser =
                         currentUser;
+                }
+
+                if (
+                    data.type ===
+                    "units"
+                ) {
+                    stardustUnits =
+                        Array.isArray(
+                            data.units
+                        )
+                            ? data.units
+                            : [];
+
+                    window.stardustUnits =
+                        stardustUnits;
+
+                    renderUnitMarkers(
+                        window.stardustViewer
+                    );
                 }
 
                 if (
@@ -1512,6 +1971,65 @@ window.addEventListener(
         }
     }
 );
+
+(function parseMapOptions() {
+    try {
+        const params =
+            new URLSearchParams(
+                window.location.search
+            );
+
+        const force =
+            params.get("force");
+
+        const unitId =
+            params.get("unit");
+
+        if (force) {
+            unitForceFilter =
+                String(force);
+        }
+
+        if (unitId) {
+            highlightUnitId =
+                String(unitId);
+        }
+
+        const filterChip =
+            document.getElementById(
+                "forceFilterChip"
+            );
+
+        if (filterChip && unitForceFilter) {
+            filterChip.textContent =
+                "FILTER: " +
+                unitForceFilter
+                    .toUpperCase();
+            filterChip.style.display =
+                "";
+            filterChip.title =
+                "Show all units";
+
+            filterChip.addEventListener(
+                "click",
+                () => {
+                    unitForceFilter =
+                        null;
+                    filterChip.style.display =
+                        "none";
+                    renderUnitMarkers(
+                        window.stardustViewer
+                    );
+                }
+            );
+        }
+    } catch (error) {
+        console.warn(
+            "Failed to parse map options:",
+            error
+        );
+    }
+})();
 
 startStardustGlobe();
 

@@ -201,6 +201,241 @@
     color: #8d989f;
 }
 
+.unit-list {
+    display: flex;
+    flex-direction: column;
+}
+
+.unit-empty {
+    padding: 26px 16px;
+    color: #59646c;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 1.5px;
+    text-align: center;
+}
+
+.unit-row {
+    padding: 13px 16px;
+    border-bottom: 1px solid #151b20;
+}
+
+.unit-row:last-child {
+    border-bottom: 0;
+}
+
+.unit-row-top {
+    display: grid;
+    grid-template-columns: 20px minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 11px;
+}
+
+.unit-row-dot {
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    background: #62d18b;
+    box-shadow: 0 0 8px rgba(98, 209, 139, 0.5);
+}
+
+.unit-row-info {
+    min-width: 0;
+}
+
+.unit-row-info strong {
+    display: block;
+    color: #dce2e6;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.7px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.unit-row-info span {
+    display: block;
+    margin-top: 4px;
+    color: #66727a;
+    font-size: 9px;
+}
+
+.unit-badge {
+    display: inline-block;
+    padding: 2px 7px;
+    border: 1px solid #303a42;
+    background: #0a0e12;
+    color: #cbd3d8;
+    font-size: 7px;
+    font-weight: 800;
+    letter-spacing: 1px;
+}
+
+.unit-badge.moving {
+    border-color: #5d4a13;
+    color: #f0b94d;
+}
+
+.unit-badge.reserve {
+    border-color: #2a3a4f;
+    color: #4d9bf0;
+}
+
+.unit-badge.operational {
+    border-color: #3d5547;
+    color: #62d18b;
+}
+
+.unit-row-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 14px;
+    margin-top: 8px;
+    padding: 8px 0 0;
+    color: #59646c;
+    font-family: "Courier New", monospace;
+    font-size: 8px;
+}
+
+.unit-row-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 8px;
+}
+
+.unit-action {
+    padding: 4px 9px;
+    border: 1px solid #29333a;
+    background: #0a0e12;
+    color: #8d989f;
+    font-family: inherit;
+    font-size: 7px;
+    font-weight: 800;
+    letter-spacing: 1px;
+    cursor: pointer;
+}
+
+.unit-action:hover {
+    background: #10161b;
+    color: #ffffff;
+}
+
+.unit-action.danger:hover {
+    border-color: #5d2a2a;
+    color: #e34646;
+}
+
+.unit-edit {
+    display: none;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 8px;
+    margin-top: 10px;
+    padding: 10px;
+    border: 1px solid #1d252b;
+    background: #080c10;
+}
+
+.unit-edit.open {
+    display: grid;
+}
+
+.unit-edit input,
+.unit-edit select {
+    width: 100%;
+    min-width: 0;
+    padding: 6px 8px;
+    border: 1px solid #29333a;
+    background: #05080b;
+    color: #cbd3d8;
+    font-family: inherit;
+    font-size: 9px;
+    outline: none;
+}
+
+.unit-edit input:focus,
+.unit-edit select:focus {
+    border-color: #46525b;
+}
+
+.unit-form {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 10px;
+    padding: 14px 16px 0;
+}
+
+.unit-form label {
+    display: block;
+    margin-bottom: 5px;
+    color: #59646c;
+    font-size: 8px;
+    font-weight: 800;
+    letter-spacing: 1px;
+}
+
+.unit-form input,
+.unit-form select {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 8px 9px;
+    border: 1px solid #29333a;
+    background: #05080b;
+    color: #cbd3d8;
+    font-family: inherit;
+    font-size: 10px;
+    outline: none;
+}
+
+.unit-form input:focus,
+.unit-form select:focus {
+    border-color: #46525b;
+}
+
+.unit-form-actions {
+    display: flex;
+    gap: 10px;
+    padding: 14px 16px 16px;
+}
+
+.raise-button {
+    flex: 1;
+    padding: 10px 14px;
+    border: 1px solid #3d5547;
+    background: #0a0e12;
+    color: #62d18b;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.7px;
+    cursor: pointer;
+}
+
+.raise-button:hover {
+    background: #10161b;
+}
+
+.unit-message {
+    color: #62d18b;
+    font-size: 8px;
+    font-weight: 800;
+    letter-spacing: 1px;
+}
+
+.unit-message.error {
+    color: #e34646;
+}
+
+@media (max-width: 700px) {
+    .unit-edit {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .unit-form {
+        grid-template-columns: 1fr;
+    }
+}
+
 @media (max-width: 1200px) {
     .force-dashboard {
         grid-template-columns: 1fr;

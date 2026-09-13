@@ -68,6 +68,7 @@ const mutedUsers = new Map();
 const bannedUsers = new Map();
 const messageHistory = new Map();
 const orders = new Map();
+const units = new Map();
 const userSettings = new Map();
 const countryCodes = new Map();
 const countryLeaders = new Map();
@@ -114,6 +115,20 @@ const ORDER_STATUSES = new Set([
     "ACTIVE",
     "COMPLETED"
 ]);
+const UNIT_TYPES = new Set([
+    "infantry",
+    "armour",
+    "mechanized",
+    "recon",
+    "artillery",
+    "logistics"
+]);
+const UNIT_STATUSES = new Set([
+    "OPERATIONAL",
+    "MOVING",
+    "RESERVE"
+]);
+const MAX_UNIT_NAME = 80;
 const CLIENT_PACKAGE_PATH = path.join(
     clientPath,
     "package.json"
@@ -653,6 +668,305 @@ function handleOrderDelete(
         orders.delete(id)
     ) {
         broadcastOrders();
+    }
+}
+function makeUnitId() {
+    return (
+        "UNC-" +
+        crypto
+            .randomBytes(4)
+            .toString("hex")
+            .toUpperCase()
+    );
+}
+function getUnitsSnapshot() {
+    return Array.from(
+        units.values()
+    ).sort(
+        (a, b) =>
+            b.createdAt -
+            a.createdAt
+    );
+}
+function broadcastUnits() {
+    broadcast({
+        type: "units",
+        units:
+            getUnitsSnapshot()
+    });
+}
+function readUnitPosition(payload) {
+    const lat = Number(payload.lat);
+    const lon = Number(payload.lon);
+
+    if (
+        !Number.isFinite(lat) ||
+        !Number.isFinite(lon) ||
+        lat < -90 ||
+        lat > 90 ||
+        lon < -180 ||
+        lon > 180
+    ) {
+        return null;
+    }
+
+    return {
+        lat,
+        lon
+    };
+}
+function handleUnitCreate(
+    socket,
+    message,
+    userId
+) {
+    const unit =
+        message.unit || {};
+
+    const name =
+        cleanString(
+            unit.name,
+            MAX_UNIT_NAME
+        );
+
+    const type =
+        UNIT_TYPES.has(
+            String(unit.type)
+        )
+            ? String(unit.type)
+            : "infantry";
+
+    const status =
+        UNIT_STATUSES.has(
+            String(
+                unit.status
+            )
+        )
+            ? String(unit.status)
+            : "OPERATIONAL";
+
+    const position =
+        readUnitPosition(
+            unit
+        );
+
+    if (!name) {
+        send(socket, {
+            type: "error",
+            message:
+                "Unit designation is required."
+        });
+
+        return;
+    }
+
+    if (!position) {
+        send(socket, {
+            type: "error",
+            message:
+                "Unit position (valid lat/lon) is required."
+        });
+
+        return;
+    }
+
+    const personnel = Math.floor(
+        Math.max(
+            1,
+            Math.min(
+                1000000,
+                Number(
+                    unit.personnel
+                ) || 1
+            )
+        )
+    );
+
+    const country =
+        cleanString(
+            unit.country,
+            MAX_COUNTRY_LENGTH
+        ) ||
+        socket.user.country ||
+        null;
+
+    const record = {
+        id: makeUnitId(),
+        name,
+        type,
+        status,
+        personnel,
+        country: country || null,
+        lat: position.lat,
+        lon: position.lon,
+        createdBy: {
+            id: String(userId),
+            username:
+                getUserName(
+                    socket.user
+                )
+        },
+        createdAt:
+            Date.now(),
+        updatedAt:
+            Date.now()
+    };
+
+    units.set(
+        record.id,
+        record
+    );
+
+    broadcastUnits();
+
+    send(socket, {
+        type: "unit_created",
+        unit: record
+    });
+}
+function handleUnitUpdate(
+    socket,
+    message,
+    userId
+) {
+    const id =
+        cleanString(
+            message.id,
+            32
+        );
+
+    const existing =
+        id
+            ? units.get(id)
+            : null;
+
+    if (!existing) {
+        send(socket, {
+            type: "error",
+            message:
+                "Unit not found."
+        });
+
+        return;
+    }
+
+    const next =
+        message.unit || {};
+
+    if (
+        typeof next.name ===
+        "string"
+    ) {
+        const name =
+            cleanString(
+                next.name,
+                MAX_UNIT_NAME
+            );
+
+        if (name) {
+            existing.name =
+                name;
+        }
+    }
+
+    if (
+        UNIT_TYPES.has(
+            String(next.type)
+        )
+    ) {
+        existing.type =
+            String(next.type);
+    }
+
+    if (
+        UNIT_STATUSES.has(
+            String(
+                next.status
+            )
+        )
+    ) {
+        existing.status =
+            String(next.status);
+    }
+
+    if (
+        Number.isFinite(
+            Number(next.personnel)
+        )
+    ) {
+        existing.personnel =
+            Math.floor(
+                Math.max(
+                    1,
+                    Math.min(
+                        1000000,
+                        Number(
+                            next.personnel
+                        )
+                    )
+                )
+            );
+    }
+
+    if (
+        typeof next.country ===
+        "string"
+    ) {
+        const country =
+            cleanString(
+                next.country,
+                MAX_COUNTRY_LENGTH
+            );
+
+        if (country) {
+            existing.country =
+                country;
+        }
+    }
+
+    const position =
+        readUnitPosition(
+            next
+        );
+
+    if (position) {
+        existing.lat =
+            position.lat;
+        existing.lon =
+            position.lon;
+    }
+
+    existing.updatedAt =
+        Date.now();
+
+    units.set(
+        id,
+        existing
+    );
+
+    broadcastUnits();
+
+    send(socket, {
+        type: "unit_updated",
+        unit: existing
+    });
+}
+function handleUnitDelete(
+    socket,
+    message,
+    userId
+) {
+    const id =
+        cleanString(
+            message.id,
+            32
+        );
+
+    if (
+        id &&
+        units.delete(id)
+    ) {
+        broadcastUnits();
     }
 }
 app.get("/health", (req, res) => {
@@ -1752,6 +2066,12 @@ wss.on(
     });
 
     send(socket, {
+        type: "units",
+        units:
+            getUnitsSnapshot()
+    });
+
+    send(socket, {
         type: "country_leaders",
         leaders:
             buildCountryLeaders()
@@ -1927,6 +2247,45 @@ wss.on(
                     "orders_delete"
                 ) {
                     handleOrderDelete(
+                        socket,
+                        message,
+                        userId
+                    );
+
+                    return;
+                }
+
+                if (
+                    message.type ===
+                    "units_create"
+                ) {
+                    handleUnitCreate(
+                        socket,
+                        message,
+                        userId
+                    );
+
+                    return;
+                }
+
+                if (
+                    message.type ===
+                    "units_update"
+                ) {
+                    handleUnitUpdate(
+                        socket,
+                        message,
+                        userId
+                    );
+
+                    return;
+                }
+
+                if (
+                    message.type ===
+                    "units_delete"
+                ) {
+                    handleUnitDelete(
                         socket,
                         message,
                         userId

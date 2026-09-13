@@ -375,7 +375,134 @@
 
         </section>
 
-    </main>
+        <section class="panel">
+
+            <div class="panel-header">
+                DEPLOYED UNITS
+
+                <span class="panel-indicator">
+                    <span id="unitCount">0</span> REGISTERED
+                </span>
+            </div>
+
+            <div class="unit-list" id="unitList">
+
+                <div class="unit-empty" id="unitEmpty">
+                    NO UNITS DEPLOYED
+                </div>
+
+            </div>
+
+        </section>
+
+        <section class="panel">
+
+            <div class="panel-header">
+                RAISE UNIT
+
+                <span class="panel-indicator">
+                    FIELD COMMAND
+                </span>
+            </div>
+
+            <form class="unit-form" id="unitForm">
+
+                <div>
+                    <label>DESIGNATION</label>
+                    <input
+                        type="text"
+                        id="unitName"
+                        maxlength="80"
+                        placeholder="1ST INFANTRY BATTALION"
+                    >
+                </div>
+
+                <div>
+                    <label>TYPE</label>
+                    <select id="unitType">
+                        <option value="infantry">INFANTRY</option>
+                        <option value="armour">ARMOUR</option>
+                        <option value="mechanized">MECHANIZED</option>
+                        <option value="recon">RECONNAISSANCE</option>
+                        <option value="artillery">ARTILLERY</option>
+                        <option value="logistics">LOGISTICS</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label>PERSONNEL</label>
+                    <input
+                        type="number"
+                        id="unitPersonnel"
+                        min="1"
+                        max="1000000"
+                        value="1000"
+                    >
+                </div>
+
+                <div>
+                    <label>COUNTRY / FACTION</label>
+                    <input
+                        type="text"
+                        id="unitCountry"
+                        maxlength="60"
+                        placeholder="AUTO / CLAIMED COUNTRY"
+                    >
+                </div>
+
+                <div>
+                    <label>LATITUDE</label>
+                    <input
+                        type="number"
+                        id="unitLat"
+                        min="-90"
+                        max="90"
+                        step="0.0001"
+                        placeholder="51.5074"
+                    >
+                </div>
+
+                <div>
+                    <label>LONGITUDE</label>
+                    <input
+                        type="number"
+                        id="unitLon"
+                        min="-180"
+                        max="180"
+                        step="0.0001"
+                        placeholder="-0.1278"
+                    >
+                </div>
+
+                <div>
+                    <label>STATUS</label>
+                    <select id="unitStatus">
+                        <option value="OPERATIONAL">OPERATIONAL</option>
+                        <option value="MOVING">MOVING</option>
+                        <option value="RESERVE">RESERVE</option>
+                    </select>
+                </div>
+
+            </form>
+
+            <div class="unit-form-actions">
+
+                <button
+                    class="raise-button"
+                    id="raiseUnitButton"
+                >
+                    + RAISE UNIT
+                </button>
+
+                <span class="unit-message" id="unitMessage"></span>
+
+            </div>
+
+        </section>
+
+    </section>
+
+</main>
 
 </div>
 
