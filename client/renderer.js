@@ -32,8 +32,6 @@ const UNIT_TYPE_COLORS = {
     logistics: "#b084d9"
 };
 
-const DEFAULT_COUNTRY_COLOR = "#d1dbdd";
-
 const COUNTRY_COLORS = {
     USA: "#377eb8",
     DEU: "#377eb8",
@@ -669,12 +667,12 @@ function getCountryPath(feature) {
 
 function getCountryColor(countryCode) {
     if (!countryCode) {
-        return DEFAULT_COUNTRY_COLOR;
+        return null;
     }
 
     const code = String(countryCode).trim().toUpperCase();
 
-    return COUNTRY_COLORS[code] || DEFAULT_COUNTRY_COLOR;
+    return COUNTRY_COLORS[code] || null;
 }
 
 function getCountryMaterial(countryCode, alpha = 0.52) {
@@ -828,6 +826,10 @@ function drawCountryGeometry(
             feature.properties || feature
         );
 
+        return [];
+    }
+
+    if (!getCountryColor(countryCode)) {
         return [];
     }
 
