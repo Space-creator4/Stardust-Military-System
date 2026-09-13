@@ -619,6 +619,7 @@
 
 </div>
 
+<script src="/userdata.js"></script>
 <script>
 
 let currentUser = null;
@@ -1294,6 +1295,58 @@ function connectWebSocket() {
                         true,
                         currentChannel
                     );
+
+                    return;
+                }
+
+if (
+                    data.type ===
+                    "request_settings"
+                ) {
+
+                    if (
+                        window.stardustUserData
+                    ) {
+
+                        const settings =
+                            window.stardustUserData.getPushPayload();
+
+                        if (
+                            Object.keys(
+                                settings
+                            ).length
+                        ) {
+                            socket.send(
+                                JSON.stringify({
+                                    type: "settings_push",
+                                    settings
+                                })
+                            );
+                        }
+                    }
+
+                    return;
+                }
+
+                if (
+                    data.type ===
+                    "update"
+                ) {
+
+                    addMessage(
+                        "SYSTEM",
+                        data.version
+                            ? `Update ${data.version} signal received — checking for update...`
+                            : "Update check signalled.",
+                        true,
+                        currentChannel
+                    );
+
+                    if (
+                        window.stardustUpdater
+                    ) {
+                        window.stardustUpdater.checkForUpdates();
+                    }
 
                     return;
                 }

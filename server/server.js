@@ -50,6 +50,14 @@ app.use(
     "/tiles",
     express.static(tilesPath)
 );
+const upDATES_PATH = path.join(
+    __dirname,
+    "updates"
+);
+app.use(
+    "/updates",
+    express.static(upDATES_PATH)
+);
 app.use(
     express.static(clientPath, {
         index: false
@@ -106,6 +114,26 @@ const ORDER_STATUSES = new Set([
     "ACTIVE",
     "COMPLETED"
 ]);
+const CLIENT_PACKAGE_PATH = path.join(
+    clientPath,
+    "package.json"
+);
+function getAppVersion() {
+    try {
+        const pkg = JSON.parse(
+            fs.readFileSync(
+                CLIENT_PACKAGE_PATH,
+                "utf8"
+            )
+        );
+        return (
+            pkg.version ||
+            "0.0.0"
+        );
+    } catch (error) {
+        return "0.0.0";
+    }
+}
 function getUserName(user) {
     if (!user) {
         return "COMMANDER";
@@ -636,6 +664,12 @@ app.get("/health", (req, res) => {
         environment: IS_PRODUCTION
             ? "production"
             : "development",
+        timestamp: Date.now()
+    });
+});
+app.get("/api/version", (req, res) => {
+    res.json({
+        version: getAppVersion(),
         timestamp: Date.now()
     });
 });
@@ -1251,6 +1285,38 @@ app.get(
 }
 );
 app.post(
+    "/api/admin/update",
+    requireAuth,
+    (req, res) => {
+        if (
+            !isAdmin(
+                req.session.user
+            )
+        ) {
+            return res
+                .status(403)
+                .json({
+                    error:
+                        "Administrator access required."
+                });
+        }
+
+        const version =
+            getAppVersion();
+
+        broadcast({
+            type: "update",
+            version
+        });
+
+        return res.json({
+            success: true,
+            version,
+            clients: users.size
+        });
+    }
+);
+app.post(
     "/api/admin/mute",
     requireAuth,
     (req, res) => {
@@ -1691,6 +1757,10 @@ wss.on(
             buildCountryLeaders()
     });
 
+    send(socket, {
+        type: "request_settings"
+    });
+
     broadcastServerStatus();
 
     socket.on(
@@ -1726,6 +1796,103 @@ wss.on(
                     typeof message !==
                         "object"
                 ) {
+                    return;
+                }
+
+                if (
+                    message.type ===
+                    "settings_push"
+                ) {
+                    const pushed =
+                        message.settings ||
+                        {};
+
+                    const settings =
+                        getUserSettings(
+                            userId
+                        );
+
+                    if (
+                        typeof pushed.display_name ===
+                        "string"
+                    ) {
+                        const name =
+                            cleanString(
+                                pushed.display_name,
+                                MAX_DISPLAY_NAME_LENGTH
+                            );
+
+                        if (name) {
+                            settings.display_name =
+                                name;
+                        }
+                    }
+
+                    if (
+                        typeof pushed.theme_color ===
+                        "string" &&
+                        /^#[0-9a-fA-F]{6}$/.test(
+                            pushed.theme_color
+                        )
+                    ) {
+                        settings.theme_color =
+                            pushed.theme_color.toLowerCase();
+                    }
+
+                    if (
+                        typeof pushed.country ===
+                        "string" &&
+                        pushed.country &&
+                        !settings.country_claimed
+                    ) {
+                        settings.country =
+                            cleanString(
+                                pushed.country,
+                                MAX_COUNTRY_LENGTH
+                            );
+                    }
+
+                    if (
+                        typeof pushed.do_not_disturb ===
+                        "boolean"
+                    ) {
+                        settings.do_not_disturb =
+                            pushed.do_not_disturb;
+                    }
+
+                    if (
+                        typeof pushed.app_version ===
+                        "string"
+                    ) {
+                        settings.app_version =
+                            pushed.app_version;
+                    }
+
+                    userSettings.set(
+                        userId,
+                        settings
+                    );
+
+                    const connection =
+                        users.get(
+                            userId
+                        );
+
+                    if (connection) {
+                        connection.display_name =
+                            settings.display_name ||
+                            null;
+
+                        connection.country =
+                            settings.country ||
+                            null;
+                    }
+
+                    send(socket, {
+                        type: "settings_applied",
+                        settings
+                    });
+
                     return;
                 }
 

@@ -202,6 +202,10 @@ body::before {
     width: 100%;
 }
 
+.panel-pad {
+    padding: 14px 17px;
+}
+
 .user-row {
     display: grid;
     grid-template-columns: minmax(180px, 1fr) 130px 100px 230px;
@@ -462,6 +466,35 @@ button.primary:hover {
             <div class="stat-value warning" id="bannedCount">
                 0
             </div>
+        </div>
+
+        <div class="stat">
+            <div class="stat-label">Client Version</div>
+            <div class="stat-value" id="clientVersion">
+                ...
+            </div>
+        </div>
+
+    </section>
+
+    <section class="panel">
+
+        <div class="panel-header">
+            <div class="panel-title">
+                DEPLOYMENT CONTROL
+            </div>
+
+            <div class="panel-meta" id="updateDetail">
+                CHECKING...
+            </div>
+        </div>
+
+        <div class="users panel-pad">
+
+            <button class="primary" id="triggerUpdateButton">
+                TRIGGER UPDATE CHECK
+            </button>
+
         </div>
 
     </section>
@@ -791,6 +824,62 @@ async function banUser(id) {
     }
 }
 
+async function loadVersion() {
+
+    const versionElement = document.getElementById("clientVersion");
+    const detailElement = document.getElementById("updateDetail");
+
+    try {
+
+        const data = await api("/api/version");
+
+        versionElement.textContent =
+            data.version || "UNKNOWN";
+
+        return data.version || null;
+
+    } catch {
+
+        versionElement.textContent = "OFFLINE";
+        detailElement.textContent = "VERSION UNREACHABLE";
+        return null;
+    }
+}
+
+async function triggerUpdateCheck() {
+
+    const button = document.getElementById("triggerUpdateButton");
+    const detailElement = document.getElementById("updateDetail");
+
+    button.disabled = true;
+    button.textContent = "SIGNALLING...";
+
+    try {
+
+        const data = await api("/api/admin/update", {
+            method: "POST"
+        });
+
+        showNotice(
+            `Update signal ${data.version} sent to ${data.clients} connected client(s).`,
+            "success"
+        );
+
+        detailElement.textContent =
+            `SIGNALLED ${data.version} TO ${data.clients} CLIENTS`;
+
+    } catch (error) {
+
+        showNotice(
+            String(error.message || error),
+            "error"
+        );
+    }
+
+    button.disabled = false;
+    button.textContent = "TRIGGER UPDATE CHECK";
+}
+
 function escapeHtml(value) {
 
     return String(value)
@@ -817,6 +906,12 @@ async function initialise() {
     }
 
     await loadStatus();
+
+    loadVersion();
+
+    const button = document.getElementById("triggerUpdateButton");
+
+    button.addEventListener("click", triggerUpdateCheck);
 }
 
 initialise();
@@ -831,6 +926,7 @@ setInterval(async () => {
     }
 
     loadStatus();
+    loadVersion();
 
 }, 5000);
 

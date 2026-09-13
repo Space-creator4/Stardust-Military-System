@@ -718,6 +718,7 @@
 
 </div>
 
+<script src="/userdata.js"></script>
 <script src="/security.js"></script>
 
 <script>
@@ -873,16 +874,47 @@ async function loadSettings() {
 
         const settings = data.settings || {};
 
+        const local =
+            window.stardustUserData
+                ? window.stardustUserData.loadLocalSettings()
+                : {};
+
+        const merged = {
+            display_name:
+                local.display_name ||
+                settings.display_name ||
+                "",
+            country:
+                settings.country ||
+                local.country ||
+                "",
+            theme_color:
+                local.theme_color ||
+                settings.theme_color ||
+                "#62d18b"
+        };
+
         getElement("settingDisplayName").value =
-            settings.display_name || "";
+            merged.display_name;
 
         getElement("settingCountry").value =
-            settings.country || "";
+            merged.country;
 
-        if (settings.theme_color) {
-            getElement("settingThemeColor").value =
-                settings.theme_color;
+        getElement("settingThemeColor").value =
+            merged.theme_color;
+
+        if (merged.theme_color) {
+            const dot = getElement("systemDot");
+            if (dot) {
+                dot.style.background = merged.theme_color;
+            }
         }
+
+        if (window.stardustUserData) {
+            window.stardustUserData.saveLocalSettings(merged);
+        }
+
+        pushSettings(merged);
 
         const status = getElement("claimStatus");
 
@@ -915,6 +947,12 @@ function refreshClaimUI() {
 
     getElement("settingCountry").value =
         currentUser.country || "";
+
+    if (window.stardustUserData) {
+        const local = window.stardustUserData.loadLocalSettings();
+        local.country = currentUser.country || "";
+        window.stardustUserData.saveLocalSettings(local);
+    }
 
     const status = getElement("claimStatus");
 
@@ -1207,6 +1245,47 @@ async function loadCurrentUser() {
     }
 }
 
+async function pushSettings(payload) {
+
+    try {
+
+        const response = await fetch("/api/settings", {
+            method: "POST",
+            credentials: "include",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(payload)
+        });
+
+        if (response.status === 401) {
+            window.location.href = "/login.html";
+            return null;
+        }
+
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}`);
+        }
+
+        const data = await response.json();
+
+        if (window.stardustUserData && data.settings) {
+            window.stardustUserData.saveLocalSettings({
+                display_name: data.settings.display_name || payload.display_name || "",
+                country: data.settings.country || payload.country || "",
+                theme_color: data.settings.theme_color || payload.theme_color || "#62d18b"
+            });
+        }
+
+        return data;
+
+    } catch (error) {
+
+        console.error("Failed to push settings:", error);
+        return null;
+    }
+}
+
 async function saveSettings() {
 
     const displayName =
@@ -1218,53 +1297,33 @@ async function saveSettings() {
     const themeColor =
         getElement("settingThemeColor").value;
 
-    try {
-
-        const response = await fetch("/api/settings", {
-            method: "POST",
-            credentials: "include",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({
-                display_name: displayName,
-                country: country,
-                theme_color: themeColor
-            })
+    const data =
+        await pushSettings({
+            display_name: displayName,
+            country: country,
+            theme_color: themeColor
         });
 
-        if (response.status === 401) {
-            window.location.href = "/login.html";
-            return;
-        }
-
-        if (!response.ok) {
-            throw new Error(`HTTP ${response.status}`);
-        }
-
-        const data = await response.json();
-
-        showMessage("SETTINGS SAVED.");
-
-        if (data.settings && data.settings.theme_color) {
-
-            const dot = getElement("systemDot");
-
-            if (dot) {
-                dot.style.background = data.settings.theme_color;
-            }
-        }
-
-        if (currentUser) {
-            currentUser.display_name = displayName;
-            currentUser.country = country;
-            renderAccount(currentUser);
-        }
-
-    } catch (error) {
-
-        console.error("Failed to save settings:", error);
+    if (!data) {
         showMessage("UNABLE TO SAVE SETTINGS.", true);
+        return;
+    }
+
+    showMessage("SETTINGS SAVED.");
+
+    if (data.settings && data.settings.theme_color) {
+
+        const dot = getElement("systemDot");
+
+        if (dot) {
+            dot.style.background = data.settings.theme_color;
+        }
+    }
+
+    if (currentUser) {
+        currentUser.display_name = displayName;
+        currentUser.country = country;
+        renderAccount(currentUser);
     }
 }
 

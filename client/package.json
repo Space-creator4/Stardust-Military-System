@@ -8,7 +8,7 @@
     "start": "electron .",
     "dist": "electron-builder --win --publish never --config.directories.output=dist-win-0.0.1",
     "dist:portable": "electron-builder --win portable --publish never --config.directories.output=dist-win-0.0.1",
-    "dist:linux": "electron-builder --linux tar.gz zip --publish never --config.directories.output=dist-linux-0.0.1",
+    "dist:linux": "electron-builder --linux tar.gz zip AppImage --publish never --config.directories.output=dist-linux-0.0.1",
     "dist:mac": "electron-builder --mac --publish never --config.directories.output=dist-mac-0.0.1"
   },
   "build": {
@@ -17,14 +17,22 @@
     "directories": {
       "output": "dist"
     },
+    "publish": [
+      {
+        "provider": "generic",
+        "url": "https://78.150.222.189/updates/"
+      }
+    ],
     "files": [
       "main.js",
+      "preload.js",
       "*.html",
       "*.css",
       "renderer.js",
       "security.js",
       "force.js",
       "login.js",
+      "userdata.js",
       "countries.json",
       "assets/**/*"
     ],
@@ -57,6 +65,7 @@
   },
   "dependencies": {
     "cesium": "^1.145.0",
+    "electron-updater": "^6.3.9",
     "express": "^5.2.1",
     "globe.gl": "^2.46.2",
     "three": "^0.186.0"

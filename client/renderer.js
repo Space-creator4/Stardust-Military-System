@@ -1326,6 +1326,42 @@ function connectChat() {
                     window.currentUser =
                         currentUser;
                 }
+
+                if (
+                    data.type ===
+                    "request_settings"
+                ) {
+                    if (
+                        window.stardustUserData
+                    ) {
+                        const settings =
+                            window.stardustUserData.getPushPayload();
+
+                        if (
+                            Object.keys(
+                                settings
+                            ).length
+                        ) {
+                            socket.send(
+                                JSON.stringify({
+                                    type: "settings_push",
+                                    settings
+                                })
+                            );
+                        }
+                    }
+                }
+
+                if (
+                    data.type ===
+                    "update"
+                ) {
+                    if (
+                        window.stardustUpdater
+                    ) {
+                        window.stardustUpdater.checkForUpdates();
+                    }
+                }
             } catch (error) {
                 console.warn(
                     "Invalid WebSocket message:",
