@@ -223,6 +223,116 @@
             font-size: 9px;
         }
 
+        .claim-status {
+            margin-bottom: 12px;
+            padding: 10px 12px;
+            border-left: 2px solid #1c252d;
+            background: #06090c;
+            color: #3f4a52;
+            font-size: 7px;
+            letter-spacing: 1.5px;
+        }
+
+        .claim-status.claimed {
+            border-left-color: #62d18b;
+            color: #62d18b;
+        }
+
+        .claim-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .claim-button {
+            flex: 1;
+            height: 36px;
+            border: 1px solid #304139;
+            background: #0d1511;
+            color: #62d18b;
+            font-family: inherit;
+            font-size: 8px;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            cursor: pointer;
+        }
+
+        .claim-button:hover {
+            background: #121d16;
+        }
+
+        .claim-button.secondary {
+            border-color: #1c252d;
+            background: #0a0d10;
+            color: #697781;
+        }
+
+        .claim-button.secondary:hover {
+            background: #101419;
+        }
+
+        .claim-message {
+            margin-top: 10px;
+            font-size: 7px;
+            letter-spacing: 1.5px;
+            color: #697781;
+            display: none;
+        }
+
+        .claim-message.error {
+            color: #d16262;
+        }
+
+        .roster-panel {
+            grid-column: 1 / -1;
+        }
+
+        .roster-list {
+            padding: 6px 10px;
+        }
+
+        .roster-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 8px;
+            border-bottom: 1px solid #131a20;
+        }
+
+        .roster-row:last-child {
+            border-bottom: none;
+        }
+
+        .roster-flag {
+            width: 8px;
+            height: 8px;
+            flex-shrink: 0;
+            background: #62d18b;
+            box-shadow: 0 0 8px rgba(98, 209, 139, 0.4);
+        }
+
+        .roster-country {
+            flex: 1;
+            min-width: 0;
+            color: #aeb8bf;
+            font-size: 9px;
+            font-weight: 600;
+            letter-spacing: 1px;
+        }
+
+        .roster-commander {
+            color: #3f4a52;
+            font-family: "Courier New", monospace;
+            font-size: 8px;
+        }
+
+        .roster-empty {
+            padding: 16px;
+            color: #3f4a52;
+            font-size: 8px;
+            letter-spacing: 2px;
+            text-align: center;
+        }
+
         @media (max-width: 1000px) {
             .settings-grid {
                 grid-template-columns: 1fr;
@@ -431,6 +541,49 @@
 
                             </div>
 
+                            <div class="form-group">
+
+                                <label class="form-label">
+                                    COUNTRY ASSIGNMENT
+                                </label>
+
+                                <div
+                                    class="claim-status"
+                                    id="claimStatus">
+                                    NOT ASSIGNED
+                                </div>
+
+                                <input
+                                    class="form-input"
+                                    id="claimCode"
+                                    maxlength="32"
+                                    placeholder="ENTER COUNTRY ACCESS CODE"
+                                >
+
+                            </div>
+
+                            <div class="claim-actions">
+
+                                <button
+                                    class="claim-button"
+                                    id="claimCountry">
+                                    CLAIM COUNTRY
+                                </button>
+
+                                <button
+                                    class="claim-button secondary"
+                                    id="relinquishCountry"
+                                    style="display: none;">
+                                    RELINQUISH
+                                </button>
+
+                            </div>
+
+                            <div
+                                class="claim-message"
+                                id="claimMessage">
+                            </div>
+
                             <button
                                 class="save-button"
                                 id="saveSettings">
@@ -505,6 +658,20 @@
                             <div class="account-field">
 
                                 <div class="account-field-label">
+                                    COUNTRY
+                                </div>
+
+                                <div
+                                    class="account-field-value"
+                                    id="accountCountry">
+                                    —
+                                </div>
+
+                            </div>
+
+                            <div class="account-field">
+
+                                <div class="account-field-label">
                                     ACCESS LEVEL
                                 </div>
 
@@ -518,6 +685,27 @@
 
                         </div>
 
+                    </div>
+
+                </div>
+
+                <div class="panel roster-panel">
+
+                    <div class="panel-header">
+
+                        <span>
+                            COUNTRY COMMAND ROSTER
+                        </span>
+
+                        <span class="panel-indicator">
+                            ASSIGNED
+                        </span>
+
+                    </div>
+
+                    <div
+                        class="roster-list"
+                        id="rosterList">
                     </div>
 
                 </div>
@@ -641,8 +829,20 @@ function renderAccount(user) {
             : "COMMANDER";
 
     getElement("accountId").textContent = user.id;
+
+    const countryElement = getElement("accountCountry");
+
+    if (countryElement) {
+        countryElement.textContent =
+            user.country || "UNASSIGNED";
+    }
+
     getElement("accountRole").textContent =
-        user.isAdmin ? "ADMINISTRATOR" : "OPERATOR";
+        user.isAdmin
+            ? "ADMINISTRATOR"
+            : user.is_country_leader
+                ? "COUNTRY LEADER"
+                : "OPERATOR";
 
     buildAvatar(user);
 }
@@ -684,11 +884,277 @@ async function loadSettings() {
                 settings.theme_color;
         }
 
+        const status = getElement("claimStatus");
+
+        if (settings.country_claimed && settings.country) {
+            status.textContent =
+                `ASSIGNED: ${settings.country}`;
+            status.classList.add("claimed");
+            getElement("relinquishCountry").style.display = "";
+        } else {
+            status.textContent = "NOT ASSIGNED";
+        }
+
     } catch (error) {
 
         console.error("Failed to load settings:", error);
         showMessage("UNABLE TO LOAD SETTINGS.", true);
     }
+}
+
+function showClaimMessage(message, error) {
+
+    const element = getElement("claimMessage");
+
+    element.textContent = message;
+    element.className = "claim-message" + (error ? " error" : "");
+    element.style.display = "block";
+}
+
+function refreshClaimUI() {
+
+    getElement("settingCountry").value =
+        currentUser.country || "";
+
+    const status = getElement("claimStatus");
+
+    if (currentUser.is_country_leader && currentUser.country) {
+        status.textContent = `ASSIGNED: ${currentUser.country}`;
+        status.classList.add("claimed");
+        getElement("relinquishCountry").style.display = "";
+    } else {
+        status.textContent = "NOT ASSIGNED";
+        status.classList.remove("claimed");
+        getElement("relinquishCountry").style.display = "none";
+    }
+
+    renderAccount(currentUser);
+}
+
+async function claimCountry() {
+
+    const code = getElement("claimCode").value.trim();
+
+    if (!code) {
+        showClaimMessage("ENTER A COUNTRY ACCESS CODE.", true);
+        return;
+    }
+
+    try {
+
+        const response = await fetch("/api/country/claim", {
+            method: "POST",
+            credentials: "include",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ code })
+        });
+
+        if (response.status === 401) {
+            window.location.href = "/login.html";
+            return;
+        }
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            showClaimMessage(data.error || "CLAIM REJECTED.", true);
+            return;
+        }
+
+        getElement("claimCode").value = "";
+        showClaimMessage(`COUNTRY ASSIGNED: ${data.settings.country}.`, false);
+
+        currentUser = await fetchMe();
+        refreshClaimUI();
+        loadLeaders();
+
+    } catch (error) {
+
+        console.error("Failed to claim country:", error);
+        showClaimMessage("UNABLE TO CLAIM COUNTRY.", true);
+    }
+}
+
+async function relinquishCountry() {
+
+    try {
+
+        const response = await fetch("/api/country/relinquish", {
+            method: "POST",
+            credentials: "include",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({})
+        });
+
+        if (response.status === 401) {
+            window.location.href = "/login.html";
+            return;
+        }
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            showClaimMessage(data.error || "RELEASE FAILED.", true);
+            return;
+        }
+
+        showClaimMessage("COUNTRY ASSIGNMENT RELEASED.", false);
+
+        currentUser = await fetchMe();
+        refreshClaimUI();
+        loadLeaders();
+
+    } catch (error) {
+
+        console.error("Failed to relinquish country:", error);
+        showClaimMessage("UNABLE TO RELEASE COUNTRY.", true);
+    }
+}
+
+function renderLeaders(leaders) {
+
+    const list = getElement("rosterList");
+
+    list.innerHTML = "";
+
+    if (!leaders || !leaders.length) {
+
+        const empty = document.createElement("div");
+        empty.className = "roster-empty";
+        empty.textContent = "NO COUNTRY LEADERS ASSIGNED";
+        list.appendChild(empty);
+        return;
+    }
+
+    leaders.forEach(leader => {
+
+        const row = document.createElement("div");
+        row.className = "roster-row";
+
+        const flag = document.createElement("div");
+        flag.className = "roster-flag";
+        flag.style.background =
+            factionColorFor(leader.country);
+        flag.style.boxShadow =
+            `0 0 8px ${factionColorFor(leader.country)}66`;
+
+        const country = document.createElement("div");
+        country.className = "roster-country";
+        country.textContent = leader.country;
+
+        const commander = document.createElement("div");
+        commander.className = "roster-commander";
+        commander.textContent =
+            leader.display_name ||
+            leader.global_name ||
+            leader.username ||
+            "COMMANDER";
+
+        row.appendChild(flag);
+        row.appendChild(country);
+        row.appendChild(commander);
+        list.appendChild(row);
+    });
+}
+
+let factionColors = {};
+
+async function loadFactionColors() {
+
+    try {
+
+        const response = await fetch("countries.json");
+
+        if (!response.ok) {
+            return;
+        }
+
+        const data = await response.json();
+
+        factionColors = {};
+
+        for (const faction of data.factions || []) {
+
+            for (const entry of
+                    faction.countries || []) {
+
+                const key = normalizeFactionName(
+                    entry.name
+                );
+
+                if (key) {
+                    factionColors[key] =
+                        faction.color;
+                }
+            }
+        }
+
+    } catch (error) {
+        console.error("Failed to load faction colors:", error);
+    }
+}
+
+function normalizeFactionName(value) {
+
+    return String(value || "")
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .toLowerCase()
+        .replace(/[\s_-]/g, "");
+}
+
+function factionColorFor(country) {
+
+    const key = normalizeFactionName(country);
+
+    return factionColors[key] || "#62d18b";
+}
+
+async function loadLeaders() {
+
+    try {
+
+        const response = await fetch("/api/country/leaders", {
+            credentials: "include"
+        });
+
+        if (response.status === 401) {
+            return;
+        }
+
+        if (!response.ok) {
+            return;
+        }
+
+        const data = await response.json();
+        renderLeaders(data.leaders || []);
+
+    } catch (error) {
+        console.error("Failed to load country leaders:", error);
+    }
+}
+
+async function fetchMe() {
+
+    const response = await fetch("/api/me", {
+        credentials: "include"
+    });
+
+    if (!response.ok) {
+        throw new Error(`HTTP ${response.status}`);
+    }
+
+    const data = await response.json();
+
+    if (!data.authenticated || !data.user) {
+        throw new Error("Not authenticated");
+    }
+
+    return data.user;
 }
 
 async function loadCurrentUser() {
@@ -789,9 +1255,18 @@ async function saveSettings() {
 }
 
 getElement("saveSettings").addEventListener("click", saveSettings);
+getElement("claimCountry").addEventListener("click", claimCountry);
+getElement("relinquishCountry").addEventListener("click", relinquishCountry);
+getElement("claimCode").addEventListener("keydown", (event) => {
+    if (event.key === "Enter") {
+        claimCountry();
+    }
+});
 
 loadCurrentUser();
 loadSettings();
+loadLeaders();
+loadFactionColors();
 
 </script>
 

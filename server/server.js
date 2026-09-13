@@ -61,6 +61,20 @@ const bannedUsers = new Map();
 const messageHistory = new Map();
 const orders = new Map();
 const userSettings = new Map();
+const countryCodes = new Map();
+const countryLeaders = new Map();
+(process.env.COUNTRY_CODES || "")
+    .split(",")
+    .map(pair => pair.split("=").map(part => part.trim()))
+    .filter(([label, code]) => label && code)
+    .forEach(([label, code]) => {
+        const normalized = code.toUpperCase();
+        if (
+            /^[A-Za-z0-9-]{4,32}$/.test(normalized)
+        ) {
+            countryCodes.set(normalized, label);
+        }
+    });
 const ADMIN_IDS = new Set(
     (process.env.ADMIN_DISCORD_IDS || "")
         .split(",")
@@ -273,7 +287,11 @@ return {
         settings.display_name || null,
     theme_color:
         settings.theme_color || null,
-    isAdmin: isAdmin(user)
+    isAdmin: isAdmin(user),
+    is_country_leader:
+        !!getClaimedCountry(
+            user.id
+        )
 };
 }
 function cleanString(value, max) {
@@ -311,10 +329,74 @@ function getUserSettings(userId) {
                 stored.theme_color
             )
                 ? stored.theme_color
-                : ""
+                : "",
+        country_claimed:
+            !!stored.country_claimed
     };
 
     return settings;
+}
+function getClaimedCountry(userId) {
+    const id =
+        String(userId);
+    for (const [country, entry] of
+            countryLeaders) {
+        if (
+            entry.userId === id
+        ) {
+            return country;
+        }
+    }
+    return null;
+}
+function buildCountryLeaders() {
+    return Array.from(
+        countryLeaders.entries()
+    )
+        .map((
+            [country, entry]
+        ) => {
+            const settings =
+                getUserSettings(
+                    entry.userId
+                );
+            return {
+                country,
+                userId:
+                    entry.userId,
+                username:
+                    entry.profile
+                        .username ||
+                    null,
+                global_name:
+                    entry.profile
+                        .global_name ||
+                    null,
+                avatar:
+                    entry.profile
+                        .avatar ||
+                    null,
+                display_name:
+                    settings.display_name ||
+                    entry.profile
+                        .global_name ||
+                    entry.profile
+                        .username ||
+                    null
+            };
+        })
+        .sort((a, b) =>
+            a.country.localeCompare(
+                b.country
+            )
+        );
+}
+function broadcastCountryLeaders() {
+    broadcast({
+        type: "country_leaders",
+        leaders:
+            buildCountryLeaders()
+    });
 }
 function makeOrderId() {
     return (
@@ -883,11 +965,15 @@ app.post(
             typeof body.country ===
             "string"
         ) {
-            settings.country =
-                cleanString(
-                    body.country,
-                    MAX_COUNTRY_LENGTH
-                );
+            if (
+                !settings.country_claimed
+            ) {
+                settings.country =
+                    cleanString(
+                        body.country,
+                        MAX_COUNTRY_LENGTH
+                    );
+            }
         }
 
         if (
@@ -927,6 +1013,197 @@ app.post(
 
         return res.json({
             authenticated: true,
+            settings
+        });
+    }
+);
+app.get(
+    "/api/country/leaders",
+    requireAuth,
+    (req, res) => {
+        return res.json({
+            leaders:
+                buildCountryLeaders()
+        });
+    }
+);
+app.post(
+    "/api/country/claim",
+    requireAuth,
+    (req, res) => {
+        const userId =
+            String(
+                req.session.user.id
+            );
+
+        const code =
+            typeof (
+                req.body || {}
+            ).code === "string"
+                ? req.body.code
+                      .trim()
+                      .toUpperCase()
+                : "";
+
+        const country =
+            countryCodes.get(
+                code
+            );
+
+        if (!country) {
+            return res
+                .status(400)
+                .json({
+                    error:
+                        "Invalid country code.",
+                    authenticated: true
+                });
+        }
+
+        const claimedBy =
+            getClaimedCountry(
+                userId
+            );
+
+        if (
+            claimedBy &&
+            claimedBy !== country
+        ) {
+            return res
+                .status(409)
+                .json({
+                    error:
+                        "You already command another country.",
+                    authenticated: true
+                });
+        }
+
+        const existing =
+            countryLeaders.get(
+                country
+            );
+
+        if (
+            existing &&
+            existing.userId !==
+                userId
+        ) {
+            return res
+                .status(409)
+                .json({
+                    error:
+                        "Country already assigned to another commander.",
+                    authenticated: true,
+                    country
+                });
+        }
+
+        const settings =
+            getUserSettings(
+                userId
+            );
+
+        settings.country =
+            country;
+
+        settings.country_claimed =
+            true;
+
+        userSettings.set(
+            userId,
+            settings
+        );
+
+        req.session.user.country =
+            country;
+
+        req.session.save(() => {});
+
+        const connection =
+            users.get(userId);
+
+        if (connection) {
+            connection.country =
+                country;
+        }
+
+        countryLeaders.set(
+            country,
+            {
+                userId,
+                profile: {
+                    username:
+                        req.session.user
+                            .username ||
+                        null,
+                    global_name:
+                        req.session.user
+                            .global_name ||
+                        null,
+                    avatar:
+                        req.session.user
+                            .avatar ||
+                        null
+                }
+            }
+        );
+
+        broadcastCountryLeaders();
+
+        return res.json({
+            authenticated: true,
+            settings,
+            isCountryLeader: true
+        });
+    }
+);
+app.post(
+    "/api/country/relinquish",
+    requireAuth,
+    (req, res) => {
+        const userId =
+            String(
+                req.session.user.id
+            );
+
+        const country =
+            getClaimedCountry(
+                userId
+            );
+
+        if (!country) {
+            return res.json({
+                authenticated: true,
+                isCountryLeader: false,
+                settings:
+                    getUserSettings(
+                        userId
+                    )
+            });
+        }
+
+        countryLeaders.delete(
+            country
+        );
+
+        const settings =
+            getUserSettings(
+                userId
+            );
+
+        settings.country_claimed =
+            false;
+
+        userSettings.set(
+            userId,
+            settings
+        );
+
+        broadcastCountryLeaders();
+
+        return res.json({
+            authenticated: true,
+            isCountryLeader: false,
             settings
         });
     }
@@ -1406,6 +1683,12 @@ wss.on(
         type: "orders",
         orders:
             getOrdersSnapshot()
+    });
+
+    send(socket, {
+        type: "country_leaders",
+        leaders:
+            buildCountryLeaders()
     });
 
     broadcastServerStatus();

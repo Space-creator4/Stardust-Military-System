@@ -25,12 +25,24 @@
       "security.js",
       "force.js",
       "login.js",
+      "countries.json",
       "assets/**/*"
     ],
     "win": {
+      "icon": "assets/icon.png",
       "target": [
         "nsis",
         "portable",
+        "zip"
+      ]
+    },
+    "mac": {
+      "icon": "assets/icon.png"
+    },
+    "linux": {
+      "icon": "assets/icon.png",
+      "target": [
+        "tar.gz",
         "zip"
       ]
     },

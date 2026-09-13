@@ -107,6 +107,82 @@ const COUNTRY_COLORS = {
     PAK: "#88419d"
 };
 
+let COUNTRY_FACTIONS = null;
+let FACTION_BY_CODE = {};
+let FACTION_BY_NAME = {};
+
+async function loadCountryFactions() {
+    try {
+        const response = await fetch("countries.json");
+
+        if (!response.ok) {
+            throw new Error(
+                `Country factions HTTP ${response.status}`
+            );
+        }
+
+        const data = await response.json();
+
+        COUNTRY_FACTIONS =
+            Array.isArray(data.factions)
+                ? data.factions
+                : [];
+
+        FACTION_BY_CODE = {};
+        FACTION_BY_NAME = {};
+
+        for (const faction of COUNTRY_FACTIONS) {
+            for (const entry of
+                    faction.countries || []) {
+                if (entry.code) {
+                    const codeKey =
+                        String(
+                            entry.code
+                        ).toUpperCase();
+                    FACTION_BY_CODE[codeKey] = {
+                        code: codeKey,
+                        name: entry.name,
+                        faction:
+                            faction.id,
+                        color:
+                            faction.color
+                    };
+                    COUNTRY_COLORS[codeKey] =
+                        faction.color;
+                }
+
+                if (entry.name) {
+                    const nameKey =
+                        normalizeCountryName(
+                            entry.name
+                        );
+                    if (nameKey) {
+                        FACTION_BY_NAME[nameKey] = {
+                            code: String(
+                                entry.code
+                            ).toUpperCase(),
+                            name: entry.name,
+                            faction:
+                                faction.id,
+                            color:
+                                faction.color
+                        };
+                    }
+                }
+            }
+        }
+
+        console.log(
+            `Stardust country factions loaded. ${COUNTRY_FACTIONS.length} factions, ${Object.keys(FACTION_BY_CODE).length} countries assigned.`
+        );
+    } catch (error) {
+        console.error(
+            "Failed to load country factions:",
+            error
+        );
+    }
+}
+
 const COUNTRY_NAME_TO_CODE = {
     United_States: "USA",
     United_States_of_America: "USA",
@@ -122,6 +198,23 @@ const COUNTRY_NAME_TO_CODE = {
 
     Canada: "CAN",
     CAN: "CAN",
+
+    Luxembourg: "LUX",
+    LUX: "LUX",
+
+    Belgium: "BEL",
+    BEL: "BEL",
+
+    Netherlands: "NLD",
+    Holland: "NLD",
+    NLD: "NLD",
+
+    Poland: "POL",
+    POL: "POL",
+
+    Czechia: "CZE",
+    Czech_Republic: "CZE",
+    CZE: "CZE",
 
     Antarctica: "ATA",
     ATA: "ATA",
@@ -1028,6 +1121,8 @@ async function createGlobe() {
         );
     }
 
+    await loadCountryFactions();
+
     await loadCountries(viewer);
 
     setupCountryInteraction(viewer);
@@ -1036,6 +1131,8 @@ async function createGlobe() {
     window.stardustCountryColors = COUNTRY_COLORS;
     window.stardustGetCountryCode = getCountryCode;
     window.stardustGetCountryColor = getCountryColor;
+    window.stardustFactions = COUNTRY_FACTIONS;
+    window.stardustCountryFactionByName = FACTION_BY_NAME;
 
     return viewer;
 }
