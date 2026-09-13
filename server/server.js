@@ -109,6 +109,43 @@ app.use(
         next();
     }
 );
+const apiHosts = new Set(
+    (process.env.API_HOST || "api.stardustn.co.uk")
+        .split(",")
+        .map(host => host.trim().toLowerCase())
+        .filter(Boolean)
+);
+app.use(
+    (req, res, next) => {
+        const host = String(req.hostname || "").toLowerCase();
+        if (!apiHosts.has(host)) {
+            return next();
+        }
+        if (
+            req.path.startsWith("/api") ||
+            req.path.startsWith("/auth")
+        ) {
+            return next();
+        }
+        if (req.path === "/" || req.path === "") {
+            return res.status(200).json({
+                service: "Stardust API",
+                status: "ok",
+                message: "This hostname only serves the Stardust Military System API. The website lives at https://stardustn.co.uk.",
+                endpoints: {
+                    version: "/api/version",
+                    user: "/api/user",
+                    discordLogin: "/auth/discord",
+                    discordCallback: "/auth/discord/callback"
+                }
+            });
+        }
+        return res.status(404).json({
+            error: "Not found",
+            hint: "This hostname only exposes the Stardust API. The website lives at https://stardustn.co.uk."
+        });
+    }
+);
 app.use(
     "/tiles",
     express.static(tilesPath)
