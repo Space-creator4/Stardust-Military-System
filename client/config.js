@@ -4,7 +4,7 @@
 
 (function () {
 
-    var API_ORIGIN = "https://api.stardustn.co.uk";
+    var API_ORIGIN = "https://stardustn.co.uk";
 
     var sameOrigin = window.location.origin === API_ORIGIN;
 
