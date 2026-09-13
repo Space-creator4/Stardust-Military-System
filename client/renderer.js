@@ -129,7 +129,14 @@ let FACTION_BY_NAME = {};
 
 async function loadCountryFactions() {
     try {
-        const response = await fetch("countries.json");
+        const response =
+            await fetch(
+                "countries.json",
+                {
+                    cache: "no-cache",
+                    credentials: "same-origin"
+                }
+            );
 
         if (!response.ok) {
             throw new Error(
