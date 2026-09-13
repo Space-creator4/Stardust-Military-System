@@ -7,6 +7,7 @@ server/node_modules/
 client/dist/
 client/dist-linux/
 client/dist-linux-new/
+client/dist-mac/
 client/release/
 
 # ---- Packaging ----

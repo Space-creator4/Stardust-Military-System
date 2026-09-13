@@ -7,7 +7,8 @@
     "start": "electron .",
     "dist": "electron-builder --win --publish never",
     "dist:portable": "electron-builder --win portable --publish never",
-    "dist:linux": "electron-builder --linux tar.gz zip --publish never --config.directories.output=dist-linux"
+    "dist:linux": "electron-builder --linux tar.gz zip --publish never --config.directories.output=dist-linux",
+    "dist:mac": "electron-builder --mac --publish never --config.directories.output=dist-mac"
   },
   "build": {
     "appId": "uk.co.stardust.militarysystem",

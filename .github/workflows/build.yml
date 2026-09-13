@@ -1,0 +1,51 @@
+name: Build Distributions
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - "v*"
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: windows-latest
+            script: dist
+            artifact: client/dist
+            name: windows
+          - os: ubuntu-latest
+            script: dist:linux
+            artifact: client/dist-linux
+            name: linux
+          - os: macos-latest
+            script: dist:mac
+            artifact: client/dist-mac
+            name: macos
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install dependencies
+        working-directory: client
+        run: npm ci --no-audit --no-fund
+
+      - name: Build ${{ matrix.name }}
+        working-directory: client
+        run: npm run ${{ matrix.script }}
+        env:
+          CSC_IDENTITY_AUTO_DISCOVERY: "false"
+
+      - name: Upload ${{ matrix.name }} artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.name }}-build
+          path: ${{ matrix.artifact }}
