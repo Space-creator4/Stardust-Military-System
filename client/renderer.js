@@ -131,7 +131,7 @@ async function loadCountryFactions() {
     try {
         const response =
             await fetch(
-                "countries.json",
+                "countries.json?v=2026.1",
                 {
                     cache: "no-cache",
                     credentials: "same-origin"
