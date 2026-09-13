@@ -1,14 +1,15 @@
 {
   "name": "stardust-military-system",
-  "version": "1.0.0",
+  "version": "0.0.1",
   "description": "Stardust Military System",
+  "author": "Stardust",
   "main": "main.js",
   "scripts": {
     "start": "electron .",
-    "dist": "electron-builder --win --publish never",
-    "dist:portable": "electron-builder --win portable --publish never",
-    "dist:linux": "electron-builder --linux tar.gz zip --publish never --config.directories.output=dist-linux",
-    "dist:mac": "electron-builder --mac --publish never --config.directories.output=dist-mac"
+    "dist": "electron-builder --win --publish never --config.directories.output=dist-win-0.0.1",
+    "dist:portable": "electron-builder --win portable --publish never --config.directories.output=dist-win-0.0.1",
+    "dist:linux": "electron-builder --linux tar.gz zip --publish never --config.directories.output=dist-linux-0.0.1",
+    "dist:mac": "electron-builder --mac --publish never --config.directories.output=dist-mac-0.0.1"
   },
   "build": {
     "appId": "uk.co.stardust.militarysystem",
@@ -21,7 +22,6 @@
       "*.html",
       "*.css",
       "renderer.js",
-      "script.js",
       "security.js",
       "force.js",
       "login.js",

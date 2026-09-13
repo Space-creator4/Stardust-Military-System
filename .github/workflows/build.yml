@@ -14,15 +14,15 @@ jobs:
         include:
           - os: windows-latest
             script: dist
-            artifact: client/dist
+            artifact: client/dist-win-0.0.1
             name: windows
           - os: ubuntu-latest
             script: dist:linux
-            artifact: client/dist-linux
+            artifact: client/dist-linux-0.0.1
             name: linux
           - os: macos-latest
             script: dist:mac
-            artifact: client/dist-mac
+            artifact: client/dist-mac-0.0.1
             name: macos
 
     runs-on: ${{ matrix.os }}

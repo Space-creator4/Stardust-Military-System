@@ -1115,8 +1115,8 @@ function getDiscordName() {
     }
 
     return (
-        currentUser.displayName ||
-        currentUser.globalName ||
+        currentUser.display_name ||
+        currentUser.global_name ||
         currentUser.username ||
         currentUser.name ||
         "Unknown"

@@ -164,6 +164,13 @@
             font-size: 7px;
         }
 
+        .order-creator {
+            color: #56636e;
+            font-family: "Courier New", monospace;
+            font-size: 7px;
+            margin-top: 8px;
+        }
+
         .create-form {
             padding: 18px;
         }
@@ -276,6 +283,43 @@
             background: #080b0f;
             color: #697781;
             font-size: 8px;
+        }
+
+        .action-button {
+            width: 100%;
+            height: 40px;
+            margin-top: 10px;
+            border: 1px solid #30383e;
+            background: #0a0d10;
+            color: #9ca8b0;
+            font-family: inherit;
+            font-size: 8px;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            cursor: pointer;
+        }
+
+        .action-button:hover {
+            background: #12171b;
+            color: #ffffff;
+        }
+
+        .action-button.complete {
+            border-color: #304139;
+            color: #62d18b;
+        }
+
+        .action-button.complete:hover {
+            background: #121d16;
+        }
+
+        .action-button.danger {
+            border-color: #513232;
+            color: #d16262;
+        }
+
+        .action-button.danger:hover {
+            background: #1a1010;
         }
 
         @media (max-width: 1000px) {
@@ -407,7 +451,7 @@
                         </div>
 
                         <div class="orders-subtitle">
-                            COMMAND ORDER MANAGEMENT
+                            COMMAND ORDER NETWORK
                         </div>
 
                     </div>
@@ -434,13 +478,13 @@
                         <div class="panel-header">
 
                             <span>
-                                ACTIVE ORDERS
+                                COMMAND ORDERS
                             </span>
 
                             <span
                                 class="panel-indicator"
                                 id="orderCount">
-                                0 ACTIVE
+                                0 ORDERS
                             </span>
 
                         </div>
@@ -551,7 +595,7 @@
                             <div class="form-group">
 
                                 <label class="form-label">
-                                    ORDERS
+                                    ORDER DETAILS
                                 </label>
 
                                 <textarea
@@ -651,6 +695,27 @@
                         id="detailDescription">
                     </div>
 
+                    <div
+                        class="message"
+                        id="detailCreator">
+                    </div>
+
+                    <div class="detail-actions">
+
+                        <button
+                            class="action-button complete"
+                            id="toggleOrderStatus">
+                            MARK COMPLETE
+                        </button>
+
+                        <button
+                            class="action-button danger"
+                            id="deleteOrder">
+                            DELETE ORDER
+                        </button>
+
+                    </div>
+
                 </div>
 
             </div>
@@ -667,97 +732,115 @@
 
 let orders = [];
 let selectedOrder = null;
+let currentUser = null;
+let socket = null;
+let reconnectTimer = null;
+let manuallyClosed = false;
+
+function getElement(id) {
+    return document.getElementById(id);
+}
 
 function setSystemStatus(online) {
 
     const text =
-        document.getElementById(
-            "systemStatusText"
-        );
+        getElement("systemStatusText");
 
     const connection =
-        document.getElementById(
-            "ordersConnection"
-        );
+        getElement("ordersConnection");
 
     const dot =
-        document.getElementById(
-            "systemDot"
-        );
+        getElement("systemDot");
 
     const ordersDot =
-        document.getElementById(
-            "ordersStatusDot"
-        );
+        getElement("ordersStatusDot");
 
     if (online) {
 
-        text.textContent =
-            "SYSTEM ONLINE";
+        if (text) {
+            text.textContent = "SYSTEM ONLINE";
+        }
 
-        connection.textContent =
-            "ONLINE";
+        if (connection) {
+            connection.textContent = "ONLINE";
+        }
 
         if (dot) {
-            dot.style.background =
-                "#62d18b";
+            dot.style.background = "#62d18b";
         }
 
         if (ordersDot) {
-            ordersDot.style.background =
-                "#62d18b";
+            ordersDot.style.background = "#62d18b";
         }
 
     } else {
 
-        text.textContent =
-            "SYSTEM OFFLINE";
+        if (text) {
+            text.textContent = "SYSTEM OFFLINE";
+        }
 
-        connection.textContent =
-            "OFFLINE";
+        if (connection) {
+            connection.textContent = "OFFLINE";
+        }
 
         if (dot) {
-            dot.style.background =
-                "#d16262";
+            dot.style.background = "#d16262";
         }
 
         if (ordersDot) {
-            ordersDot.style.background =
-                "#d16262";
+            ordersDot.style.background = "#d16262";
         }
     }
 }
 
-function showFormMessage(
-    message
-) {
+function showFormMessage(message) {
 
     const element =
-        document.getElementById(
-            "formMessage"
-        );
+        getElement("formMessage");
 
-    element.textContent =
-        message;
+    if (!element) {
+        return;
+    }
 
-    element.style.display =
-        "block";
+    element.textContent = message;
+    element.style.display = "block";
+}
+
+function hideFormMessage() {
+
+    const element =
+        getElement("formMessage");
+
+    if (element) {
+        element.style.display = "none";
+    }
+}
+
+function formatTime(timestamp) {
+
+    if (!timestamp) {
+        return "—";
+    }
+
+    return new Date(timestamp).toLocaleString();
 }
 
 function renderOrders() {
 
     const container =
-        document.getElementById(
-            "ordersList"
-        );
+        getElement("ordersList");
 
     const count =
-        document.getElementById(
-            "orderCount"
-        );
+        getElement("orderCount");
 
-    count.textContent =
-        `${orders.length} ACTIVE`;
+    if (count) {
+        count.textContent =
+            `${orders.length} ORDERS`;
+    }
+
+    if (!container) {
+        return;
+    }
 
     if (orders.length === 0) {
 
@@ -775,85 +858,51 @@ function renderOrders() {
     for (const order of orders) {
 
         const element =
-            document.createElement(
-                "div"
-            );
+            document.createElement("div");
 
-        element.className =
-            "order";
+        element.className = "order";
 
         if (
             selectedOrder &&
-            selectedOrder.id ===
-                order.id
+            selectedOrder.id === order.id
         ) {
-            element.classList.add(
-                "active"
-            );
+            element.classList.add("active");
         }
 
-        const top =
-            document.createElement(
-                "div"
-            );
+        const top = document.createElement("div");
+        top.className = "order-top";
 
-        top.className =
-            "order-top";
+        const id = document.createElement("div");
+        id.className = "order-id";
+        id.textContent = order.id;
 
-        const id =
-            document.createElement(
-                "div"
-            );
+        const status = document.createElement("div");
+        status.className = "order-status";
 
-        id.className =
-            "order-id";
+        if (order.status === "COMPLETED") {
+            status.classList.add("completed");
+        }
 
-        id.textContent =
-            order.id;
+        status.textContent = order.status;
 
-        const status =
-            document.createElement(
-                "div"
-            );
+        const name = document.createElement("div");
+        name.className = "order-name";
+        name.textContent = order.name;
 
-        status.className =
-            "order-status";
+        const description = document.createElement("div");
+        description.className = "order-description";
+        description.textContent = order.description;
 
-        status.textContent =
-            order.status;
-
-        const name =
-            document.createElement(
-                "div"
-            );
-
-        name.className =
-            "order-name";
-
-        name.textContent =
-            order.name;
-
-        const description =
-            document.createElement(
-                "div"
-            );
-
-        description.className =
-            "order-description";
-
-        description.textContent =
-            order.description;
-
-        const meta =
-            document.createElement(
-                "div"
-            );
-
-        meta.className =
-            "order-meta";
-
+        const meta = document.createElement("div");
+        meta.className = "order-meta";
         meta.textContent =
-            `${order.type.toUpperCase()}  •  ${order.priority.toUpperCase()}`;
+            `${order.type.toUpperCase()}  •  ${order.priority.toUpperCase()}  •  ${formatTime(order.createdAt)}`;
+
+        const creator = document.createElement("div");
+        creator.className = "order-creator";
+        creator.textContent = order.createdBy
+            ? `ISSUED BY ${order.createdBy.username.toUpperCase()}`
+            : "ISSUED BY COMMAND";
 
         top.appendChild(id);
         top.appendChild(status);
@@ -862,54 +911,48 @@ function renderOrders() {
         element.appendChild(name);
         element.appendChild(description);
         element.appendChild(meta);
+        element.appendChild(creator);
 
-        element.addEventListener(
-            "click",
-            () => {
-                selectOrder(order);
-            }
-        );
+        element.addEventListener("click", () => {
+            selectOrder(order);
+        });
 
-        container.appendChild(
-            element
-        );
+        container.appendChild(element);
     }
 }
 
 function selectOrder(order) {
 
-    selectedOrder =
-        order;
+    selectedOrder = order;
 
-    document.getElementById(
-        "orderDetails"
-    ).style.display =
-        "block";
+    const details = getElement("orderDetails");
 
-    document.getElementById(
-        "detailId"
-    ).textContent =
-        order.id;
+    if (details) {
+        details.style.display = "block";
+    }
 
-    document.getElementById(
-        "detailType"
-    ).textContent =
-        order.type.toUpperCase();
+    getElement("detailId").textContent = order.id;
+    getElement("detailType").textContent = order.type.toUpperCase();
+    getElement("detailPriority").textContent = order.priority.toUpperCase();
+    getElement("selectedOrderStatus").textContent = order.status.toUpperCase();
+    getElement("detailDescription").textContent = order.description;
 
-    document.getElementById(
-        "detailPriority"
-    ).textContent =
-        order.priority.toUpperCase();
+    const creator = getElement("detailCreator");
 
-    document.getElementById(
-        "selectedOrderStatus"
-    ).textContent =
-        order.status.toUpperCase();
+    if (creator) {
+        creator.textContent = order.createdBy
+            ? `ISSUED BY ${order.createdBy.username.toUpperCase()} at ${formatTime(order.createdAt)}`
+            : `ISSUED BY COMMAND at ${formatTime(order.createdAt)}`;
+    }
 
-    document.getElementById(
-        "detailDescription"
-    ).textContent =
-        order.description;
+    const toggle = getElement("toggleOrderStatus");
+
+    if (toggle) {
+        toggle.textContent =
+            order.status === "COMPLETED"
+                ? "REOPEN ORDER"
+                : "MARK COMPLETE";
+    }
 
     renderOrders();
 }
@@ -917,100 +960,272 @@ function selectOrder(order) {
 function createOrder() {
 
     const name =
-        document.getElementById(
-            "orderName"
-        ).value.trim();
+        getElement("orderName").value.trim();
 
     const type =
-        document.getElementById(
-            "orderType"
-        ).value;
+        getElement("orderType").value;
 
     const priority =
-        document.getElementById(
-            "orderPriority"
-        ).value;
+        getElement("orderPriority").value;
 
     const description =
-        document.getElementById(
-            "orderDescription"
-        ).value.trim();
+        getElement("orderDescription").value.trim();
 
     if (!name) {
-
-        showFormMessage(
-            "ORDER NAME IS REQUIRED."
-        );
-
+        showFormMessage("ORDER NAME IS REQUIRED.");
         return;
     }
 
     if (!description) {
-
-        showFormMessage(
-            "ORDER DETAILS ARE REQUIRED."
-        );
-
+        showFormMessage("ORDER DETAILS ARE REQUIRED.");
         return;
     }
 
-    const order = {
+    if (
+        !socket ||
+        socket.readyState !== WebSocket.OPEN
+    ) {
+        showFormMessage("NOT CONNECTED TO THE COMMAND NETWORK.");
+        return;
+    }
 
-        id:
-            "ORD-" +
-            Date.now()
-                .toString()
-                .slice(-8),
+    socket.send(JSON.stringify({
+        type: "orders_create",
+        order: {
+            name,
+            type,
+            priority,
+            description
+        }
+    }));
 
-        name,
-
-        type,
-
-        priority,
-
-        description,
-
-        status:
-            "ACTIVE",
-
-        createdAt:
-            Date.now()
-    };
-
-    orders.unshift(
-        order
-    );
-
-    document.getElementById(
-        "orderName"
-    ).value = "";
-
-    document.getElementById(
-        "orderDescription"
-    ).value = "";
-
-    document.getElementById(
-        "formMessage"
-    ).style.display =
-        "none";
-
-    selectOrder(
-        order
-    );
+    getElement("orderName").value = "";
+    getElement("orderDescription").value = "";
+    hideFormMessage();
 }
 
-document
-    .getElementById(
-        "createOrder"
-    )
-    .addEventListener(
-        "click",
-        createOrder
-    );
+function toggleSelectedOrderStatus() {
 
-setSystemStatus(true);
+    if (!selectedOrder) {
+        return;
+    }
 
-renderOrders();
+    if (
+        !socket ||
+        socket.readyState !== WebSocket.OPEN
+    ) {
+        showFormMessage("NOT CONNECTED TO THE COMMAND NETWORK.");
+        return;
+    }
+
+    socket.send(JSON.stringify({
+        type: "orders_update",
+        id: selectedOrder.id,
+        order: {
+            status: selectedOrder.status === "COMPLETED" ? "ACTIVE" : "COMPLETED"
+        }
+    }));
+}
+
+function deleteSelectedOrder() {
+
+    if (!selectedOrder) {
+        return;
+    }
+
+    if (
+        !socket ||
+        socket.readyState !== WebSocket.OPEN
+    ) {
+        showFormMessage("NOT CONNECTED TO THE COMMAND NETWORK.");
+        return;
+    }
+
+    socket.send(JSON.stringify({
+        type: "orders_delete",
+        id: selectedOrder.id
+    }));
+
+    selectedOrder = null;
+
+    const details = getElement("orderDetails");
+
+    if (details) {
+        details.style.display = "none";
+    }
+}
+
+async function loadCurrentUser() {
+
+    try {
+
+        const response = await fetch("/api/me", {
+            credentials: "include"
+        });
+
+        if (response.status === 401) {
+            window.location.href = "/login.html";
+            return false;
+        }
+
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}`);
+        }
+
+        const data = await response.json();
+
+        if (!data.authenticated || !data.user) {
+            window.location.href = "/login.html";
+            return false;
+        }
+
+        currentUser = data.user;
+        return true;
+
+    } catch (error) {
+
+        console.error("Failed to load user:", error);
+        return false;
+    }
+}
+
+function connectWebSocket() {
+
+    if (
+        socket &&
+        (
+            socket.readyState === WebSocket.OPEN ||
+            socket.readyState === WebSocket.CONNECTING
+        )
+    ) {
+        return;
+    }
+
+    const protocol =
+        location.protocol === "https:"
+            ? "wss"
+            : "ws";
+
+    setSystemStatus(false);
+
+    socket = new WebSocket(`${protocol}://${window.location.host}`);
+
+    socket.addEventListener("open", () => {
+
+        setSystemStatus(true);
+
+        if (reconnectTimer) {
+            clearTimeout(reconnectTimer);
+            reconnectTimer = null;
+        }
+    });
+
+    socket.addEventListener("close", event => {
+
+        setSystemStatus(false);
+
+        if (manuallyClosed) {
+            return;
+        }
+
+        if (event.code === 4001) {
+            window.location.href = "/login.html";
+            return;
+        }
+
+        if (event.code === 4003) {
+            window.location.href = "/login.html";
+            return;
+        }
+
+        reconnectTimer =
+            setTimeout(connectWebSocket, 3000);
+    });
+
+    socket.addEventListener("error", error => {
+
+        console.error("WebSocket error:", error);
+        setSystemStatus(false);
+    });
+
+    socket.addEventListener("message", event => {
+
+        try {
+
+            const data = JSON.parse(event.data);
+
+            if (data.type === "orders") {
+
+                orders = Array.isArray(data.orders)
+                    ? data.orders
+                    : [];
+
+                if (
+                    selectedOrder &&
+                    !orders.some(order => order.id === selectedOrder.id)
+                ) {
+                    selectedOrder = null;
+
+                    const details = getElement("orderDetails");
+
+                    if (details) {
+                        details.style.display = "none";
+                    }
+                }
+
+                renderOrders();
+                return;
+            }
+
+            if (data.type === "order_created") {
+
+                if (
+                    selectedOrder &&
+                    data.order &&
+                    selectedOrder.id === data.order.id
+                ) {
+                    selectOrder(data.order);
+                }
+
+                return;
+            }
+
+            if (data.type === "server_status") {
+                return;
+            }
+
+            if (
+                data.type === "error"
+            ) {
+                showFormMessage(data.message);
+                return;
+            }
+
+        } catch (error) {
+            console.error("Invalid server message:", error);
+        }
+    });
+}
+
+getElement("createOrder").addEventListener("click", createOrder);
+
+const toggleButton = getElement("toggleOrderStatus");
+
+if (toggleButton) {
+    toggleButton.addEventListener("click", toggleSelectedOrderStatus);
+}
+
+const deleteButton = getElement("deleteOrder");
+
+if (deleteButton) {
+    deleteButton.addEventListener("click", deleteSelectedOrder);
+}
+
+loadCurrentUser().then(authed => {
+    if (authed) {
+        connectWebSocket();
+    }
+});
 
 </script>
 

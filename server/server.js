@@ -59,6 +59,8 @@ const users = new Map();
 const mutedUsers = new Map();
 const bannedUsers = new Map();
 const messageHistory = new Map();
+const orders = new Map();
+const userSettings = new Map();
 const ADMIN_IDS = new Set(
     (process.env.ADMIN_DISCORD_IDS || "")
         .split(",")
@@ -70,11 +72,32 @@ const MAX_MESSAGES_PER_WINDOW = 8;
 const MESSAGE_INTERVAL = 1200;
 const RATE_WINDOW = 10000;
 const MAX_USERNAME_LENGTH = 32;
+const MAX_DISPLAY_NAME_LENGTH = 32;
+const MAX_COUNTRY_LENGTH = 60;
+const MAX_ORDER_NAME = 80;
+const MAX_ORDER_DESCRIPTION = 2000;
+const ORDER_TYPES = new Set([
+    "ground",
+    "naval",
+    "air",
+    "movement",
+    "exercise"
+]);
+const ORDER_PRIORITIES = new Set([
+    "routine",
+    "priority",
+    "urgent"
+]);
+const ORDER_STATUSES = new Set([
+    "ACTIVE",
+    "COMPLETED"
+]);
 function getUserName(user) {
     if (!user) {
         return "COMMANDER";
     }
 return (
+    user.display_name ||
     user.global_name ||
     user.username ||
     "COMMANDER"
@@ -237,14 +260,290 @@ function getPublicUser(user) {
     if (!user) {
         return null;
     }
+const settings =
+    getUserSettings(user.id);
+
 return {
     id: String(user.id),
     username: user.username || null,
     global_name: user.global_name || null,
     avatar: user.avatar || null,
-    country: user.country || null,
+    country: settings.country || user.country || null,
+    display_name:
+        settings.display_name || null,
+    theme_color:
+        settings.theme_color || null,
     isAdmin: isAdmin(user)
 };
+}
+function cleanString(value, max) {
+    if (typeof value !== "string") {
+        return "";
+    }
+const cleaned = value
+    .replace(/[\u0000-\u001f]/g, "")
+    .trim();
+
+return cleaned.slice(0, max);
+}
+function getUserSettings(userId) {
+    const id =
+        String(userId);
+
+    const stored =
+        userSettings.get(id) || {};
+
+    const settings = {
+        display_name:
+            cleanString(
+                stored.display_name,
+                MAX_DISPLAY_NAME_LENGTH
+            ),
+        country:
+            cleanString(
+                stored.country,
+                MAX_COUNTRY_LENGTH
+            ),
+        theme_color:
+            typeof stored.theme_color ===
+            "string" &&
+            /^#[0-9a-fA-F]{6}$/.test(
+                stored.theme_color
+            )
+                ? stored.theme_color
+                : ""
+    };
+
+    return settings;
+}
+function makeOrderId() {
+    return (
+        "ORD-" +
+        crypto
+            .randomBytes(4)
+            .toString("hex")
+            .toUpperCase()
+    );
+}
+function getOrdersSnapshot() {
+    return Array.from(
+        orders.values()
+    ).sort(
+        (a, b) =>
+            b.createdAt -
+            a.createdAt
+    );
+}
+function broadcastOrders() {
+    broadcast({
+        type: "orders",
+        orders:
+            getOrdersSnapshot()
+    });
+}
+function handleOrderCreate(
+    socket,
+    message,
+    userId
+) {
+    const order =
+        message.order || {};
+
+    const name =
+        cleanString(
+            order.name,
+            MAX_ORDER_NAME
+        );
+
+    const description =
+        cleanString(
+            order.description,
+            MAX_ORDER_DESCRIPTION
+        );
+
+    const type =
+        ORDER_TYPES.has(
+            String(order.type)
+        )
+            ? String(order.type)
+            : "ground";
+
+    const priority =
+        ORDER_PRIORITIES.has(
+            String(order.priority)
+        )
+            ? String(order.priority)
+            : "routine";
+
+    if (!name || !description) {
+        send(socket, {
+            type: "error",
+            message:
+                "Order name and details are required."
+        });
+
+        return;
+    }
+
+    const record = {
+        id: makeOrderId(),
+        name,
+        type,
+        priority,
+        description,
+        status: "ACTIVE",
+        createdBy: {
+            id: String(userId),
+            username:
+                getUserName(
+                    socket.user
+                )
+        },
+        createdAt:
+            Date.now(),
+        updatedAt:
+            Date.now()
+    };
+
+    orders.set(
+        record.id,
+        record
+    );
+
+    broadcastOrders();
+
+    send(socket, {
+        type: "order_created",
+        order: record
+    });
+}
+function handleOrderUpdate(
+    socket,
+    message,
+    userId
+) {
+    const id =
+        cleanString(
+            message.id,
+            32
+        );
+
+    const existing =
+        id
+            ? orders.get(id)
+            : null;
+
+    if (!existing) {
+        send(socket, {
+            type: "error",
+            message:
+                "Order not found."
+        });
+
+        return;
+    }
+
+    const next =
+        message.order || {};
+
+    if (
+        typeof next.status ===
+        "string"
+    ) {
+        const status =
+            next.status.toUpperCase();
+
+        if (
+            ORDER_STATUSES.has(
+                status
+            )
+        ) {
+            existing.status =
+                status;
+        }
+    }
+
+    if (
+        typeof next.name ===
+        "string"
+    ) {
+        const name =
+            cleanString(
+                next.name,
+                MAX_ORDER_NAME
+            );
+
+        if (name) {
+            existing.name =
+                name;
+        }
+    }
+
+    if (
+        typeof next.description ===
+        "string"
+    ) {
+        const description =
+            cleanString(
+                next.description,
+                MAX_ORDER_DESCRIPTION
+            );
+
+        if (description) {
+            existing.description =
+                description;
+        }
+    }
+
+    if (
+        ORDER_TYPES.has(
+            String(next.type)
+        )
+    ) {
+        existing.type =
+            String(next.type);
+    }
+
+    if (
+        ORDER_PRIORITIES.has(
+            String(
+                next.priority
+            )
+        )
+    ) {
+        existing.priority =
+            String(
+                next.priority
+            );
+    }
+
+    existing.updatedAt =
+        Date.now();
+
+    orders.set(
+        id,
+        existing
+    );
+
+    broadcastOrders();
+}
+function handleOrderDelete(
+    socket,
+    message,
+    userId
+) {
+    const id =
+        cleanString(
+            message.id,
+            32
+        );
+
+    if (
+        id &&
+        orders.delete(id)
+    ) {
+        broadcastOrders();
+    }
 }
 app.get("/health", (req, res) => {
     res.json({
@@ -540,6 +839,97 @@ app.get(
             )
     });
 }
+);
+app.get(
+    "/api/settings",
+    requireAuth,
+    (req, res) => {
+        return res.json({
+            authenticated: true,
+            settings:
+                getUserSettings(
+                    req.session.user.id
+                )
+        });
+    }
+);
+app.post(
+    "/api/settings",
+    requireAuth,
+    (req, res) => {
+        const userId =
+            String(
+                req.session.user.id
+            );
+
+        const settings =
+            getUserSettings(userId);
+
+        const body =
+            req.body || {};
+
+        if (
+            typeof body.display_name ===
+            "string"
+        ) {
+            settings.display_name =
+                cleanString(
+                    body.display_name,
+                    MAX_DISPLAY_NAME_LENGTH
+                );
+        }
+
+        if (
+            typeof body.country ===
+            "string"
+        ) {
+            settings.country =
+                cleanString(
+                    body.country,
+                    MAX_COUNTRY_LENGTH
+                );
+        }
+
+        if (
+            typeof body.theme_color ===
+            "string" &&
+            /^#[0-9a-fA-F]{6}$/.test(
+                body.theme_color
+            )
+        ) {
+            settings.theme_color =
+                body.theme_color.toLowerCase();
+        }
+
+        userSettings.set(
+            userId,
+            settings
+        );
+
+        req.session.user.display_name =
+            settings.display_name || null;
+
+        req.session.user.country =
+            settings.country || null;
+
+        req.session.save(() => {});
+
+        const connection =
+            users.get(userId);
+
+        if (connection) {
+            connection.display_name =
+                settings.display_name || null;
+
+            connection.country =
+                settings.country || null;
+        }
+
+        return res.json({
+            authenticated: true,
+            settings
+        });
+    }
 );
 app.get(
     "/api/online",
@@ -937,6 +1327,9 @@ wss.on(
         );
     }
 
+    const settings =
+        getUserSettings(userId);
+
     const connection = {
         id: userId,
 
@@ -946,8 +1339,13 @@ wss.on(
         global_name:
             user.global_name || null,
 
+        display_name:
+            settings.display_name || null,
+
         country:
-            user.country || null,
+            settings.country ||
+            user.country ||
+            null,
 
         socket,
 
@@ -1004,6 +1402,12 @@ wss.on(
         }
     );
 
+    send(socket, {
+        type: "orders",
+        orders:
+            getOrdersSnapshot()
+    });
+
     broadcastServerStatus();
 
     socket.on(
@@ -1039,6 +1443,45 @@ wss.on(
                     typeof message !==
                         "object"
                 ) {
+                    return;
+                }
+
+                if (
+                    message.type ===
+                    "orders_create"
+                ) {
+                    handleOrderCreate(
+                        socket,
+                        message,
+                        userId
+                    );
+
+                    return;
+                }
+
+                if (
+                    message.type ===
+                    "orders_update"
+                ) {
+                    handleOrderUpdate(
+                        socket,
+                        message,
+                        userId
+                    );
+
+                    return;
+                }
+
+                if (
+                    message.type ===
+                    "orders_delete"
+                ) {
+                    handleOrderDelete(
+                        socket,
+                        message,
+                        userId
+                    );
+
                     return;
                 }
 

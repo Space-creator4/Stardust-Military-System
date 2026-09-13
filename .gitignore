@@ -4,10 +4,7 @@ client/node_modules/
 server/node_modules/
 
 # ---- Build output (electron-builder) ----
-client/dist/
-client/dist-linux/
-client/dist-linux-new/
-client/dist-mac/
+client/dist*/
 client/release/
 
 # ---- Packaging ----

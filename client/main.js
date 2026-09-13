@@ -4,7 +4,9 @@ const appUrl = process.env.APP_URL || "https://78.150.222.189";
 
 app.on("certificate-error", (event, webContents, url, error, certificate, callback) => {
     const target = new URL(appUrl);
-    if (url.startsWith(target.origin)) {
+    const incoming = new URL(url);
+    const isTrustedOrigin = incoming.hostname === target.hostname && incoming.port === target.port;
+    if (isTrustedOrigin) {
         event.preventDefault();
         callback(true);
     } else {

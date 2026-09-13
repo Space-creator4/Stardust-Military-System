@@ -145,7 +145,7 @@ document
     .getElementById("createUnitButton")
     .addEventListener("click", () => {
         window.location.href =
-            "/orders.html?type=ground";
+            "/order.html?type=ground";
     });
 
 document
@@ -159,21 +159,21 @@ document
     .getElementById("ordersButton")
     .addEventListener("click", () => {
         window.location.href =
-            "/orders.html";
+            "/order.html";
     });
 
 document
     .getElementById("missileButton")
     .addEventListener("click", () => {
         window.location.href =
-            "/orders.html?type=missile";
+            "/order.html?type=missile";
     });
 
 document
     .getElementById("satelliteButton")
     .addEventListener("click", () => {
         window.location.href =
-            "/orders.html?type=satellite";
+            "/order.html?type=satellite";
     });
 
 updateClock();
