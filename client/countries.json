@@ -3,6 +3,7 @@
   "factions": [
     {
       "id": "faction-1",
+      "name": "United States of America",
       "color": "#377eb8",
       "countries": [
         {
@@ -37,20 +38,12 @@
           "name": "Luxembourg",
           "code": "LUX"
         }
-      ]
+      ],
+      "aliases": []
     },
     {
       "id": "faction-2",
-      "color": "#3264c8",
-      "countries": [
-        {
-          "name": "Antarctica",
-          "code": "ATA"
-        }
-      ]
-    },
-    {
-      "id": "faction-3",
+      "name": "Brazilian Empire",
       "color": "#8c510a",
       "countries": [
         {
@@ -61,10 +54,12 @@
           "name": "Uruguay",
           "code": "URY"
         }
-      ]
+      ],
+      "aliases": []
     },
     {
-      "id": "faction-4",
+      "id": "faction-3",
+      "name": "Glacier Empire",
       "color": "#d9b400",
       "countries": [
         {
@@ -74,11 +69,17 @@
         {
           "name": "Iceland",
           "code": "ISL"
+        },
+        {
+          "name": "Afghanistan",
+          "code": "AFG"
         }
-      ]
+      ],
+      "aliases": []
     },
     {
-      "id": "faction-5",
+      "id": "faction-4",
+      "name": "Russian Confederacy",
       "color": "#e31a1c",
       "countries": [
         {
@@ -89,10 +90,12 @@
           "name": "Kazakhstan",
           "code": "KAZ"
         }
-      ]
+      ],
+      "aliases": []
     },
     {
-      "id": "faction-6",
+      "id": "faction-5",
+      "name": "Republic of Terra Australis",
       "color": "#fd8d3c",
       "countries": [
         {
@@ -123,10 +126,12 @@
           "name": "North_Korea",
           "code": "PRK"
         }
-      ]
+      ],
+      "aliases": []
     },
     {
-      "id": "faction-7",
+      "id": "faction-6",
+      "name": "Commonwealth of France",
       "color": "#1b7837",
       "countries": [
         {
@@ -213,10 +218,12 @@
           "name": "Gambia",
           "code": "GMB"
         }
-      ]
+      ],
+      "aliases": []
     },
     {
-      "id": "faction-8",
+      "id": "faction-7",
+      "name": "Turkish Empire",
       "color": "#38a6a5",
       "countries": [
         {
@@ -315,50 +322,21 @@
           "name": "Romania",
           "code": "ROU"
         }
-      ]
+      ],
+      "aliases": []
     },
     {
-      "id": "faction-9",
-      "color": "#cc3333",
+      "id": "faction-8",
+      "name": "Zarvak National Authority",
+      "color": "#832323",
       "countries": [
         {
           "name": "DR_Congo",
           "code": "COD"
         }
-      ]
-    },
-    {
-      "id": "faction-10",
-      "color": "#72b38e",
-      "countries": [
-        {
-          "name": "Iran",
-          "code": "IRN"
-        },
-        {
-          "name": "Turkmenistan",
-          "code": "TKM"
-        }
-      ]
-    },
-    {
-      "id": "faction-11",
-      "color": "#d9b400",
-      "countries": [
-        {
-          "name": "Afghanistan",
-          "code": "AFG"
-        }
-      ]
-    },
-    {
-      "id": "faction-12",
-      "color": "#88419d",
-      "countries": [
-        {
-          "name": "Pakistan",
-          "code": "PAK"
-        }
+      ],
+      "aliases": [
+        "Toreador"
       ]
     }
   ],
@@ -403,325 +381,305 @@
       "color": "#377eb8",
       "name": "Luxembourg"
     },
-    "ATA": {
-      "faction": "faction-2",
-      "color": "#3264c8",
-      "name": "Antarctica"
-    },
     "BRA": {
-      "faction": "faction-3",
+      "faction": "faction-2",
       "color": "#8c510a",
       "name": "Brazil"
     },
     "URY": {
-      "faction": "faction-3",
+      "faction": "faction-2",
       "color": "#8c510a",
       "name": "Uruguay"
     },
     "GRL": {
-      "faction": "faction-4",
+      "faction": "faction-3",
       "color": "#d9b400",
       "name": "Greenland"
     },
     "ISL": {
-      "faction": "faction-4",
+      "faction": "faction-3",
       "color": "#d9b400",
       "name": "Iceland"
     },
+    "AFG": {
+      "faction": "faction-3",
+      "color": "#d9b400",
+      "name": "Afghanistan"
+    },
     "RUS": {
-      "faction": "faction-5",
+      "faction": "faction-4",
       "color": "#e31a1c",
       "name": "Russia"
     },
     "KAZ": {
-      "faction": "faction-5",
+      "faction": "faction-4",
       "color": "#e31a1c",
       "name": "Kazakhstan"
     },
     "CHN": {
-      "faction": "faction-6",
+      "faction": "faction-5",
       "color": "#fd8d3c",
       "name": "China"
     },
     "MNG": {
-      "faction": "faction-6",
+      "faction": "faction-5",
       "color": "#fd8d3c",
       "name": "Mongolia"
     },
     "AUS": {
-      "faction": "faction-6",
+      "faction": "faction-5",
       "color": "#fd8d3c",
       "name": "Australia"
     },
     "PNG": {
-      "faction": "faction-6",
+      "faction": "faction-5",
       "color": "#fd8d3c",
       "name": "Papua_New_Guinea"
     },
     "IDN": {
-      "faction": "faction-6",
+      "faction": "faction-5",
       "color": "#fd8d3c",
       "name": "Indonesia"
     },
     "KOR": {
-      "faction": "faction-6",
+      "faction": "faction-5",
       "color": "#fd8d3c",
       "name": "South_Korea"
     },
     "PRK": {
-      "faction": "faction-6",
+      "faction": "faction-5",
       "color": "#fd8d3c",
       "name": "North_Korea"
     },
     "MRT": {
-      "faction": "faction-7",
+      "faction": "faction-6",
       "color": "#1b7837",
       "name": "Mauritania"
     },
     "ESH": {
-      "faction": "faction-7",
+      "faction": "faction-6",
       "color": "#1b7837",
       "name": "Western_Sahara"
     },
     "MAR": {
-      "faction": "faction-7",
+      "faction": "faction-6",
       "color": "#1b7837",
       "name": "Morocco"
     },
     "DZA": {
-      "faction": "faction-7",
+      "faction": "faction-6",
       "color": "#1b7837",
       "name": "Algeria"
     },
     "MLI": {
-      "faction": "faction-7",
+      "faction": "faction-6",
       "color": "#1b7837",
       "name": "Mali"
     },
     "CIV": {
-      "faction": "faction-7",
+      "faction": "faction-6",
       "color": "#1b7837",
       "name": "Cote_d_Ivoire"
     },
     "LBR": {
-      "faction": "faction-7",
+      "faction": "faction-6",
       "color": "#1b7837",
       "name": "Liberia"
     },
     "SLE": {
-      "faction": "faction-7",
+      "faction": "faction-6",
       "color": "#1b7837",
       "name": "Sierra_Leone"
     },
     "GIN": {
-      "faction": "faction-7",
+      "faction": "faction-6",
       "color": "#1b7837",
       "name": "Guinea"
     },
     "SEN": {
-      "faction": "faction-7",
+      "faction": "faction-6",
       "color": "#1b7837",
       "name": "Senegal"
     },
     "GNB": {
-      "faction": "faction-7",
+      "faction": "faction-6",
       "color": "#1b7837",
       "name": "Guinea_Bissau"
     },
     "NER": {
-      "faction": "faction-7",
+      "faction": "faction-6",
       "color": "#1b7837",
       "name": "Niger"
     },
     "NGA": {
-      "faction": "faction-7",
+      "faction": "faction-6",
       "color": "#1b7837",
       "name": "Nigeria"
     },
     "GHA": {
-      "faction": "faction-7",
+      "faction": "faction-6",
       "color": "#1b7837",
       "name": "Ghana"
     },
     "BEN": {
-      "faction": "faction-7",
+      "faction": "faction-6",
       "color": "#1b7837",
       "name": "Benin"
     },
     "TGO": {
-      "faction": "faction-7",
+      "faction": "faction-6",
       "color": "#1b7837",
       "name": "Togo"
     },
     "BFA": {
-      "faction": "faction-7",
+      "faction": "faction-6",
       "color": "#1b7837",
       "name": "Burkina_Faso"
     },
     "ESP": {
-      "faction": "faction-7",
+      "faction": "faction-6",
       "color": "#1b7837",
       "name": "Spain"
     },
     "PRT": {
-      "faction": "faction-7",
+      "faction": "faction-6",
       "color": "#1b7837",
       "name": "Portugal"
     },
     "FRA": {
-      "faction": "faction-7",
+      "faction": "faction-6",
       "color": "#1b7837",
       "name": "France"
     },
     "GMB": {
-      "faction": "faction-7",
+      "faction": "faction-6",
       "color": "#1b7837",
       "name": "Gambia"
     },
     "LBY": {
-      "faction": "faction-8",
+      "faction": "faction-7",
       "color": "#38a6a5",
       "name": "Libya"
     },
     "EGY": {
-      "faction": "faction-8",
+      "faction": "faction-7",
       "color": "#38a6a5",
       "name": "Egypt"
     },
     "SAU": {
-      "faction": "faction-8",
+      "faction": "faction-7",
       "color": "#38a6a5",
       "name": "Saudi_Arabia"
     },
     "YEM": {
-      "faction": "faction-8",
+      "faction": "faction-7",
       "color": "#38a6a5",
       "name": "Yemen"
     },
     "OMN": {
-      "faction": "faction-8",
+      "faction": "faction-7",
       "color": "#38a6a5",
       "name": "Oman"
     },
     "ARE": {
-      "faction": "faction-8",
+      "faction": "faction-7",
       "color": "#38a6a5",
       "name": "United_Arab_Emirates"
     },
     "QAT": {
-      "faction": "faction-8",
+      "faction": "faction-7",
       "color": "#38a6a5",
       "name": "Qatar"
     },
     "BHR": {
-      "faction": "faction-8",
+      "faction": "faction-7",
       "color": "#38a6a5",
       "name": "Bahrain"
     },
     "IRQ": {
-      "faction": "faction-8",
+      "faction": "faction-7",
       "color": "#38a6a5",
       "name": "Iraq"
     },
     "SYR": {
-      "faction": "faction-8",
+      "faction": "faction-7",
       "color": "#38a6a5",
       "name": "Syria"
     },
     "JOR": {
-      "faction": "faction-8",
+      "faction": "faction-7",
       "color": "#38a6a5",
       "name": "Jordan"
     },
     "ISR": {
-      "faction": "faction-8",
+      "faction": "faction-7",
       "color": "#38a6a5",
       "name": "Israel"
     },
     "LBN": {
-      "faction": "faction-8",
+      "faction": "faction-7",
       "color": "#38a6a5",
       "name": "Lebanon"
     },
     "TUR": {
-      "faction": "faction-8",
+      "faction": "faction-7",
       "color": "#38a6a5",
       "name": "Türkiye"
     },
     "GRC": {
-      "faction": "faction-8",
+      "faction": "faction-7",
       "color": "#38a6a5",
       "name": "Greece"
     },
     "HRV": {
-      "faction": "faction-8",
+      "faction": "faction-7",
       "color": "#38a6a5",
       "name": "Croatia"
     },
     "BIH": {
-      "faction": "faction-8",
+      "faction": "faction-7",
       "color": "#38a6a5",
       "name": "Bosnia_and_Herzegovina"
     },
     "MNE": {
-      "faction": "faction-8",
+      "faction": "faction-7",
       "color": "#38a6a5",
       "name": "Montenegro"
     },
     "MKD": {
-      "faction": "faction-8",
+      "faction": "faction-7",
       "color": "#38a6a5",
       "name": "North_Macedonia"
     },
     "ALB": {
-      "faction": "faction-8",
+      "faction": "faction-7",
       "color": "#38a6a5",
       "name": "Albania"
     },
     "KOS": {
-      "faction": "faction-8",
+      "faction": "faction-7",
       "color": "#38a6a5",
       "name": "Kosovo"
     },
     "SRB": {
-      "faction": "faction-8",
+      "faction": "faction-7",
       "color": "#38a6a5",
       "name": "Serbia"
     },
     "BGR": {
-      "faction": "faction-8",
+      "faction": "faction-7",
       "color": "#38a6a5",
       "name": "Bulgaria"
     },
     "ROU": {
-      "faction": "faction-8",
+      "faction": "faction-7",
       "color": "#38a6a5",
       "name": "Romania"
     },
     "COD": {
-      "faction": "faction-9",
-      "color": "#cc3333",
+      "faction": "faction-8",
+      "color": "#832323",
       "name": "DR_Congo"
-    },
-    "IRN": {
-      "faction": "faction-10",
-      "color": "#72b38e",
-      "name": "Iran"
-    },
-    "TKM": {
-      "faction": "faction-10",
-      "color": "#72b38e",
-      "name": "Turkmenistan"
-    },
-    "AFG": {
-      "faction": "faction-11",
-      "color": "#d9b400",
-      "name": "Afghanistan"
-    },
-    "PAK": {
-      "faction": "faction-12",
-      "color": "#88419d",
-      "name": "Pakistan"
     }
   }
 }

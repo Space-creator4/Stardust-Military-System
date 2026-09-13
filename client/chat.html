@@ -207,6 +207,36 @@
             font-size: 7px;
         }
 
+        .message-country {
+            flex-shrink: 0;
+            align-self: flex-start;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            max-width: 190px;
+            margin-top: 1px;
+            padding: 2px 7px;
+            border: 1px solid #22303a;
+            background: #080b0f;
+        }
+
+        .chat-country-dot {
+            width: 6px;
+            height: 6px;
+            flex-shrink: 0;
+            border-radius: 50%;
+            background: #62d18b;
+        }
+
+        .chat-country-name {
+            color: #7f8c95;
+            font-size: 6.5px;
+            letter-spacing: 1px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
         .message-text {
             color: #9ca8b0;
             word-break: break-word;
@@ -617,12 +647,66 @@ function getTime() {
     );
 }
 
+let chatFactionColors = {};
+
+function normalizeChatName(value) {
+    return String(value || "")
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .toLowerCase()
+        .replace(/[\s_-]/g, "");
+}
+
+function chatCountryColor(country) {
+    return chatFactionColors[
+        normalizeChatName(country)
+    ] || "#62d18b";
+}
+
+async function loadChatFactionColors() {
+    try {
+        const response = await fetch("countries.json");
+
+        if (!response.ok) {
+            return;
+        }
+
+        const data = await response.json();
+
+        chatFactionColors = {};
+
+        for (const faction of data.factions || []) {
+
+            const names = [faction.name].concat(
+                faction.aliases || []
+            );
+
+            for (const name of names) {
+                const key = normalizeChatName(name);
+                if (key) {
+                    chatFactionColors[key] = faction.color;
+                }
+            }
+
+            for (const entry of faction.countries || []) {
+                const key = normalizeChatName(entry.name);
+                if (key) {
+                    chatFactionColors[key] = faction.color;
+                }
+            }
+        }
+    } catch (error) {
+        console.error("Failed to load faction colors:", error);
+    }
+}
+
 function addMessage(
     username,
     message,
     system = false,
     channel = currentChannel,
-    timestamp = null
+    timestamp = null,
+    country = null
 ) {
     if (!channelMessages[channel]) {
         channelMessages[channel] = [];
@@ -632,6 +716,7 @@ function addMessage(
         username,
         message,
         system,
+        country,
         timestamp: timestamp || Date.now()
     });
 
@@ -762,6 +847,44 @@ function renderMessages() {
         meta.appendChild(time);
 
         element.appendChild(meta);
+
+        if (
+            !data.system &&
+            data.country
+        ) {
+
+            const chip =
+                document.createElement("div");
+
+            chip.className =
+                "message-country";
+
+            const dot =
+                document.createElement("div");
+
+            dot.className =
+                "chat-country-dot";
+
+            dot.style.background =
+                chatCountryColor(
+                    data.country
+                );
+
+            const name =
+                document.createElement("div");
+
+            name.className =
+                "chat-country-name";
+
+            name.textContent =
+                data.country;
+
+            chip.appendChild(dot);
+            chip.appendChild(name);
+
+            element.appendChild(chip);
+        }
+
         element.appendChild(text);
 
         container.appendChild(element);
@@ -1108,7 +1231,8 @@ function connectWebSocket() {
                         data.message,
                         false,
                         channel,
-                        data.timestamp
+                        data.timestamp,
+                        data.country
                     );
 
                     return;
@@ -1367,6 +1491,8 @@ getElement(
 async function start() {
 
     renderMessages();
+
+    loadChatFactionColors();
 
     const authenticated =
         await loadCurrentUser();

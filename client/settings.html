@@ -1079,6 +1079,20 @@ async function loadFactionColors() {
 
         for (const faction of data.factions || []) {
 
+            const names = [faction.name].concat(
+                faction.aliases || []
+            );
+
+            for (const name of names) {
+
+                const key = normalizeFactionName(name);
+
+                if (key) {
+                    factionColors[key] =
+                        faction.color;
+                }
+            }
+
             for (const entry of
                     faction.countries || []) {
 

@@ -172,6 +172,21 @@ async function loadCountryFactions() {
             }
         }
 
+        for (const key of
+                Object.keys(
+                    COUNTRY_COLORS
+                )) {
+            if (
+                !FACTION_BY_CODE[
+                    key
+                ]
+            ) {
+                delete COUNTRY_COLORS[
+                    key
+                ];
+            }
+        }
+
         console.log(
             `Stardust country factions loaded. ${COUNTRY_FACTIONS.length} factions, ${Object.keys(FACTION_BY_CODE).length} countries assigned.`
         );

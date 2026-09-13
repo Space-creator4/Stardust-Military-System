@@ -1877,6 +1877,10 @@ wss.on(
                         serverUser.global_name ||
                         null,
 
+                    country:
+                        serverUser.country ||
+                        null,
+
                     message:
                         text,
 
