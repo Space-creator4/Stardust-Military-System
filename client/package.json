@@ -6,7 +6,8 @@
   "scripts": {
     "start": "electron .",
     "dist": "electron-builder --win --publish never",
-    "dist:portable": "electron-builder --win portable --publish never"
+    "dist:portable": "electron-builder --win portable --publish never",
+    "dist:linux": "electron-builder --linux tar.gz zip --publish never --config.directories.output=dist-linux"
   },
   "build": {
     "appId": "uk.co.stardust.militarysystem",

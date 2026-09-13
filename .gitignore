@@ -1,33 +1,46 @@
-# Dependencies
+# ---- Dependencies ----
 node_modules/
 client/node_modules/
 server/node_modules/
 
-# Build output (electron-builder)
+# ---- Build output (electron-builder) ----
 client/dist/
+client/dist-linux/
+client/dist-linux-new/
 client/release/
 
-# Secrets - never commit
-server/.env
+# ---- Packaging ----
+*.asar
 
-# Generated content
+# ---- Secrets ----
+server/.env
+*.env
+
+# ---- Generated / runtime content ----
 server/tiles/
 server/logs/
 logs/
 *.log
+npm-debug.log*
+yarn-error.log*
 
-# OS files
+# ---- Misc / cache ----
+.cache/
+.tmp/
+*.tmp
+
+# ---- OS files ----
 Thumbs.db
 Desktop.ini
 .DS_Store
 
-# Editor / IDE
+# ---- Editor / IDE ----
 .vscode/
 .idea/
 *.swp
+*.swo
 
-# Windows
+# ---- Windows binaries (keep exception for source assets) ----
 *.exe
 *.dll
 !client/assets/**
-client/dist-linux/
