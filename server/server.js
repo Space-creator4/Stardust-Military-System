@@ -1349,12 +1349,86 @@ function getBasesSnapshot() {
             )
     );
 }
+function isAdminConnection(connection) {
+    return !!(
+        connection &&
+        ADMIN_IDS.has(
+            String(
+                connection.id
+            )
+        )
+    );
+}
+function getVisibleBasesFor(connection) {
+    const all =
+        getBasesSnapshot();
+    if (
+        !connection ||
+        isAdminConnection(
+            connection
+        )
+    ) {
+        return all;
+    }
+    const country =
+        connection.country ||
+        null;
+    if (!country) {
+        return [];
+    }
+    return all.filter(
+        base =>
+            base.country ===
+            country
+    );
+}
 function broadcastBases() {
-    broadcast({
-        type: "bases",
-        bases:
-            getBasesSnapshot()
-    });
+    const payloadCache =
+        new Map();
+    wss.clients.forEach(
+        client => {
+            if (
+                client.readyState !==
+                WebSocket.OPEN
+            ) {
+                return;
+            }
+            const connection =
+                client.user;
+            const key =
+                !connection ||
+                isAdminConnection(
+                    connection
+                )
+                    ? connection
+                        ? "admin"
+                        : "anon"
+                    : "c:" +
+                      (
+                          connection.country ||
+                          ""
+                      );
+            let payload =
+                payloadCache.get(
+                    key
+                );
+            if (!payload) {
+                payload =
+                    JSON.stringify({
+                        type: "bases",
+                        bases:
+                            getVisibleBasesFor(
+                                connection
+                            )
+                    });
+                payloadCache.set(
+                    key,
+                    payload
+                );
+            }
+            client.send(payload);
+        }
+    );
 }
 function checkBaseSupportsType(base, unitType) {
     const groups =
@@ -3400,7 +3474,9 @@ wss.on(
     send(socket, {
         type: "bases",
         bases:
-            getBasesSnapshot()
+            getVisibleBasesFor(
+                connection
+            )
     });
 
     send(socket, {
@@ -3538,6 +3614,8 @@ wss.on(
                         connection.country =
                             settings.country ||
                             null;
+
+                        broadcastBases();
                     }
 
                     send(socket, {

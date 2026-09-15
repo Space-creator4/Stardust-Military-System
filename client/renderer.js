@@ -1062,7 +1062,7 @@ async function loadCountries(viewer) {
             await fetch(
                 "/assets/countries.geo.json",
                 {
-                    cache: "no-cache",
+                    cache: "force-cache",
                     credentials: "same-origin"
                 }
             );
@@ -1333,11 +1333,12 @@ async function createGlobe() {
             false;
     }
 
-    try {
-        const osmBuildings =
-            await Cesium.createOsmBuildingsAsync();
+    Cesium.createOsmBuildingsAsync()
+        .then(osmBuildings => {
+            if (!osmBuildings) {
+                return;
+            }
 
-        if (osmBuildings) {
             viewer.scene.primitives.add(
                 osmBuildings
             );
@@ -1348,19 +1349,15 @@ async function createGlobe() {
             console.log(
                 "Cesium OSM Buildings loaded."
             );
-        }
-    } catch (error) {
-        console.warn(
-            "OSM Buildings unavailable. Continuing without 3D buildings:",
-            error
-        );
-    }
-
-    viewer.scene.requestRender();
+        })
+        .catch(error => {
+            console.warn(
+                "OSM Buildings unavailable. Continuing without 3D buildings:",
+                error
+            );
+        });
 
     await loadCountryFactions();
-
-    await loadCountries(viewer);
 
     viewer.scene.requestRender();
 
@@ -1377,6 +1374,12 @@ async function createGlobe() {
 
     renderUnitMarkers(viewer);
     renderBaseMarkers(viewer);
+
+    loadCountries(viewer).then(
+        () => {
+            viewer.scene.requestRender();
+        }
+    );
 
     return viewer;
 }
