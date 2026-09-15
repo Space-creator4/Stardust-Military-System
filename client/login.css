@@ -181,6 +181,32 @@
     letter-spacing: 2px;
 }
 
+.coffee-link {
+    display: inline-block;
+
+    margin-top: 20px;
+    padding: 9px 16px;
+
+    border: 1px solid #3a2f1c;
+    border-radius: 4px;
+
+    color: #d8a24a;
+
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+
+    text-decoration: none;
+
+    transition: all 0.2s ease;
+}
+
+.coffee-link:hover {
+    color: #f5c26b;
+    border-color: #d8a24a;
+    background: #14100a;
+}
+
 @media (max-width: 460px) {
     .login-card {
         padding: 32px 24px;

@@ -299,6 +299,24 @@ main {
     background: #110b0b;
 }
 
+.nav.coffee {
+    color: #d8a24a;
+}
+
+.nav.coffee:hover {
+    color: #f5c26b;
+    border-color: #3a2f1c;
+    background: #14100a;
+}
+
+.logout.coffee {
+    color: #d8a24a;
+}
+
+.logout.coffee:hover {
+    color: #f5c26b;
+}
+
 .content {
     flex: 1;
 

@@ -27,7 +27,42 @@ const APP_ORIGIN =
 const SESSION_SECRET =
     process.env.SESSION_SECRET ||
     crypto.randomBytes(32).toString("hex");
+const DATABASE_URL =
+    String(
+        process.env.DATABASE_URL ||
+        ""
+    ).trim();
+let sessionStore = null;
+if (DATABASE_URL) {
+    try {
+        const PgSessionStore =
+            require("connect-pg-simple")(
+                session
+            );
+        sessionStore =
+            new PgSessionStore({
+                conString: DATABASE_URL,
+                tableName: "session",
+                createTableIfMissing: true,
+                pruneSessionInterval: 60 * 15
+            });
+        console.log(
+            "Session store: NeonDB (Postgres)"
+        );
+    } catch (error) {
+        sessionStore = null;
+        console.warn(
+            "Session store failed to initialise, falling back to in-memory: " +
+            error.message
+        );
+    }
+} else {
+    console.warn(
+        "DATABASE_URL not set. Sessions are in-memory and will be lost on restart. Set DATABASE_URL (e.g. Neon Postgres) for persistent auto-login."
+    );
+}
 const sessionMiddleware = session({
+    store: sessionStore || undefined,
     secret: SESSION_SECRET,
     resave: false,
     saveUninitialized: false,
@@ -39,6 +74,24 @@ const sessionMiddleware = session({
         maxAge: 7 * 24 * 60 * 60 * 1000
     }
 });
+if (sessionStore) {
+    sessionStore.on("connect", () => {
+        console.log(
+            "Session store connected."
+        );
+    });
+}
+if (sessionStore) {
+    sessionStore.on(
+        "error",
+        error => {
+            console.warn(
+                "Session store error: " +
+                error.message
+            );
+        }
+    );
+}
 const wss = new WebSocket.Server({
     noServer: true,
     maxPayload: 4096
