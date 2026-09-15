@@ -92,6 +92,131 @@ if (sessionStore) {
         }
     );
 }
+let db = null;
+let dbReady = false;
+if (DATABASE_URL) {
+    try {
+        const { Pool } = require("pg");
+        db = new Pool({
+            connectionString: DATABASE_URL,
+            max: 5
+        });
+    } catch (error) {
+        db = null;
+        console.warn(
+            "Players database unavailable: " +
+            error.message
+        );
+    }
+}
+async function initPlayersTable() {
+    if (!db || dbReady) {
+        return;
+    }
+    try {
+        await db.query(
+            `CREATE TABLE IF NOT EXISTS players (
+                discord_id TEXT PRIMARY KEY,
+                username TEXT,
+                global_name TEXT,
+                avatar TEXT,
+                country TEXT,
+                country_claimed BOOLEAN NOT NULL DEFAULT TRUE,
+                updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+            )`
+        );
+        dbReady = true;
+        console.log(
+            "Players table ready."
+        );
+    } catch (error) {
+        console.warn(
+            "players table init error: " +
+            error.message
+        );
+    }
+}
+async function getPlayer(discordId) {
+    if (!db) {
+        return null;
+    }
+    await initPlayersTable();
+    if (!dbReady) {
+        return null;
+    }
+    try {
+        const result = await db.query(
+            "SELECT discord_id, username, global_name, avatar, country, country_claimed FROM players WHERE discord_id = $1",
+            [String(discordId)]
+        );
+        return result.rows[0] || null;
+    } catch (error) {
+        console.warn(
+            "getPlayer error: " +
+            error.message
+        );
+        return null;
+    }
+}
+async function upsertPlayer(discordId, fields) {
+    if (!db) {
+        return null;
+    }
+    await initPlayersTable();
+    if (!dbReady) {
+        return null;
+    }
+    const data = fields || {};
+    const country =
+        typeof data.country === "string" &&
+        data.country
+            ? data.country
+            : null;
+    try {
+        const result = await db.query(
+            `INSERT INTO players (
+                discord_id,
+                username,
+                global_name,
+                avatar,
+                country
+            ) VALUES ($1, $2, $3, $4, $5)
+            ON CONFLICT (discord_id)
+            DO UPDATE SET
+                username =
+                    COALESCE(EXCLUDED.username, players.username),
+                global_name =
+                    COALESCE(EXCLUDED.global_name, players.global_name),
+                avatar =
+                    COALESCE(EXCLUDED.avatar, players.avatar),
+                country =
+                    COALESCE(EXCLUDED.country, players.country),
+                updated_at = now()
+            RETURNING country, country_claimed`,
+            [
+                String(discordId),
+                data.username || null,
+                data.global_name || null,
+                data.avatar || null,
+                country
+            ]
+        );
+        const row = result.rows[0];
+        return row
+            ? {
+                country: row.country || null,
+                country_claimed:
+                    !!row.country_claimed
+            }
+            : null;
+    } catch (error) {
+        console.warn(
+            "upsertPlayer error: " +
+            error.message
+        );
+        return null;
+    }
+}
 const wss = new WebSocket.Server({
     noServer: true,
     maxPayload: 4096
@@ -2360,6 +2485,17 @@ app.get("/api/version", (req, res) => {
             )
     });
 });
+app.get("/api/country-codes", (req, res) => {
+    const codes = [];
+    for (const [code, label] of
+            countryCodes) {
+        codes.push({
+            code,
+            label
+        });
+    }
+    return res.json({ codes });
+});
 function frontendLoginUrl(params = {}) {
     if (!APP_ORIGIN) {
         return null;
@@ -2372,10 +2508,12 @@ function frontendLoginUrl(params = {}) {
     return url.toString();
 }
 
-function oauthError(res, message, status) {
+function oauthError(res, message, status, errorCode) {
     if (APP_ORIGIN) {
         return res.redirect(
-            frontendLoginUrl({ error: "auth_failed" })
+            frontendLoginUrl({
+                error: errorCode || "auth_failed"
+            })
         );
     }
     return res.status(status).send(message);
@@ -2426,12 +2564,31 @@ app.get(
                     "Discord OAuth is not configured."
                 );
         }
+    const countryParam =
+        typeof req.query.country === "string"
+            ? req.query.country.trim().toUpperCase()
+            : "";
+
+    if (
+        countryParam &&
+        !countryCodes.has(countryParam)
+    ) {
+        return res.redirect(
+            frontendLoginUrl({
+                error: "invalid_country"
+            })
+        );
+    }
+
     const state =
         crypto
             .randomBytes(32)
             .toString("hex");
 
     req.session.oauthState = state;
+
+    req.session.oauthCountry =
+        countryParam || null;
 
     req.session.save(error => {
         if (error) {
@@ -2581,6 +2738,66 @@ app.get(
             );
         }
 
+        const playerRecord =
+            await getPlayer(
+                String(user.id)
+            );
+
+        let country =
+            req.session.oauthCountry ||
+            (playerRecord &&
+                playerRecord.country) ||
+            null;
+
+        if (!country) {
+            return oauthError(
+                res,
+                "A country code is required. Please try logging in again.",
+                400,
+                "country_required"
+            );
+        }
+
+        const saved =
+            db
+                ? await upsertPlayer(
+                    String(user.id),
+                    {
+                        username:
+                            user.username || null,
+
+                        global_name:
+                            user.global_name || null,
+
+                        avatar:
+                            user.avatar || null,
+
+                        country
+                    }
+                )
+                : null;
+
+        const playerSettings =
+            userSettings.get(
+                String(user.id)
+            ) || {};
+
+        playerSettings.country =
+            country;
+
+        if (
+            saved &&
+            saved.country_claimed
+        ) {
+            playerSettings.country_claimed =
+                true;
+        }
+
+        userSettings.set(
+            String(user.id),
+            playerSettings
+        );
+
         req.session.user = {
             id: String(user.id),
 
@@ -2593,8 +2810,7 @@ app.get(
             avatar:
                 user.avatar || null,
 
-            country:
-                null
+            country
         };
 
         req.session.save(
