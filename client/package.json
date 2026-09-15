@@ -9,7 +9,10 @@
     "dist": "electron-builder --win --publish never --config.directories.output=dist-win-0.0.1",
     "dist:portable": "electron-builder --win portable --publish never --config.directories.output=dist-win-0.0.1",
     "dist:linux": "electron-builder --linux --publish never --config.directories.output=dist-linux-0.0.1",
-    "dist:mac": "electron-builder --mac --publish never --config.directories.output=dist-mac-0.0.1"
+    "dist:mac": "electron-builder --mac --publish never --config.directories.output=dist-mac-0.0.1",
+    "dist:publish": "electron-builder --win --publish never --config.directories.output=dist-win-0.0.1 && node ../server/updates/publish-update.js",
+    "dist:publish:linux": "electron-builder --linux --publish never --config.directories.output=dist-linux-0.0.1 && node ../server/updates/publish-update.js",
+    "dist:publish:mac": "electron-builder --mac --publish never --config.directories.output=dist-mac-0.0.1 && node ../server/updates/publish-update.js"
   },
   "build": {
     "appId": "uk.co.stardust.militarysystem",
