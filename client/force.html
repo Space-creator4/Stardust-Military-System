@@ -4,6 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Stardust | Forces</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="force.css">
 </head>
@@ -497,7 +500,7 @@
                                 CONTROLLED INSTALLATION
                             </label>
 
-                            <select id="baseSelect"></select>
+                            <select id="baseSelect" aria-label="Select controlled installation"></select>
 
                             <div id="baseSummary" class="base-summary">
                                 SELECT A BASE
@@ -660,7 +663,7 @@
                             <div>
                                 <label>ORIGIN BASE</label>
                                 <select id="unitBase"></select>
-                                <div class="unit-req-hint" id="unitReqHint"></div>
+                                <div class="unit-req-hint" id="unitReqHint" role="status" aria-live="polite"></div>
                             </div>
 
                             <div>

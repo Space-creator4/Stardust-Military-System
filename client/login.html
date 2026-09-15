@@ -6,6 +6,10 @@
 
     <title>Stardust | Login</title>
 
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
+
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="login.css">
 </head>
@@ -15,6 +19,10 @@
 <div class="login-page">
 
     <div class="login-card">
+
+        <div class="login-system-tag" aria-hidden="true">
+            STCL-2.4 // AUTH GATE
+        </div>
 
         <div class="login-logo">
             ✦
@@ -41,6 +49,7 @@
             type="text"
             maxlength="32"
             autocomplete="off"
+            aria-label="Country code"
             placeholder="COUNTRY CODE">
 
         <datalist id="countryCodesList"></datalist>
@@ -52,19 +61,23 @@
             LOGIN WITH DISCORD
         </button>
 
-        <div class="login-status" id="loginStatus"></div>
+        <div class="login-status" id="loginStatus" role="status" aria-live="polite"></div>
 
-        <div class="login-footer">
-            STARDUST COMMAND NETWORK
+        <div class="login-authfoot">
+
+            <div class="login-footer">
+                STARDUST COMMAND NETWORK
+            </div>
+
+            <a
+                class="coffee-link"
+                href="https://buymeacoffee.com/space0141"
+                target="_blank"
+                rel="noopener">
+                ☕ BUY ME A COFFEE
+            </a>
+
         </div>
-
-        <a
-            class="coffee-link"
-            href="https://buymeacoffee.com/space0141"
-            target="_blank"
-            rel="noopener">
-            ☕ BUY ME A COFFEE
-        </a>
 
     </div>
 

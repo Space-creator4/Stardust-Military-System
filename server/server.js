@@ -598,6 +598,17 @@ const countryLeaders = new Map();
             countryCodes.set(normalized, label);
         }
     });
+function resolveCountryName(value) {
+    if (typeof value !== "string" || !value) {
+        return null;
+    }
+    const normalized =
+        value.trim().toUpperCase();
+    if (countryCodes.has(normalized)) {
+        return countryCodes.get(normalized);
+    }
+    return value.trim();
+}
 const ADMIN_IDS = new Set(
     (process.env.ADMIN_DISCORD_IDS || "")
         .split(",")
@@ -1103,7 +1114,10 @@ return {
     username: user.username || null,
     global_name: user.global_name || null,
     avatar: user.avatar || null,
-    country: settings.country || user.country || null,
+    country: resolveCountryName(
+        settings.country ||
+        user.country
+    ),
     display_name:
         settings.display_name || null,
     theme_color:
@@ -2744,10 +2758,11 @@ app.get(
             );
 
         let country =
-            req.session.oauthCountry ||
-            (playerRecord &&
-                playerRecord.country) ||
-            null;
+            resolveCountryName(
+                req.session.oauthCountry ||
+                (playerRecord &&
+                    playerRecord.country)
+            );
 
         if (!country) {
             return oauthError(
@@ -2931,9 +2946,11 @@ app.post(
                 !settings.country_claimed
             ) {
                 settings.country =
-                    cleanString(
-                        body.country,
-                        MAX_COUNTRY_LENGTH
+                    resolveCountryName(
+                        cleanString(
+                            body.country,
+                            MAX_COUNTRY_LENGTH
+                        )
                     );
             }
         }
@@ -3657,9 +3674,10 @@ wss.on(
             settings.display_name || null,
 
         country:
-            settings.country ||
-            user.country ||
-            null,
+            resolveCountryName(
+                settings.country ||
+                user.country
+            ),
 
         socket,
 
@@ -3843,9 +3861,11 @@ wss.on(
                         !settings.country_claimed
                     ) {
                         settings.country =
-                            cleanString(
-                                pushed.country,
-                                MAX_COUNTRY_LENGTH
+                            resolveCountryName(
+                                cleanString(
+                                    pushed.country,
+                                    MAX_COUNTRY_LENGTH
+                                )
                             );
                     }
 

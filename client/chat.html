@@ -6,18 +6,22 @@
 
     <title>Stardust | Chat</title>
 
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
+
     <link rel="stylesheet" href="style.css">
 
     <style>
         body {
-            font-family: "Segoe UI", system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif;
+            font-family: var(--font-body);
         }
 
         .chat-page {
             width: 100%;
             min-height: 100%;
             padding: 28px;
-            background: #05070a;
+            background: transparent;
         }
 
         .chat-header {
@@ -26,32 +30,41 @@
             align-items: center;
             justify-content: space-between;
             padding-bottom: 20px;
-            border-bottom: 1px solid #1d2a33;
+            border-bottom: 1px solid rgba(148, 184, 255, 0.1);
         }
 
         .chat-title {
-            color: #e3ebf1;
-            font-size: 24px;
-            font-weight: 600;
-            letter-spacing: 5px;
+            color: #e7eef6;
+            font-family: var(--font-display);
+            font-size: 26px;
+            font-weight: 700;
+            letter-spacing: 6px;
         }
 
         .chat-subtitle {
-            margin-top: 6px;
-            color: #6d7d89;
-            font-size: 8px;
-            letter-spacing: 3px;
+            margin-top: 7px;
+            color: #8a99a8;
+            font-family: var(--font-display);
+            font-size: 9px;
+            font-weight: 600;
+            letter-spacing: 3.5px;
             text-transform: uppercase;
         }
 
         .chat-status {
             display: flex;
             align-items: center;
-            gap: 8px;
-            color: #6d7d89;
-            font-size: 8px;
+            gap: 9px;
+            padding: 6px 12px;
+            border: 1px solid rgba(148, 184, 255, 0.12);
+            border-radius: 999px;
+            background: rgba(10, 15, 21, 0.5);
+            color: #8a99a8;
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+            font-family: var(--font-display);
+            font-size: 10px;
             font-weight: 600;
-            letter-spacing: 1.5px;
+            letter-spacing: 2px;
         }
 
         .chat-status .status-dot {
@@ -59,13 +72,13 @@
             height: 7px;
             border-radius: 50%;
             background: #e5533b;
-            box-shadow: 0 0 9px rgba(229, 83, 59, 0.15);
+            box-shadow: 0 0 9px rgba(229, 83, 59, 0.35);
         }
 
         .chat-layout {
             display: grid;
             grid-template-columns: 220px minmax(0, 1fr);
-            gap: 12px;
+            gap: 16px;
             height: calc(100vh - 146px);
             margin-top: 20px;
         }
@@ -73,9 +86,11 @@
         .chat-channels {
             display: flex;
             flex-direction: column;
-            border: 1px solid #1d2a33;
-            background: #0a0f14;
-            border-radius: 3px;
+            overflow: hidden;
+            border: 1px solid rgba(148, 184, 255, 0.1);
+            background: linear-gradient(180deg, rgba(15, 22, 30, 0.68), rgba(8, 12, 18, 0.88));
+            border-radius: 12px;
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05), 0 22px 48px -28px rgba(0, 0, 0, 0.9);
         }
 
         .channel-header {
@@ -83,11 +98,12 @@
             display: flex;
             align-items: center;
             padding: 0 16px;
-            border-bottom: 1px solid #1d2a33;
-            color: #6d7d89;
-            font-size: 8px;
+            border-bottom: 1px solid rgba(148, 184, 255, 0.1);
+            color: #8a99a8;
+            font-family: var(--font-display);
+            font-size: 10px;
             font-weight: 600;
-            letter-spacing: 2px;
+            letter-spacing: 2.5px;
             text-transform: uppercase;
         }
 
@@ -99,13 +115,13 @@
             padding: 0 16px;
             border: 0;
             border-left: 2px solid transparent;
-            border-bottom: 1px solid #1d2a33;
+            border-bottom: 1px solid rgba(148, 184, 255, 0.08);
             background: transparent;
-            color: #6d7d89;
-            font-family: inherit;
-            font-size: 9px;
+            color: #8a99a8;
+            font-family: var(--font-display);
+            font-size: 11px;
             font-weight: 600;
-            letter-spacing: 1px;
+            letter-spacing: 1.5px;
             text-align: left;
             text-transform: uppercase;
             cursor: pointer;
@@ -113,19 +129,19 @@
         }
 
         .channel:hover {
-            background: #0d141b;
-            color: #e3ebf1;
+            background: rgba(28, 40, 52, 0.4);
+            color: #e7eef6;
         }
 
         .channel.active {
-            background: #0d141b;
-            color: #e3ebf1;
+            background: linear-gradient(90deg, rgba(94, 230, 160, 0.1), transparent 70%);
+            color: #e7eef6;
             border-left-color: #5ee6a0;
         }
 
         .channel-icon {
             width: 25px;
-            color: #45545f;
+            color: #5b6c7a;
             font-size: 13px;
         }
 
@@ -136,10 +152,11 @@
         .channel-country {
             margin-top: 20px;
             padding: 0 16px 10px;
-            color: #45545f;
-            font-size: 7px;
+            color: #5b6c7a;
+            font-family: var(--font-display);
+            font-size: 8px;
             font-weight: 600;
-            letter-spacing: 2px;
+            letter-spacing: 2.5px;
             text-transform: uppercase;
         }
 
@@ -148,9 +165,11 @@
             min-height: 0;
             display: flex;
             flex-direction: column;
-            border: 1px solid #1d2a33;
-            background: #0a0f14;
-            border-radius: 3px;
+            overflow: hidden;
+            border: 1px solid rgba(148, 184, 255, 0.1);
+            background: linear-gradient(180deg, rgba(15, 22, 30, 0.74), rgba(8, 12, 18, 0.92));
+            border-radius: 12px;
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05), 0 22px 48px -28px rgba(0, 0, 0, 0.9);
         }
 
         .chat-panel-header {
@@ -160,12 +179,12 @@
             justify-content: space-between;
             padding: 0 18px;
             flex-shrink: 0;
-            border-bottom: 1px solid #1d2a33;
+            border-bottom: 1px solid rgba(148, 184, 255, 0.1);
         }
 
         .active-channel-name {
-            color: #e3ebf1;
-            font-size: 10px;
+            color: #e7eef6;
+            font-size: 11px;
             font-weight: 600;
             letter-spacing: 2px;
             text-transform: uppercase;
@@ -173,15 +192,16 @@
 
         .active-channel-description {
             margin-top: 5px;
-            color: #45545f;
-            font-size: 7px;
+            color: #5b6c7a;
+            font-family: var(--font-mono);
+            font-size: 8px;
             letter-spacing: 1px;
             text-transform: uppercase;
         }
 
         .connection-status {
             color: #e5533b;
-            font-size: 7px;
+            font-size: 9px;
             font-weight: 600;
             letter-spacing: 1.5px;
             text-transform: uppercase;
@@ -192,14 +212,14 @@
             min-height: 0;
             padding: 18px;
             overflow-y: auto;
-            background: #0a0f14;
+            background: rgba(5, 8, 12, 0.5);
         }
 
         .message {
             display: flex;
             gap: 12px;
             margin-bottom: 16px;
-            font-size: 9px;
+            font-size: 12px;
             line-height: 1.6;
             contain: content;
         }
@@ -211,7 +231,7 @@
 
         .message-user {
             color: #5ee6a0;
-            font-size: 8px;
+            font-size: 10px;
             font-weight: 600;
             letter-spacing: 1px;
             overflow: hidden;
@@ -221,9 +241,9 @@
 
         .message-time {
             margin-top: 3px;
-            color: #45545f;
-            font-family: "Courier New", monospace;
-            font-size: 7px;
+            color: #5b6c7a;
+            font-family: var(--font-mono);
+            font-size: 8px;
         }
 
         .message-country {
@@ -234,10 +254,10 @@
             gap: 5px;
             max-width: 190px;
             margin-top: 1px;
-            padding: 2px 7px;
-            border: 1px solid #2b3e4c;
-            background: #0d141b;
-            border-radius: 3px;
+            padding: 3px 8px;
+            border: 1px solid rgba(148, 184, 255, 0.14);
+            background: rgba(13, 19, 26, 0.6);
+            border-radius: 999px;
         }
 
         .chat-country-dot {
@@ -249,8 +269,8 @@
         }
 
         .chat-country-name {
-            color: #6d7d89;
-            font-size: 6.5px;
+            color: #8a99a8;
+            font-size: 8px;
             letter-spacing: 1px;
             overflow: hidden;
             text-overflow: ellipsis;
@@ -258,23 +278,23 @@
         }
 
         .message-text {
-            color: #6d7d89;
+            color: #8a99a8;
             word-break: break-word;
         }
 
         .message.system .message-user {
-            color: #6d7d89;
+            color: #8a99a8;
         }
 
         .message.system .message-text {
-            color: #45545f;
+            color: #5b6c7a;
         }
 
         .chat-input-area {
             display: flex;
             height: 52px;
             flex-shrink: 0;
-            border-top: 1px solid #1d2a33;
+            border-top: 1px solid rgba(148, 184, 255, 0.1);
         }
 
         #chatInput {
@@ -283,29 +303,30 @@
             padding: 0 16px;
             border: 0;
             outline: 0;
-            background: #0a0f14;
-            color: #e3ebf1;
+            background: rgba(5, 8, 12, 0.55);
+            color: #e7eef6;
             font-family: inherit;
-            font-size: 9px;
+            font-size: 12px;
         }
 
         #chatInput::placeholder {
-            color: #45545f;
+            color: #5b6c7a;
+            letter-spacing: 1px;
         }
 
         #chatInput:focus-visible {
-            outline: 1px solid #4cc9f0;
+            outline: 2px solid rgba(76, 201, 240, 0.75);
             outline-offset: -2px;
         }
 
         #sendButton {
             width: 90px;
             border: 0;
-            border-left: 1px solid #1d2a33;
-            background: #0d141b;
-            color: #6d7d89;
-            font-family: inherit;
-            font-size: 8px;
+            border-left: 1px solid rgba(148, 184, 255, 0.1);
+            background: linear-gradient(180deg, rgba(24, 34, 45, 0.55), rgba(13, 18, 26, 0.8));
+            color: #8a99a8;
+            font-family: var(--font-display);
+            font-size: 10px;
             font-weight: 600;
             letter-spacing: 1.5px;
             text-transform: uppercase;
@@ -314,8 +335,8 @@
         }
 
         #sendButton:hover {
-            background: #16222b;
-            color: #e3ebf1;
+            background: rgba(30, 43, 56, 0.8);
+            color: #e7eef6;
         }
 
         #sendButton:disabled {
@@ -324,32 +345,34 @@
         }
 
         #sendButton:focus-visible {
-            outline: 1px solid #4cc9f0;
+            outline: 2px solid rgba(76, 201, 240, 0.75);
             outline-offset: 2px;
         }
 
         .online-panel {
-            margin-top: 20px;
+            margin-top: auto;
             padding: 14px 16px;
-            border-top: 1px solid #1d2a33;
+            border-top: 1px solid rgba(148, 184, 255, 0.1);
         }
 
         .online-label {
-            color: #45545f;
-            font-size: 7px;
-            letter-spacing: 2px;
+            color: #5b6c7a;
+            font-family: var(--font-display);
+            font-size: 9px;
+            font-weight: 600;
+            letter-spacing: 2.5px;
             text-transform: uppercase;
         }
 
         .online-count {
             margin-top: 6px;
             color: #5ee6a0;
-            font-family: "Courier New", monospace;
-            font-size: 13px;
+            font-family: var(--font-mono);
+            font-size: 15px;
         }
 
         .channel:focus-visible {
-            outline: 1px solid #4cc9f0;
+            outline: 2px solid rgba(76, 201, 240, 0.75);
             outline-offset: -2px;
         }
 
@@ -396,6 +419,10 @@
 
             .chat-layout {
                 height: calc(100vh - 180px);
+            }
+
+            .chat-status {
+                display: none;
             }
 
             .message-meta {
@@ -615,7 +642,7 @@
 
                         </div>
 
-                        <div id="chatMessages">
+                        <div id="chatMessages" role="log" aria-live="polite" aria-label="Secure channel messages">
 
                             <div class="message system">
 
@@ -643,6 +670,7 @@
 
                             <input
                                 id="chatInput"
+                                aria-label="Message input"
                                 type="text"
                                 placeholder="ENTER MESSAGE..."
                                 autocomplete="off"
@@ -651,6 +679,7 @@
 
                             <button
                                 id="sendButton"
+                                aria-label="Send message"
                                 disabled>
                                 SEND
                             </button>

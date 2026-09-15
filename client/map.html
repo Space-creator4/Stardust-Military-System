@@ -6,6 +6,10 @@
 
     <title>Stardust | Map</title>
 
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
+
     <link rel="stylesheet" href="style.css">
 
     <link
@@ -24,14 +28,14 @@
 
     <style>
         body {
-            font-family: "Segoe UI", system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif;
+            font-family: var(--font-body);
         }
 
         .map-page {
             width: 100%;
             height: 100%;
             padding: 28px;
-            background: #05070a;
+            background: transparent;
         }
 
         .map-header {
@@ -40,32 +44,41 @@
             align-items: center;
             justify-content: space-between;
             padding-bottom: 20px;
-            border-bottom: 1px solid #1d2a33;
+            border-bottom: 1px solid var(--line);
         }
 
         .map-title {
-            color: #e3ebf1;
-            font-size: 24px;
-            font-weight: 600;
-            letter-spacing: 5px;
+            color: #e7eef6;
+            font-family: var(--font-display);
+            font-size: 26px;
+            font-weight: 700;
+            letter-spacing: 6px;
         }
 
         .map-subtitle {
-            margin-top: 6px;
-            color: #6d7d89;
-            font-size: 8px;
-            letter-spacing: 3px;
+            margin-top: 7px;
+            color: #8a99a8;
+            font-family: var(--font-display);
+            font-size: 9px;
+            font-weight: 600;
+            letter-spacing: 3.5px;
             text-transform: uppercase;
         }
 
         .map-status {
             display: flex;
             align-items: center;
-            gap: 8px;
-            color: #6d7d89;
-            font-size: 8px;
+            gap: 9px;
+            padding: 6px 12px;
+            border: 1px solid rgba(148, 184, 255, 0.12);
+            border-radius: 999px;
+            background: rgba(10, 15, 21, 0.5);
+            color: #8a99a8;
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+            font-family: var(--font-display);
+            font-size: 10px;
             font-weight: 600;
-            letter-spacing: 1.5px;
+            letter-spacing: 2px;
         }
 
         .map-status .status-dot {
@@ -73,26 +86,30 @@
             height: 7px;
             border-radius: 50%;
             background: #5ee6a0;
-            box-shadow: 0 0 9px rgba(94, 230, 160, 0.15);
+            box-shadow: 0 0 9px rgba(94, 230, 160, 0.45);
         }
 
         .force-filter-chip {
-            padding: 4px 9px;
-            border: 1px solid #2b3e4c;
-            background: #0d141b;
-            color: #4cc9f0;
-            font-size: 7px;
+            padding: 5px 11px;
+            border: 1px solid rgba(217, 196, 122, 0.45);
+            background: rgba(217, 196, 122, 0.07);
+            color: #d9c47a;
+            font-family: var(--font-display);
+            font-size: 9px;
+            font-weight: 600;
             letter-spacing: 1.5px;
             text-transform: uppercase;
             cursor: pointer;
-            border-radius: 3px;
-            transition: color 0.15s ease, border-color 0.15s ease, background-color 0.15s ease;
+            border-radius: 999px;
+            box-shadow: 0 0 12px rgba(217, 196, 122, 0.12);
+            transition: color 0.15s ease, border-color 0.15s ease, background-color 0.15s ease, box-shadow 0.15s ease;
         }
 
         .force-filter-chip:hover {
-            color: #e3ebf1;
-            border-color: #4cc9f0;
-            background: #101a22;
+            color: #f3e3a8;
+            border-color: #d9c47a;
+            background: rgba(217, 196, 122, 0.12);
+            box-shadow: 0 0 16px rgba(217, 196, 122, 0.18);
         }
 
         .map-container {
@@ -101,9 +118,35 @@
             height: calc(100vh - 126px);
             margin-top: 20px;
             overflow: hidden;
-            border: 1px solid #1d2a33;
-            background: #05070a;
-            border-radius: 3px;
+            border: 1px solid rgba(148, 184, 255, 0.1);
+            background: radial-gradient(760px 500px at 52% 44%, rgba(26, 40, 64, 0.32), rgba(5, 8, 12, 0.95) 74%);
+            border-radius: 12px;
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05), 0 22px 48px -28px rgba(0, 0, 0, 0.9);
+        }
+
+        .map-container::before,
+        .map-container::after {
+            content: "";
+            position: absolute;
+            z-index: 12;
+            width: 18px;
+            height: 18px;
+            border: 0 solid rgba(76, 201, 240, 0.4);
+            pointer-events: none;
+        }
+
+        .map-container::before {
+            left: 12px;
+            top: 12px;
+            border-left-width: 1px;
+            border-top-width: 1px;
+        }
+
+        .map-container::after {
+            right: 12px;
+            bottom: 12px;
+            border-right-width: 1px;
+            border-bottom-width: 1px;
         }
 
         #mapGlobe {
@@ -117,9 +160,13 @@
             left: 16px;
             z-index: 10;
             width: 220px;
-            border: 1px solid #1d2a33;
-            background: rgba(13, 20, 27, 0.96);
-            border-radius: 3px;
+            border: 1px solid rgba(148, 184, 255, 0.1);
+            background: linear-gradient(180deg, rgba(12, 18, 25, 0.86), rgba(7, 11, 16, 0.92));
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04), 0 18px 40px -20px rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
         }
 
         .overlay-title {
@@ -127,11 +174,12 @@
             display: flex;
             align-items: center;
             padding: 0 15px;
-            border-bottom: 1px solid #1d2a33;
-            color: #6d7d89;
-            font-size: 8px;
+            border-bottom: 1px solid rgba(148, 184, 255, 0.1);
+            color: #8a99a8;
+            font-family: var(--font-display);
+            font-size: 10px;
             font-weight: 600;
-            letter-spacing: 2px;
+            letter-spacing: 2.5px;
             text-transform: uppercase;
         }
 
@@ -143,13 +191,13 @@
             padding: 0 15px;
             border: 0;
             border-left: 2px solid transparent;
-            border-bottom: 1px solid #1d2a33;
+            border-bottom: 1px solid rgba(148, 184, 255, 0.1);
             background: transparent;
-            color: #6d7d89;
-            font-family: inherit;
-            font-size: 8px;
+            color: #8a99a8;
+            font-family: var(--font-display);
+            font-size: 9px;
             font-weight: 600;
-            letter-spacing: 1px;
+            letter-spacing: 1.5px;
             text-align: left;
             text-transform: uppercase;
             cursor: pointer;
@@ -161,13 +209,14 @@
         }
 
         .map-control:hover {
-            background: #0d141b;
-            color: #e3ebf1;
+            background: rgba(28, 40, 52, 0.45);
+            color: #e7eef6;
         }
 
         .map-control.active {
-            color: #e3ebf1;
+            color: #e7eef6;
             border-left-color: #5ee6a0;
+            background: linear-gradient(90deg, rgba(94, 230, 160, 0.1), transparent 70%);
         }
 
         .map-control:disabled {
@@ -177,7 +226,7 @@
 
         .map-control:focus-visible,
         .force-filter-chip:focus-visible {
-            outline: 1px solid #4cc9f0;
+            outline: 2px solid rgba(76, 201, 240, 0.75);
             outline-offset: 2px;
         }
 
@@ -187,9 +236,13 @@
             bottom: 16px;
             z-index: 10;
             width: 230px;
-            border: 1px solid #1d2a33;
-            background: rgba(13, 20, 27, 0.96);
-            border-radius: 3px;
+            border: 1px solid rgba(148, 184, 255, 0.1);
+            background: linear-gradient(180deg, rgba(12, 18, 25, 0.86), rgba(7, 11, 16, 0.92));
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04), 0 18px 40px -20px rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
         }
 
         .map-info-row {
@@ -197,7 +250,7 @@
             align-items: center;
             justify-content: space-between;
             padding: 11px 15px;
-            border-bottom: 1px solid #1d2a33;
+            border-bottom: 1px solid rgba(148, 184, 255, 0.1);
         }
 
         .map-info-row:last-child {
@@ -205,25 +258,34 @@
         }
 
         .map-info-row span:first-child {
-            color: #45545f;
-            font-size: 7px;
-            letter-spacing: 1.5px;
+            color: #5b6c7a;
+            font-family: var(--font-display);
+            font-size: 8px;
+            font-weight: 600;
+            letter-spacing: 2px;
             text-transform: uppercase;
         }
 
         .map-info-row span:last-child {
-            color: #e3ebf1;
-            font-family: "Courier New", monospace;
-            font-size: 8px;
+            color: #e7eef6;
+            font-family: var(--font-mono);
+            font-size: 10px;
+            letter-spacing: 0.4px;
         }
 
         .cesium-viewer-bottom {
-            left: 8px !important;
-            bottom: 4px !important;
+            left: 12px !important;
+            bottom: 6px !important;
         }
 
         .cesium-widget-credits {
             font-size: 9px;
+            color: rgba(138, 153, 168, 0.45) !important;
+            background: transparent !important;
+        }
+
+        .cesium-widget-credits a {
+            color: rgba(138, 153, 168, 0.5) !important;
         }
 
         @media (prefers-reduced-motion: reduce) {
@@ -389,9 +451,9 @@
 
                 <div class="map-container">
 
-                    <div id="mapGlobe"></div>
+                    <div id="mapGlobe" role="img" aria-label="Global operations map"></div>
 
-                    <div class="map-overlay">
+                    <div class="map-overlay" role="group" aria-label="Map controls">
 
                         <div class="overlay-title">
                             MAP CONTROLS
@@ -429,7 +491,7 @@
 
                     </div>
 
-                    <div class="map-info">
+                    <div class="map-info" role="group" aria-label="Cursor readout">
 
                         <div class="map-info-row">
                             <span>CURSOR LATITUDE</span>

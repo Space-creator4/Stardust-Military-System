@@ -6,18 +6,22 @@
 
     <title>Stardust | Settings</title>
 
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
+
     <link rel="stylesheet" href="/style.css">
 
     <style>
         body {
-            font-family: "Segoe UI", system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif;
+            font-family: var(--font-body);
         }
 
         .settings-page {
             width: 100%;
             min-height: 100%;
             padding: 28px;
-            background: #05070a;
+            background: transparent;
         }
 
         .settings-header {
@@ -26,32 +30,41 @@
             align-items: center;
             justify-content: space-between;
             padding-bottom: 20px;
-            border-bottom: 1px solid #1d2a33;
+            border-bottom: 1px solid rgba(148, 184, 255, 0.1);
         }
 
         .settings-title {
-            color: #e3ebf1;
-            font-size: 24px;
-            font-weight: 600;
-            letter-spacing: 5px;
+            color: #e7eef6;
+            font-family: var(--font-display);
+            font-size: 26px;
+            font-weight: 700;
+            letter-spacing: 6px;
         }
 
         .settings-subtitle {
-            margin-top: 6px;
-            color: #6d7d89;
-            font-size: 8px;
-            letter-spacing: 3px;
+            margin-top: 7px;
+            color: #8a99a8;
+            font-family: var(--font-display);
+            font-size: 9px;
+            font-weight: 600;
+            letter-spacing: 3.5px;
             text-transform: uppercase;
         }
 
         .settings-status {
             display: flex;
             align-items: center;
-            gap: 8px;
-            color: #6d7d89;
-            font-size: 8px;
+            gap: 9px;
+            padding: 6px 12px;
+            border: 1px solid rgba(148, 184, 255, 0.12);
+            border-radius: 999px;
+            background: rgba(10, 15, 21, 0.5);
+            color: #8a99a8;
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+            font-family: var(--font-display);
+            font-size: 10px;
             font-weight: 600;
-            letter-spacing: 1.5px;
+            letter-spacing: 2px;
         }
 
         .settings-status-dot {
@@ -59,20 +72,21 @@
             height: 7px;
             border-radius: 50%;
             background: #e5533b;
-            box-shadow: 0 0 9px rgba(229, 83, 59, 0.15);
+            box-shadow: 0 0 9px rgba(229, 83, 59, 0.35);
         }
 
         .settings-grid {
             display: grid;
             grid-template-columns: minmax(0, 1fr) 320px;
-            gap: 12px;
+            gap: 16px;
             margin-top: 20px;
         }
 
         .panel {
-            border: 1px solid #1d2a33;
-            background: #0a0f14;
-            border-radius: 3px;
+            border: 1px solid rgba(148, 184, 255, 0.1);
+            background: linear-gradient(180deg, rgba(15, 22, 30, 0.68), rgba(8, 12, 18, 0.88));
+            border-radius: 12px;
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05), 0 22px 48px -28px rgba(0, 0, 0, 0.9);
         }
 
         .panel-header {
@@ -81,18 +95,19 @@
             align-items: center;
             justify-content: space-between;
             padding: 0 18px;
-            border-bottom: 1px solid #1d2a33;
-            color: #6d7d89;
-            font-size: 8px;
+            border-bottom: 1px solid rgba(148, 184, 255, 0.1);
+            color: #8a99a8;
+            font-family: var(--font-display);
+            font-size: 10px;
             font-weight: 600;
-            letter-spacing: 2px;
+            letter-spacing: 2.5px;
             text-transform: uppercase;
         }
 
         .panel-indicator {
             color: #5ee6a0;
-            font-size: 7px;
-            letter-spacing: 1.5px;
+            font-size: 9px;
+            letter-spacing: 2px;
             text-transform: uppercase;
         }
 
@@ -107,8 +122,9 @@
         .form-label {
             display: block;
             margin-bottom: 7px;
-            color: #6d7d89;
-            font-size: 8px;
+            color: #8a99a8;
+            font-family: var(--font-display);
+            font-size: 9px;
             font-weight: 600;
             letter-spacing: 2px;
             text-transform: uppercase;
@@ -119,21 +135,23 @@
             box-sizing: border-box;
             height: 38px;
             padding: 0 10px;
-            border: 1px solid #1d2a33;
+            border: 1px solid rgba(148, 184, 255, 0.14);
             outline: none;
-            background: #0a0f14;
-            color: #e3ebf1;
+            background: rgba(5, 8, 12, 0.55);
+            color: #e7eef6;
             font-family: inherit;
-            font-size: 9px;
-            border-radius: 3px;
+            font-size: 11px;
+            border-radius: 8px;
+            transition: border-color 0.15s ease, box-shadow 0.15s ease;
         }
 
         .form-input:focus {
-            border-color: #4cc9f0;
+            border-color: rgba(76, 201, 240, 0.5);
+            box-shadow: 0 0 0 2px rgba(76, 201, 240, 0.12);
         }
 
         .form-input:focus-visible {
-            outline: 1px solid #4cc9f0;
+            outline: 2px solid rgba(76, 201, 240, 0.75);
             outline-offset: 2px;
         }
 
@@ -142,52 +160,54 @@
             box-sizing: border-box;
             height: 38px;
             padding: 4px 6px;
-            border: 1px solid #1d2a33;
+            border: 1px solid rgba(148, 184, 255, 0.14);
             outline: none;
-            background: #0a0f14;
+            background: rgba(5, 8, 12, 0.55);
             cursor: pointer;
-            border-radius: 3px;
+            border-radius: 8px;
         }
 
         .form-color:focus-visible {
-            outline: 1px solid #4cc9f0;
+            outline: 2px solid rgba(76, 201, 240, 0.75);
             outline-offset: 2px;
         }
 
         .save-button {
             width: 100%;
             height: 40px;
-            border: 1px solid #1d2a33;
-            background: #0d141b;
+            border: 1px solid rgba(94, 230, 160, 0.35);
+            background: linear-gradient(180deg, rgba(21, 66, 46, 0.5), rgba(10, 32, 24, 0.7));
             color: #5ee6a0;
-            font-family: inherit;
-            font-size: 8px;
-            font-weight: 700;
-            letter-spacing: 1.5px;
+            font-family: var(--font-display);
+            font-size: 10px;
+            font-weight: 600;
+            letter-spacing: 2px;
             text-transform: uppercase;
             cursor: pointer;
-            border-radius: 3px;
-            transition: color 0.15s ease, background-color 0.15s ease, border-color 0.15s ease;
+            border-radius: 8px;
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+            transition: color 0.15s ease, background-color 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
         }
 
         .save-button:hover {
-            background: #101b15;
+            background: rgba(21, 66, 46, 0.65);
             border-color: #5ee6a0;
+            box-shadow: 0 0 18px rgba(94, 230, 160, 0.18);
         }
 
         .save-button:focus-visible {
-            outline: 1px solid #5ee6a0;
+            outline: 2px solid rgba(94, 230, 160, 0.75);
             outline-offset: 2px;
         }
 
         .message {
             margin-top: 12px;
             padding: 12px 15px;
-            border: 1px solid #1d2a33;
-            background: #0a0f14;
-            color: #6d7d89;
-            font-size: 8px;
-            border-radius: 3px;
+            border: 1px solid rgba(148, 184, 255, 0.12);
+            background: rgba(5, 8, 12, 0.5);
+            color: #8a99a8;
+            font-size: 10px;
+            border-radius: 8px;
             display: none;
         }
 
@@ -200,16 +220,16 @@
             align-items: center;
             gap: 14px;
             padding-bottom: 15px;
-            border-bottom: 1px solid #1d2a33;
+            border-bottom: 1px solid rgba(148, 184, 255, 0.08);
         }
 
         .account-avatar {
             width: 44px;
             height: 44px;
             border-radius: 50%;
-            border: 1px solid #2b3e4c;
-            background: #0a0f14;
-            color: #45545f;
+            border: 1px solid rgba(148, 184, 255, 0.2);
+            background: rgba(5, 8, 12, 0.6);
+            color: #5b6c7a;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -224,48 +244,52 @@
         }
 
         .account-name {
-            color: #e3ebf1;
-            font-size: 10px;
+            color: #e7eef6;
+            font-size: 11px;
             font-weight: 600;
             letter-spacing: 1px;
         }
 
         .account-meta {
             margin-top: 5px;
-            color: #45545f;
-            font-family: "Courier New", monospace;
-            font-size: 7px;
+            color: #5b6c7a;
+            font-family: var(--font-mono);
+            font-size: 9px;
         }
 
         .account-field {
             padding: 12px 0;
-            border-bottom: 1px solid #1d2a33;
+            border-bottom: 1px solid rgba(148, 184, 255, 0.08);
         }
 
         .account-field-label {
-            color: #45545f;
-            font-size: 6px;
-            letter-spacing: 1.5px;
+            color: #5b6c7a;
+            font-family: var(--font-display);
+            font-size: 8px;
+            font-weight: 600;
+            letter-spacing: 2px;
             text-transform: uppercase;
         }
 
         .account-field-value {
             margin-top: 6px;
-            color: #e3ebf1;
-            font-family: "Courier New", monospace;
-            font-size: 9px;
+            color: #e7eef6;
+            font-family: var(--font-mono);
+            font-size: 10px;
         }
 
         .claim-status {
             margin-bottom: 12px;
             padding: 10px 12px;
-            border-left: 2px solid #2b3e4c;
-            background: #0d141b;
-            color: #45545f;
-            font-size: 7px;
-            letter-spacing: 1.5px;
+            border-left: 2px solid rgba(148, 184, 255, 0.2);
+            background: rgba(5, 8, 12, 0.5);
+            color: #5b6c7a;
+            font-family: var(--font-display);
+            font-size: 8px;
+            font-weight: 600;
+            letter-spacing: 2px;
             text-transform: uppercase;
-            border-radius: 3px;
+            border-radius: 8px;
         }
 
         .claim-status.claimed {
@@ -281,46 +305,47 @@
         .claim-button {
             flex: 1;
             height: 36px;
-            border: 1px solid #1d2a33;
-            background: #0d141b;
+            border: 1px solid rgba(94, 230, 160, 0.3);
+            background: rgba(16, 58, 40, 0.35);
             color: #5ee6a0;
-            font-family: inherit;
-            font-size: 8px;
-            font-weight: 700;
-            letter-spacing: 1.5px;
+            font-family: var(--font-display);
+            font-size: 9px;
+            font-weight: 600;
+            letter-spacing: 2px;
             text-transform: uppercase;
             cursor: pointer;
-            border-radius: 3px;
-            transition: color 0.15s ease, background-color 0.15s ease, border-color 0.15s ease;
+            border-radius: 8px;
+            transition: color 0.15s ease, background-color 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
         }
 
         .claim-button:hover {
-            background: #101b15;
+            background: rgba(21, 66, 46, 0.6);
             border-color: #5ee6a0;
+            box-shadow: 0 0 14px rgba(94, 230, 160, 0.15);
         }
 
         .claim-button:focus-visible {
-            outline: 1px solid #5ee6a0;
+            outline: 2px solid rgba(94, 230, 160, 0.75);
             outline-offset: 2px;
         }
 
         .claim-button.secondary {
-            border-color: #1d2a33;
-            background: #0a0f14;
-            color: #6d7d89;
+            border-color: rgba(148, 184, 255, 0.14);
+            background: rgba(5, 8, 12, 0.45);
+            color: #8a99a8;
         }
 
         .claim-button.secondary:hover {
-            background: #101419;
-            border-color: #2b3e4c;
-            color: #e3ebf1;
+            background: rgba(28, 40, 52, 0.45);
+            border-color: rgba(148, 184, 255, 0.25);
+            color: #e7eef6;
         }
 
         .claim-message {
             margin-top: 10px;
-            font-size: 7px;
-            letter-spacing: 1.5px;
-            color: #6d7d89;
+            font-size: 9px;
+            letter-spacing: 2px;
+            color: #8a99a8;
             display: none;
         }
 
@@ -341,7 +366,7 @@
             align-items: center;
             gap: 12px;
             padding: 10px 8px;
-            border-bottom: 1px solid #1d2a33;
+            border-bottom: 1px solid rgba(148, 184, 255, 0.08);
             contain: content;
         }
 
@@ -354,29 +379,31 @@
             height: 8px;
             flex-shrink: 0;
             background: #5ee6a0;
-            box-shadow: 0 0 8px rgba(94, 230, 160, 0.15);
+            box-shadow: 0 0 8px rgba(94, 230, 160, 0.35);
         }
 
         .roster-country {
             flex: 1;
             min-width: 0;
-            color: #e3ebf1;
-            font-size: 9px;
+            color: #e7eef6;
+            font-size: 10px;
             font-weight: 600;
             letter-spacing: 1px;
         }
 
         .roster-commander {
-            color: #45545f;
-            font-family: "Courier New", monospace;
-            font-size: 8px;
+            color: #5b6c7a;
+            font-family: var(--font-mono);
+            font-size: 9px;
         }
 
         .roster-empty {
             padding: 16px;
-            color: #45545f;
-            font-size: 8px;
-            letter-spacing: 2px;
+            color: #5b6c7a;
+            font-family: var(--font-display);
+            font-size: 9px;
+            font-weight: 600;
+            letter-spacing: 2.5px;
             text-transform: uppercase;
             text-align: center;
         }
@@ -403,6 +430,10 @@
                 align-items: flex-start;
                 flex-direction: column;
                 gap: 12px;
+            }
+
+            .settings-status {
+                display: none;
             }
         }
     </style>
@@ -581,6 +612,7 @@
                                     class="form-input"
                                     id="settingCountry"
                                     maxlength="60"
+                                    aria-label="Country or faction"
                                     placeholder="ENTER COUNTRY ASSIGNMENT"
                                 >
 
@@ -609,7 +641,9 @@
 
                                 <div
                                     class="claim-status"
-                                    id="claimStatus">
+                                    id="claimStatus"
+                                    role="status"
+                                    aria-live="polite">
                                     NOT ASSIGNED
                                 </div>
 
@@ -617,6 +651,7 @@
                                     class="form-input"
                                     id="claimCode"
                                     maxlength="32"
+                                    aria-label="Country access code"
                                     placeholder="ENTER COUNTRY ACCESS CODE"
                                 >
 
@@ -641,18 +676,23 @@
 
                             <div
                                 class="claim-message"
-                                id="claimMessage">
+                                id="claimMessage"
+                                role="status"
+                                aria-live="polite">
                             </div>
 
                             <button
                                 class="save-button"
-                                id="saveSettings">
+                                id="saveSettings"
+                                aria-label="Save settings">
                                 SAVE SETTINGS
                             </button>
 
                             <div
                                 class="message"
-                                id="settingsMessage">
+                                id="settingsMessage"
+                                role="status"
+                                aria-live="polite">
                             </div>
 
                         </div>
