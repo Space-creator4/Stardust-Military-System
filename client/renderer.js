@@ -2169,6 +2169,22 @@ function connectChat() {
             reconnectDelay = 1000;
 
             setSystemStatus(true);
+
+            try {
+                socket.send(
+                    JSON.stringify({
+                        type: "client_version",
+                        version:
+                            window.stardustClientVersion ||
+                            ""
+                    })
+                );
+            } catch (error) {
+                console.warn(
+                    "Failed to report client version:",
+                    error
+                );
+            }
         }
     );
 
@@ -2193,8 +2209,7 @@ function connectChat() {
                 }
 
                 if (
-                    data.type ===
-                    "server_status"
+                    data.type === "server_status"
                 ) {
                     if (
                         onlinePersonnel &&
@@ -2245,6 +2260,24 @@ if (
 
                     window.currentUser =
                         currentUser;
+                }
+
+                if (
+                    data.type ===
+                    "client_update"
+                ) {
+                    if (
+                        data.updateRequired ===
+                        true &&
+                        typeof window
+                            .stardustNotifyUpdate ===
+                            "function"
+                    ) {
+                        window
+                            .stardustNotifyUpdate(
+                                data.latest
+                            );
+                    }
                 }
 
                 if (

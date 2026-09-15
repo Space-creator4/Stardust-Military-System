@@ -166,41 +166,33 @@ const clientConfiguredOrigin =
 app.get(
     "/config.js",
     (req, res) => {
+        let source = "";
+        try {
+            source = fs.readFileSync(
+                path.join(
+                    clientPath,
+                    "config.js"
+                ),
+                "utf8"
+            );
+        } catch (error) {
+            source =
+                `console.warn("Stardust config unavailable", ${JSON.stringify(
+                    String(error && error.message || error)
+                )});`;
+        }
+        const injected =
+            [
+                "/** STARDUST DYNAMIC CONFIG (server-injected) */",
+                `window.STARDUST_ORIGIN = ${JSON.stringify(clientConfiguredOrigin)};`,
+                `window.STARDUST_VERSION = ${JSON.stringify(getAppVersion())};`,
+                ""
+            ].join("\n");
         res.type(
             "application/javascript"
         );
         res.send(
-            [
-                "(function () {",
-                `var API_ORIGIN = ${JSON.stringify(clientConfiguredOrigin)};`,
-                "var sameOrigin = !API_ORIGIN || window.location.origin === API_ORIGIN;",
-                "var electron = !!(window.stardustElectron && window.stardustElectron.isElectron);",
-                "window.stardustApi = function (path) {",
-                "    return (sameOrigin || electron) ? path : API_ORIGIN + path;",
-                "};",
-                "window.stardustWsUrl = function () {",
-                '    var protocol = window.location.protocol === "https:" ? "wss:" : "ws:";',
-                '    var api = window.stardustApi("/");',
-                "    var host;",
-                "    if (/^https?:\\/\\//i.test(api)) {",
-                '        var anchor = document.createElement("a");',
-                "        anchor.href = api;",
-                "        host = anchor.host;",
-                "    } else {",
-                "        host = window.location.host;",
-                "    }",
-                '    return protocol + "//" + host;',
-                "};",
-                'document.addEventListener("click", function (event) {',
-                "    var link = event.target.closest ? event.target.closest('a[href=\"/auth/logout\"]') : null;",
-                "    if (link) {",
-                '        event.preventDefault();',
-                '        window.location.href = window.stardustApi("/auth/logout");',
-                "    }",
-                "}, true);",
-                "})();",
-                ""
-            ].join("\n")
+            injected + source
         );
     }
 );
@@ -497,6 +489,38 @@ function getAppVersion() {
     } catch (error) {
         return "0.0.0";
     }
+}
+function compareVersions(a, b) {
+    const pa = String(a || "")
+        .split(".")
+        .map(part => Number(part));
+    const pb = String(b || "")
+        .split(".")
+        .map(part => Number(part));
+    const len = Math.max(
+        pa.length,
+        pb.length
+    );
+    for (let i = 0; i < len; i++) {
+        const na = Number.isFinite(pa[i])
+            ? pa[i]
+            : 0;
+        const nb = Number.isFinite(pb[i])
+            ? pb[i]
+            : 0;
+        if (na !== nb) {
+            return na < nb ? -1 : 1;
+        }
+    }
+    return 0;
+}
+function isClientOutdated(latest, current) {
+    return (
+        Boolean(current) &&
+        Boolean(latest) &&
+        current !== latest &&
+        compareVersions(latest, current) > 0
+    );
 }
 function getUserName(user) {
     if (!user) {
@@ -1198,6 +1222,42 @@ function readUnitPosition(payload) {
         lat,
         lon
     };
+}
+function handleClientVersion(
+    socket,
+    message
+) {
+    const latest =
+        getAppVersion();
+    const current =
+        cleanString(
+            message.version,
+            32
+        ).trim();
+    const outdated =
+        isClientOutdated(
+            latest,
+            current
+        );
+    const username =
+        getUserName(
+            socket && socket.user
+        );
+
+    addLog(
+        "INFO",
+        "client",
+        `${username} running client ${current || "unknown"} (server: ${latest})${outdated ? " — UPDATE REQUIRED" : ""}`
+    );
+
+    send(socket, {
+        type: "client_update",
+        current:
+            current || null,
+        latest,
+        updateRequired:
+            outdated
+    });
 }
 function handleUnitCreate(
     socket,
@@ -1943,9 +2003,23 @@ app.get("/health", (req, res) => {
     });
 });
 app.get("/api/version", (req, res) => {
+    const latest =
+        getAppVersion();
+    const current =
+        cleanString(
+            req.query.client,
+            32
+        ).trim();
     res.json({
-        version: getAppVersion(),
-        timestamp: Date.now()
+        version: latest,
+        timestamp: Date.now(),
+        client:
+            current || null,
+        updateRequired:
+            isClientOutdated(
+                latest,
+                current
+            )
     });
 });
 function frontendLoginUrl(params = {}) {
@@ -3107,6 +3181,12 @@ wss.on(
     });
 
     send(socket, {
+        type: "version",
+        version:
+            getAppVersion()
+    });
+
+    send(socket, {
         type: "bases",
         bases:
             getBasesSnapshot()
@@ -3265,6 +3345,18 @@ wss.on(
                         socket,
                         message,
                         userId
+                    );
+
+                    return;
+                }
+
+                if (
+                    message.type ===
+                    "client_version"
+                ) {
+                    handleClientVersion(
+                        socket,
+                        message
                     );
 
                     return;
