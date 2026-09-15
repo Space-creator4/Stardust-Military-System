@@ -7,6 +7,10 @@ server/node_modules/
 client/dist*/
 client/release/
 
+# ---- Published updates (generated each build) ----
+server/updates/*.yml
+server/updates/*.blockmap
+
 # ---- Packaging ----
 *.asar
 
