@@ -28,6 +28,9 @@ let countryTileEntities = [];
 let countryLabelEntities = [];
 const labeledCountryCodes = new Set();
 let baseMarkerEntities = new Map();
+let unitMarkerMeta = new Map();
+let baseMarkerMeta = new Map();
+let baseImageCache = new Map();
 let osmBuildingsPrimitive = null;
 
 const UNIT_TYPE_COLORS = {
@@ -1416,14 +1419,13 @@ function clearUnitMarkers() {
     }
 
     markerEntities.clear();
+    unitMarkerMeta.clear();
 }
 
 function renderUnitMarkers(viewer) {
     if (!viewer) {
         return;
     }
-
-    clearUnitMarkers();
 
     const filtered =
         unitForceFilter
@@ -1434,11 +1436,123 @@ function renderUnitMarkers(viewer) {
             )
             : stardustUnits;
 
+    const wanted = new Set();
+    let changed = false;
+
     for (const unit of filtered) {
         if (
             !Number.isFinite(unit.lat) ||
             !Number.isFinite(unit.lon)
         ) {
+            continue;
+        }
+
+        const isHighlight =
+            highlightUnitId &&
+            unit.id ===
+                highlightUnitId;
+
+        const colorCss =
+            unitColor(unit);
+
+        const sig =
+            unit.lat.toFixed(5) +
+            "|" +
+            unit.lon.toFixed(5) +
+            "|" +
+            unit.name +
+            "|" +
+            colorCss +
+            (isHighlight ? "|h" : "");
+
+        const meta =
+            unitMarkerMeta.get(
+                unit.id
+            );
+
+        if (
+            meta &&
+            meta.sig === sig &&
+            markerEntities.has(
+                unit.id
+            )
+        ) {
+            wanted.add(unit.id);
+            continue;
+        }
+
+        wanted.add(unit.id);
+        changed = true;
+
+        const label = isHighlight
+            ? `◉ ${unit.name}`
+            : unit.name;
+
+        const existing =
+            markerEntities.get(
+                unit.id
+            );
+
+        if (existing) {
+            const position =
+                Cesium.Cartesian3.fromDegrees(
+                    unit.lon,
+                    unit.lat,
+                    500
+                );
+
+            existing.position =
+                new Cesium.ConstantPositionProperty(
+                    position
+                );
+
+            existing.label.position =
+                new Cesium.ConstantPositionProperty(
+                    position
+                );
+
+            existing.label.text =
+                label;
+
+            existing.point.color =
+                Cesium.Color.fromCssColorString(
+                    colorCss
+                );
+
+            existing.point.pixelSize =
+                isHighlight
+                    ? 14
+                    : 9;
+
+            existing.point.outlineWidth =
+                isHighlight
+                    ? 3
+                    : 1.5;
+
+            existing.point.outlineColor =
+                isHighlight
+                    ? Cesium.Color.WHITE
+                    : Cesium.Color.BLACK
+                        .withAlpha(0.9);
+
+            existing.label.fillColor =
+                isHighlight
+                    ? Cesium.Color.WHITE
+                    : Cesium.Color
+                        .fromCssColorString(
+                            "#d6dde2"
+                        );
+
+            markerEntities.set(
+                unit.id,
+                existing
+            );
+
+            unitMarkerMeta.set(
+                unit.id,
+                { sig }
+            );
+
             continue;
         }
 
@@ -1451,17 +1565,8 @@ function renderUnitMarkers(viewer) {
 
         const color =
             Cesium.Color.fromCssColorString(
-                unitColor(unit)
+                colorCss
             );
-
-        const isHighlight =
-            highlightUnitId &&
-            unit.id ===
-                highlightUnitId;
-
-        const label = isHighlight
-            ? `◉ ${unit.name}`
-            : unit.name;
 
         const entity =
             viewer.entities.add({
@@ -1540,34 +1645,64 @@ function renderUnitMarkers(viewer) {
             unit.id,
             entity
         );
+
+        unitMarkerMeta.set(
+            unit.id,
+            { sig }
+        );
+    }
+
+    for (const [
+        id,
+        entity
+    ] of markerEntities) {
+        if (wanted.has(id)) {
+            continue;
+        }
+
+        viewer.entities.remove(
+            entity
+        );
+
+        markerEntities.delete(
+            id
+        );
+
+        unitMarkerMeta.delete(
+            id
+        );
+
+        changed = true;
     }
 
     updateMarkerCount();
 
-    if (
-        highlightUnitId &&
-        !unitFlyDone
-    ) {
-        const target =
-            markerEntities.get(
-                highlightUnitId
-            );
+    if (changed) {
+        if (
+            highlightUnitId &&
+            !unitFlyDone
+        ) {
+            const target =
+                markerEntities.get(
+                    highlightUnitId
+                );
 
-        if (target) {
-            unitFlyDone = true;
+            if (target) {
+                unitFlyDone = true;
 
-            viewer.camera.flyTo({
-                destination:
-                    target.position
-                        .getValue(
-                            Cesium.JulianDate.now()
-                        ),
-                duration: 1.6
-            });
+                viewer.camera.flyTo({
+                    destination:
+                        target.position
+                            .getValue(
+                                Cesium.JulianDate.now()
+                            ),
+                    duration: 1.6
+                });
+            }
         }
-    }
 
-    viewer.scene.requestRender();
+        viewer.scene.requestRender();
+    }
 }
 
 function updateMarkerCount() {
@@ -1617,6 +1752,75 @@ function clearBaseMarkers() {
     }
 
     baseMarkerEntities.clear();
+    baseMarkerMeta.clear();
+}
+
+function baseImageFor(colorCss, symbol) {
+    const key =
+        colorCss + "|" + symbol;
+
+    const cached =
+        baseImageCache.get(key);
+
+    if (cached) {
+        return cached;
+    }
+
+    const canvas =
+        document.createElement("canvas");
+
+    const size = 26;
+
+    canvas.width = size;
+    canvas.height = size;
+
+    const ctx =
+        canvas.getContext("2d");
+
+    ctx.fillStyle =
+        "rgba(5,7,10,0.78)";
+
+    ctx.strokeStyle =
+        Cesium.Color
+            .fromCssColorString(
+                colorCss
+            )
+            .withAlpha(0.8)
+            .toCssColorString();
+
+    ctx.lineWidth = 2;
+
+    ctx.beginPath();
+    ctx.arc(
+        size / 2,
+        size / 2,
+        size / 2 - 1,
+        0,
+        Math.PI * 2
+    );
+    ctx.fill();
+    ctx.stroke();
+
+    ctx.fillStyle = "#ffffff";
+    ctx.font =
+        "bold 13px sans-serif";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillText(
+        symbol,
+        size / 2,
+        size / 2 + 1
+    );
+
+    const dataUrl =
+        canvas.toDataURL();
+
+    baseImageCache.set(
+        key,
+        dataUrl
+    );
+
+    return dataUrl;
 }
 
 function renderBaseMarkers(viewer) {
@@ -1624,13 +1828,91 @@ function renderBaseMarkers(viewer) {
         return;
     }
 
-    clearBaseMarkers();
+    const wanted = new Set();
+    let changed = false;
 
     for (const base of stardustBases) {
         if (
             !Number.isFinite(base.lat) ||
             !Number.isFinite(base.lon)
         ) {
+            continue;
+        }
+
+        const colorCss =
+            baseFactionColor(base);
+
+        const symbol =
+            base.type === "naval_base" ? "⚓" :
+            base.type === "airbase"   ? "✈" :
+            base.type === "missile_base" ? "▲" :
+            "■";
+
+        const sig =
+            base.lat.toFixed(5) +
+            "|" +
+            base.lon.toFixed(5) +
+            "|" +
+            colorCss +
+            "|" +
+            base.name;
+
+        wanted.add(base.id);
+
+        const meta =
+            baseMarkerMeta.get(
+                base.id
+            );
+
+        if (
+            meta &&
+            meta.sig === sig &&
+            baseMarkerEntities.has(
+                base.id
+            )
+        ) {
+            continue;
+        }
+
+        changed = true;
+
+        const existing =
+            baseMarkerEntities.get(
+                base.id
+            );
+
+        if (existing) {
+            const position =
+                Cesium.Cartesian3.fromDegrees(
+                    base.lon,
+                    base.lat,
+                    1200
+                );
+
+            existing.position =
+                new Cesium.ConstantPositionProperty(
+                    position
+                );
+
+            existing.label.position =
+                new Cesium.ConstantPositionProperty(
+                    position
+                );
+
+            existing.label.text =
+                base.name;
+
+            existing.billboard.image =
+                baseImageFor(
+                    colorCss,
+                    symbol
+                );
+
+            baseMarkerMeta.set(
+                base.id,
+                { sig }
+            );
+
             continue;
         }
 
@@ -1643,20 +1925,8 @@ function renderBaseMarkers(viewer) {
 
         const color =
             Cesium.Color.fromCssColorString(
-                baseFactionColor(base)
+                colorCss
             );
-
-        const isNaval =
-            base.type === "naval_base";
-
-        const isAir =
-            base.type === "airbase";
-
-        const symbol =
-            isNaval ? "⚓" :
-            isAir   ? "✈" :
-            base.type === "missile_base" ? "▲" :
-            "■";
 
         const entity =
             viewer.entities.add({
@@ -1666,55 +1936,10 @@ function renderBaseMarkers(viewer) {
                 position,
                 billboard: {
                     image:
-                        (() => {
-                            const canvas =
-                                document
-                                    .createElement(
-                                        "canvas"
-                                    );
-                            const size = 26;
-                            canvas.width = size;
-                            canvas.height = size;
-                            const ctx =
-                                canvas.getContext(
-                                    "2d"
-                                );
-                            ctx.fillStyle =
-                                "rgba(5,7,10,0.78)";
-                            ctx.strokeStyle =
-                                color
-                                    .withAlpha(
-                                        0.8
-                                    )
-                                    .toCssColorString();
-                            ctx.lineWidth = 2;
-
-                            ctx.beginPath();
-                            ctx.arc(
-                                size / 2,
-                                size / 2,
-                                size / 2 - 1,
-                                0,
-                                Math.PI * 2
-                            );
-                            ctx.fill();
-                            ctx.stroke();
-
-                            ctx.fillStyle =
-                                "#ffffff";
-                            ctx.font =
-                                "bold 13px sans-serif";
-                            ctx.textAlign =
-                                "center";
-                            ctx.textBaseline =
-                                "middle";
-                            ctx.fillText(
-                                symbol,
-                                size / 2,
-                                size / 2 + 1
-                            );
-                            return canvas.toDataURL();
-                        })(),
+                        baseImageFor(
+                            colorCss,
+                            symbol
+                        ),
                     verticalOrigin:
                         Cesium.VerticalOrigin
                             .CENTER,
@@ -1772,11 +1997,41 @@ function renderBaseMarkers(viewer) {
             base.id,
             entity
         );
+
+        baseMarkerMeta.set(
+            base.id,
+            { sig }
+        );
+    }
+
+    for (const [
+        id,
+        entity
+    ] of baseMarkerEntities) {
+        if (wanted.has(id)) {
+            continue;
+        }
+
+        viewer.entities.remove(
+            entity
+        );
+
+        baseMarkerEntities.delete(
+            id
+        );
+
+        baseMarkerMeta.delete(
+            id
+        );
+
+        changed = true;
     }
 
     updateMarkerCount();
 
-    viewer.scene.requestRender();
+    if (changed) {
+        viewer.scene.requestRender();
+    }
 }
 
 let unitRenderQueued = false;

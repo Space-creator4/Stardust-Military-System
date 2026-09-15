@@ -1116,6 +1116,20 @@ function broadcastUnits() {
             getUnitsSnapshot()
     });
 }
+let unitsBroadcastTimer = null;
+function scheduleBroadcastUnits() {
+    if (unitsBroadcastTimer) {
+        return;
+    }
+    unitsBroadcastTimer = setTimeout(
+        () => {
+            unitsBroadcastTimer =
+                null;
+            broadcastUnits();
+        },
+        60
+    );
+}
 function makeBaseId() {
     return (
         "BAS-" +
@@ -1470,7 +1484,7 @@ function handleUnitCreate(
         record
     );
 
-    broadcastUnits();
+    scheduleBroadcastUnits();
 
     addLog(
         "INFO",
@@ -1603,7 +1617,7 @@ function handleUnitUpdate(
         existing
     );
 
-    broadcastUnits();
+    scheduleBroadcastUnits();
 
     addLog(
         "INFO",
@@ -1631,7 +1645,7 @@ function handleUnitDelete(
         id &&
         units.delete(id)
     ) {
-        broadcastUnits();
+        scheduleBroadcastUnits();
 
         addLog(
             "INFO",
@@ -1988,7 +2002,7 @@ function handleBaseDelete(
         }
     }
 
-    broadcastUnits();
+    scheduleBroadcastUnits();
 }
 app.get("/health", (req, res) => {
     res.json({
