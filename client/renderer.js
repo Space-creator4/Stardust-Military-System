@@ -10,17 +10,24 @@ const statusDot = document.querySelector(".status-dot");
 const chatInput = document.getElementById("chatInput");
 const sendButton = document.getElementById("sendButton");
 const chat = document.getElementById("chat");
+const activeCountries = document.getElementById("activeCountries");
+const onlinePersonnel = document.getElementById("onlinePersonnel");
+const activeOrders = document.getElementById("activeOrders");
 
 let currentUser = null;
 let socket = null;
 let reconnectTimer = null;
 let reconnectDelay = 1000;
 let stardustUnits = [];
+let stardustBases = [];
 let markerEntities = new Map();
 let unitForceFilter = null;
 let highlightUnitId = null;
 let unitFlyDone = false;
 let countryTileEntities = [];
+let countryLabelEntities = [];
+const labeledCountryCodes = new Set();
+let baseMarkerEntities = new Map();
 let osmBuildingsPrimitive = null;
 
 const UNIT_TYPE_COLORS = {
@@ -681,6 +688,156 @@ function getCountryMaterial(countryCode, alpha = 0.52) {
         .withAlpha(alpha);
 }
 
+function drawCountryLabel(
+    viewer,
+    countryCode,
+    latitude,
+    longitude,
+    labelText
+) {
+    if (
+        !viewer ||
+        !Number.isFinite(latitude) ||
+        !Number.isFinite(longitude)
+    ) {
+        return null;
+    }
+
+    const position =
+        Cesium.Cartesian3.fromDegrees(
+            longitude,
+            latitude,
+            1500
+        );
+
+    const entity =
+        viewer.entities.add({
+            id:
+                `countryLabel-${countryCode}`,
+            name: labelText,
+            position,
+            label: {
+                text: labelText,
+                font:
+                    "700 11px \"Segoe UI\", sans-serif",
+                fillColor:
+                    Cesium.Color.WHITE.withAlpha(
+                        0.92
+                    ),
+                style:
+                    Cesium.LabelStyle.FILL,
+                showBackground: true,
+                backgroundColor:
+                    Cesium.Color.BLACK.withAlpha(
+                        0.35
+                    ),
+                backgroundPadding:
+                    new Cesium.Cartesian2(
+                        5,
+                        4
+                    ),
+                pixelOffset:
+                    new Cesium.Cartesian2(
+                        0,
+                        0
+                    ),
+                horizontalOrigin:
+                    Cesium.HorizontalOrigin
+                        .CENTER,
+                verticalOrigin:
+                    Cesium.VerticalOrigin
+                        .CENTER,
+                disableDepthTestDistance:
+                    Number.POSITIVE_INFINITY,
+                heightReference:
+                    Cesium.HeightReference.NONE
+            },
+            properties: {
+                countryLabel: true,
+                countryCode
+            }
+        });
+
+    countryLabelEntities.push(entity);
+
+    return entity;
+}
+
+function computeApproxCentroid(coordinates) {
+    if (
+        !Array.isArray(coordinates) ||
+        coordinates.length === 0
+    ) {
+        return null;
+    }
+
+    const polygons =
+        coordinates.length === 1 &&
+        Array.isArray(coordinates[0]) &&
+        Array.isArray(coordinates[0][0]) &&
+        typeof coordinates[0][0][0] ===
+            "number"
+            ? [coordinates]
+            : coordinates;
+
+    let bestRing = null;
+    let bestSize = -1;
+
+    for (const polygon of polygons) {
+        if (
+            !Array.isArray(polygon) ||
+            !Array.isArray(polygon[0])
+        ) {
+            continue;
+        }
+
+        const ring = polygon[0];
+
+        if (
+            ring.length > bestSize
+        ) {
+            bestSize = ring.length;
+            bestRing = ring;
+        }
+    }
+
+    if (
+        !bestRing ||
+        bestRing.length === 0
+    ) {
+        return null;
+    }
+
+    let latSum = 0;
+    let lonSum = 0;
+
+    for (const point of bestRing) {
+        if (
+            !Array.isArray(point) ||
+            point.length < 2
+        ) {
+            continue;
+        }
+
+        latSum += Number(point[1]);
+        lonSum += Number(point[0]);
+    }
+
+    if (
+        !Number.isFinite(latSum) ||
+        !Number.isFinite(lonSum)
+    ) {
+        return null;
+    }
+
+    return {
+        lat:
+            latSum / bestRing.length,
+        lon:
+            lonSum / bestRing.length
+    };
+}
+
 function convertRingToPositions(ring) {
     if (!Array.isArray(ring)) {
         return [];
@@ -778,7 +935,7 @@ function drawCountryPolygon(
             material:
                 getCountryMaterial(
                     countryCode,
-                    0.52
+                    0.78
                 ),
 
             outline: true,
@@ -831,6 +988,31 @@ function drawCountryGeometry(
 
     if (!getCountryColor(countryCode)) {
         return [];
+    }
+
+    if (
+        !labeledCountryCodes.has(
+            countryCode
+        )
+    ) {
+        labeledCountryCodes.add(
+            countryCode
+        );
+
+        const centroid =
+            computeApproxCentroid(
+                feature.geometry.coordinates
+            );
+
+        if (centroid) {
+            drawCountryLabel(
+                viewer,
+                countryCode,
+                centroid.lat,
+                centroid.lon,
+                countryCode
+            );
+        }
     }
 
     const geometry =
@@ -1191,6 +1373,7 @@ async function createGlobe() {
     bindMapControls(viewer);
 
     renderUnitMarkers(viewer);
+    renderBaseMarkers(viewer);
 
     return viewer;
 }
@@ -1395,8 +1578,205 @@ function updateMarkerCount() {
 
     if (activeMarkers) {
         activeMarkers.textContent =
-            markerEntities.size;
+            markerEntities.size +
+            baseMarkerEntities.size;
     }
+}
+
+function baseFactionColor(base) {
+    if (
+        base &&
+        base.country
+    ) {
+        const lookup =
+            FACTION_BY_NAME[
+                normalizeCountryName(
+                    base.country
+                )
+            ];
+
+        if (lookup && lookup.color) {
+            return lookup.color;
+        }
+    }
+
+    return "#d6dde2";
+}
+
+function clearBaseMarkers() {
+    const viewer =
+        window.stardustViewer;
+
+    if (!viewer) {
+        return;
+    }
+
+    for (const entity of
+            baseMarkerEntities.values()) {
+        viewer.entities.remove(entity);
+    }
+
+    baseMarkerEntities.clear();
+}
+
+function renderBaseMarkers(viewer) {
+    if (!viewer) {
+        return;
+    }
+
+    clearBaseMarkers();
+
+    for (const base of stardustBases) {
+        if (
+            !Number.isFinite(base.lat) ||
+            !Number.isFinite(base.lon)
+        ) {
+            continue;
+        }
+
+        const position =
+            Cesium.Cartesian3.fromDegrees(
+                base.lon,
+                base.lat,
+                1200
+            );
+
+        const color =
+            Cesium.Color.fromCssColorString(
+                baseFactionColor(base)
+            );
+
+        const isNaval =
+            base.type === "naval_base";
+
+        const isAir =
+            base.type === "airbase";
+
+        const symbol =
+            isNaval ? "⚓" :
+            isAir   ? "✈" :
+            base.type === "missile_base" ? "▲" :
+            "■";
+
+        const entity =
+            viewer.entities.add({
+                id:
+                    `base-${base.id}`,
+                name: base.name,
+                position,
+                billboard: {
+                    image:
+                        (() => {
+                            const canvas =
+                                document
+                                    .createElement(
+                                        "canvas"
+                                    );
+                            const size = 26;
+                            canvas.width = size;
+                            canvas.height = size;
+                            const ctx =
+                                canvas.getContext(
+                                    "2d"
+                                );
+                            ctx.fillStyle =
+                                "rgba(5,7,10,0.78)";
+                            ctx.strokeStyle =
+                                color
+                                    .withAlpha(
+                                        0.8
+                                    )
+                                    .toCssColorString();
+                            ctx.lineWidth = 2;
+
+                            ctx.beginPath();
+                            ctx.arc(
+                                size / 2,
+                                size / 2,
+                                size / 2 - 1,
+                                0,
+                                Math.PI * 2
+                            );
+                            ctx.fill();
+                            ctx.stroke();
+
+                            ctx.fillStyle =
+                                "#ffffff";
+                            ctx.font =
+                                "bold 13px sans-serif";
+                            ctx.textAlign =
+                                "center";
+                            ctx.textBaseline =
+                                "middle";
+                            ctx.fillText(
+                                symbol,
+                                size / 2,
+                                size / 2 + 1
+                            );
+                            return canvas.toDataURL();
+                        })(),
+                    verticalOrigin:
+                        Cesium.VerticalOrigin
+                            .CENTER,
+                    heightReference:
+                        Cesium.HeightReference
+                            .NONE,
+                    disableDepthTestDistance:
+                        Number.POSITIVE_INFINITY
+                },
+                label: {
+                    text: base.name,
+                    font:
+                        "600 9px \"Segoe UI\", sans-serif",
+                    fillColor:
+                        Cesium.Color.WHITE.withAlpha(
+                            0.92
+                        ),
+                    pixelOffset:
+                        new Cesium.Cartesian2(
+                            0,
+                            -20
+                        ),
+                    showBackground: true,
+                    backgroundColor:
+                        Cesium.Color.BLACK.withAlpha(
+                            0.6
+                        ),
+                    position:
+                        new Cesium.ConstantPositionProperty(
+                            position
+                        ),
+                    horizontalOrigin:
+                        Cesium.HorizontalOrigin
+                            .CENTER,
+                    verticalOrigin:
+                        Cesium.VerticalOrigin
+                            .BOTTOM,
+                    disableDepthTestDistance:
+                        Number.POSITIVE_INFINITY,
+                    style:
+                        Cesium.LabelStyle
+                            .FILL
+                },
+                properties: {
+                    stardustBase: true,
+                    baseId: base.id,
+                    baseName: base.name,
+                    baseType: base.type,
+                    baseCountry:
+                        base.country || ""
+                }
+            });
+
+        baseMarkerEntities.set(
+            base.id,
+            entity
+        );
+    }
+
+    updateMarkerCount();
+
+    viewer.scene.requestRender();
 }
 
 let unitRenderQueued = false;
@@ -1811,6 +2191,50 @@ function connectChat() {
                             ""
                     );
                 }
+
+                if (
+                    data.type ===
+                    "server_status"
+                ) {
+                    if (
+                        onlinePersonnel &&
+                        typeof data.onlineUsers ===
+                            "number"
+                    ) {
+                        onlinePersonnel.textContent =
+                            data.onlineUsers;
+                    }
+                }
+
+                if (
+                    data.type ===
+                    "orders"
+                ) {
+                    if (activeOrders) {
+                        activeOrders.textContent =
+                            Array.isArray(
+                                data.orders
+                            )
+                                ? data.orders.length
+                                : 0;
+                    }
+                }
+
+                if (
+                    data.type ===
+                    "country_leaders"
+                ) {
+                    if (
+                        activeCountries &&
+                        Array.isArray(
+                            data.leaders
+                        )
+                    ) {
+                        activeCountries.textContent =
+                            data.leaders.length;
+                    }
+                }
+
 if (
                     data.type ===
                     "user"
@@ -1838,6 +2262,31 @@ if (
                         stardustUnits;
 
                     scheduleUnitRender();
+                }
+
+                if (
+                    data.type ===
+                    "bases"
+                ) {
+                    stardustBases =
+                        Array.isArray(
+                            data.bases
+                        )
+                            ? data.bases
+                            : [];
+
+                    window.stardustBases =
+                        stardustBases;
+
+                    if (
+                        viewerRef ||
+                        window.stardustViewer
+                    ) {
+                        renderBaseMarkers(
+                            viewerRef ||
+                            window.stardustViewer
+                        );
+                    }
                 }
 
                 if (

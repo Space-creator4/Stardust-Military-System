@@ -8,7 +8,8 @@
     "start": "electron .",
     "dist": "electron-builder --win --publish never --config.directories.output=dist-win-0.0.1",
     "dist:portable": "electron-builder --win portable --publish never --config.directories.output=dist-win-0.0.1",
-    "dist:linux": "electron-builder --linux tar.gz zip AppImage --publish never --config.directories.output=dist-linux-0.0.1",
+    "dist:linux": "electron-builder --linux tar.gz zip --publish never --config.directories.output=dist-linux-0.0.1",
+    "dist:linux-appimage": "electron-builder --linux AppImage --publish never --config.directories.output=dist-linux-0.0.1",
     "dist:mac": "electron-builder --mac --publish never --config.directories.output=dist-mac-0.0.1"
   },
   "build": {
@@ -20,7 +21,7 @@
     "publish": [
       {
         "provider": "generic",
-        "url": "https://78.150.222.189/updates/"
+        "url": "https://stardustn.co.uk/updates/"
       }
     ],
     "files": [

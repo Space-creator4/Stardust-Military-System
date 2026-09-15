@@ -324,6 +324,82 @@
 
                     </section>
 
+                    <section class="panel panel-sky">
+
+                        <div class="panel-header">
+                            AIR & NAVAL FORCES
+
+                            <span class="panel-indicator">
+                                <span id="airNavalCount">0</span> ACTIVE
+                            </span>
+                        </div>
+
+                        <div class="force-list">
+
+                            <button class="force-item" data-force="air">
+
+                                <div class="force-symbol">
+                                    ✈
+                                </div>
+
+                                <div class="force-information">
+                                    <strong>AIR WING</strong>
+                                    <span>
+                                        Fixed-wing squadrons and strike aircraft
+                                    </span>
+                                </div>
+
+                                <div class="force-number">
+                                    <span id="airCount">0</span>
+                                    <small>UNITS</small>
+                                </div>
+
+                            </button>
+
+                            <button class="force-item" data-force="helicopter">
+
+                                <div class="force-symbol">
+                                    ◬
+                                </div>
+
+                                <div class="force-information">
+                                    <strong>ROTARY WING</strong>
+                                    <span>
+                                        Attack and transport helicopter squadrons
+                                    </span>
+                                </div>
+
+                                <div class="force-number">
+                                    <span id="helicopterCount">0</span>
+                                    <small>UNITS</small>
+                                </div>
+
+                            </button>
+
+                            <button class="force-item" data-force="naval">
+
+                                <div class="force-symbol">
+                                    ⚓
+                                </div>
+
+                                <div class="force-information">
+                                    <strong>NAVAL FORCES</strong>
+                                    <span>
+                                        Surface fleet and submarine assets
+                                    </span>
+                                </div>
+
+                                <div class="force-number">
+                                    <span id="navalCount">0</span>
+                                    <small>UNITS</small>
+                                </div>
+
+                            </button>
+
+                        </div>
+
+                    </section>
+
                     <section class="panel panel-cyan">
 
                         <div class="panel-header">
@@ -400,6 +476,36 @@
 
                     </section>
 
+                    <section class="panel panel-amber">
+
+                        <div class="panel-header">
+                            MILITARY BASES
+
+                            <span class="panel-indicator">
+                                <span id="baseCount">0</span> INSTALLATIONS
+                            </span>
+                        </div>
+
+                        <div class="base-panel">
+
+                            <label class="form-label">
+                                CONTROLLED INSTALLATION
+                            </label>
+
+                            <select id="baseSelect"></select>
+
+                            <div id="baseSummary" class="base-summary">
+                                SELECT A BASE
+                            </div>
+
+                            <div id="baseInfraList" class="base-infra"></div>
+
+                            <span class="unit-message" id="baseMessage"></span>
+
+                        </div>
+
+                    </section>
+
                     <section class="panel panel-blue">
 
                         <div class="panel-header">
@@ -413,7 +519,7 @@
                                 id="createUnitButton"
                             >
                                 <span>+</span>
-                                CREATE GROUND UNIT
+                                RAISE NEW UNIT
                             </button>
 
                             <button
@@ -431,6 +537,79 @@
                                 <span>▤</span>
                                 VIEW ORDERS
                             </button>
+
+                        </div>
+
+                    </section>
+
+                    <section class="panel panel-muted">
+
+                        <div class="panel-header">
+                            ESTABLISH BASE
+
+                            <span class="panel-indicator">
+                                COUNTRY LEADER
+                            </span>
+                        </div>
+
+                        <form class="unit-form" id="baseForm">
+
+                            <div>
+                                <label>DESIGNATION</label>
+                                <input
+                                    type="text"
+                                    id="baseName"
+                                    maxlength="60"
+                                    placeholder="FORT DAWN A.O.B."
+                                >
+                            </div>
+
+                            <div>
+                                <label>TYPE</label>
+                                <select id="baseType">
+                                    <option value="military_installation">MILITARY INSTALLATION</option>
+                                    <option value="airbase">AIR BASE</option>
+                                    <option value="naval_base">NAVAL BASE</option>
+                                    <option value="missile_base">MISSILE BASE</option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label>LATITUDE</label>
+                                <input
+                                    type="number"
+                                    id="baseLat"
+                                    min="-90"
+                                    max="90"
+                                    step="0.0001"
+                                    placeholder="51.5074"
+                                >
+                            </div>
+
+                            <div>
+                                <label>LONGITUDE</label>
+                                <input
+                                    type="number"
+                                    id="baseLon"
+                                    min="-180"
+                                    max="180"
+                                    step="0.0001"
+                                    placeholder="-0.1278"
+                                >
+                            </div>
+
+                        </form>
+
+                        <div class="unit-form-actions">
+
+                            <button
+                                class="raise-button"
+                                id="establishBaseButton"
+                            >
+                                + ESTABLISH BASE
+                            </button>
+
+                            <span class="unit-message" id="baseFormMessage"></span>
 
                         </div>
 
@@ -467,7 +646,16 @@
                                     <option value="recon">RECONNAISSANCE</option>
                                     <option value="artillery">ARTILLERY</option>
                                     <option value="logistics">LOGISTICS</option>
+                                    <option value="air">AIR WING</option>
+                                    <option value="helicopter">ROTARY WING</option>
+                                    <option value="naval">NAVAL FORCES</option>
                                 </select>
+                            </div>
+
+                            <div>
+                                <label>ORIGIN BASE</label>
+                                <select id="unitBase"></select>
+                                <div class="unit-req-hint" id="unitReqHint"></div>
                             </div>
 
                             <div>
@@ -488,30 +676,7 @@
                                     id="unitCountry"
                                     maxlength="60"
                                     placeholder="AUTO / CLAIMED COUNTRY"
-                                >
-                            </div>
-
-                            <div>
-                                <label>LATITUDE</label>
-                                <input
-                                    type="number"
-                                    id="unitLat"
-                                    min="-90"
-                                    max="90"
-                                    step="0.0001"
-                                    placeholder="51.5074"
-                                >
-                            </div>
-
-                            <div>
-                                <label>LONGITUDE</label>
-                                <input
-                                    type="number"
-                                    id="unitLon"
-                                    min="-180"
-                                    max="180"
-                                    step="0.0001"
-                                    placeholder="-0.1278"
+                                    readonly
                                 >
                             </div>
 

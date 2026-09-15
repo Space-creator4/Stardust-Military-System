@@ -1,0 +1,32 @@
+services:
+  - type: web
+    name: stardust-military-system
+    runtime: node
+    plan: free
+    rootDir: server
+    buildCommand: npm install
+    startCommand: node server.js
+    healthCheckPath: /
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: HOST
+        value: 0.0.0.0
+      - key: SESSION_SECRET
+        generateValue: true
+      - key: APP_ORIGIN
+        value: https://YOUR-APP-NAME.onrender.com
+      - key: APP_ORIGINS
+        value: https://YOUR-APP-NAME.onrender.com
+      - key: API_HOST
+        value: ""
+      - key: COUNTRY_CODES
+        value: ""
+      - key: ADMIN_DISCORD_IDS
+        value: ""
+      - key: DISCORD_CLIENT_ID
+        sync: false
+      - key: DISCORD_CLIENT_SECRET
+        sync: false
+      - key: DISCORD_REDIRECT_URI
+        value: https://YOUR-APP-NAME.onrender.com/auth/discord/callback

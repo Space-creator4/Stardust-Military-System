@@ -1,7 +1,7 @@
 const { app, BrowserWindow, dialog, ipcMain } = require("electron");
 const path = require("path");
 
-const appUrl = process.env.APP_URL || "https://78.150.222.189";
+const appUrl = process.env.APP_URL || "https://stardustn.co.uk";
 const updateUrl = process.env.UPDATE_URL || `${appUrl}/updates/`;
 const UPDATE_POLL_INTERVAL = 10 * 60 * 1000;
 

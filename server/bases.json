@@ -1,0 +1,1057 @@
+{
+  "bases": [
+    {
+      "name": "Fort Liberty",
+      "faction": "United States of America",
+      "code": "USA",
+      "lat": 35.139,
+      "lon": -79.006,
+      "type": "military_installation",
+      "infra": { "barracks": 2, "motor_pool": 2, "depot": 1 }
+    },
+    {
+      "name": "Naval Station Norfolk",
+      "faction": "United States of America",
+      "code": "USA",
+      "lat": 36.946,
+      "lon": -76.294,
+      "type": "naval_base",
+      "infra": { "port": 2, "barracks": 1, "depot": 1 }
+    },
+    {
+      "name": "Nellis Air Force Base",
+      "faction": "United States of America",
+      "code": "USA",
+      "lat": 36.236,
+      "lon": -115.034,
+      "type": "airbase",
+      "infra": { "runway": 2, "hangar": 2, "barracks": 2 }
+    },
+    {
+      "name": "Joint Base Andrews",
+      "faction": "United States of America",
+      "code": "USA",
+      "lat": 38.81,
+      "lon": -76.871,
+      "type": "airbase",
+      "infra": { "runway": 2, "hangar": 2, "barracks": 1, "helipad": 1 }
+    },
+    {
+      "name": "Camp Pendleton",
+      "faction": "United States of America",
+      "code": "USA",
+      "lat": 33.336,
+      "lon": -117.391,
+      "type": "military_installation",
+      "infra": { "barracks": 2, "motor_pool": 2, "helipad": 1 }
+    },
+    {
+      "name": "Ramstein Air Base",
+      "faction": "United States of America",
+      "code": "DEU",
+      "lat": 49.437,
+      "lon": 7.6,
+      "type": "airbase",
+      "infra": { "runway": 2, "hangar": 2, "barracks": 2, "helipad": 1 }
+    },
+    {
+      "name": "Spangdahlem Air Base",
+      "faction": "United States of America",
+      "code": "DEU",
+      "lat": 49.973,
+      "lon": 6.693,
+      "type": "airbase"
+    },
+    {
+      "name": "Grafenwoehr Training Area",
+      "faction": "United States of America",
+      "code": "DEU",
+      "lat": 49.716,
+      "lon": 11.9,
+      "type": "military_installation",
+      "infra": { "barracks": 2, "motor_pool": 2, "depot": 1 }
+    },
+    {
+      "name": "Marinebasis Kiel",
+      "faction": "United States of America",
+      "code": "DEU",
+      "lat": 54.325,
+      "lon": 10.149,
+      "type": "naval_base",
+      "infra": { "port": 2, "barracks": 1, "depot": 1 }
+    },
+    {
+      "name": "CFB Halifax",
+      "faction": "United States of America",
+      "code": "CAN",
+      "lat": 44.657,
+      "lon": -63.586,
+      "type": "naval_base",
+      "infra": { "port": 2, "barracks": 1, "depot": 1, "helipad": 1 }
+    },
+    {
+      "name": "CFB Trenton",
+      "faction": "United States of America",
+      "code": "CAN",
+      "lat": 44.113,
+      "lon": -77.524,
+      "type": "airbase"
+    },
+    {
+      "name": "CFB Petawawa",
+      "faction": "United States of America",
+      "code": "CAN",
+      "lat": 45.895,
+      "lon": -77.284,
+      "type": "military_installation",
+      "infra": { "barracks": 2, "motor_pool": 2, "helipad": 1 }
+    },
+    {
+      "name": "Powidz Air Base",
+      "faction": "United States of America",
+      "code": "POL",
+      "lat": 52.379,
+      "lon": 17.852,
+      "type": "airbase"
+    },
+    {
+      "name": "Naval Base Gdynia",
+      "faction": "United States of America",
+      "code": "POL",
+      "lat": 54.531,
+      "lon": 18.552,
+      "type": "naval_base",
+      "infra": { "port": 2, "barracks": 1 }
+    },
+    {
+      "name": "US Army Garrison Poznan",
+      "faction": "United States of America",
+      "code": "POL",
+      "lat": 52.406,
+      "lon": 16.93,
+      "type": "military_installation",
+      "infra": { "barracks": 2, "motor_pool": 2, "depot": 1 }
+    },
+    {
+      "name": "Caslav Air Base",
+      "faction": "United States of America",
+      "code": "CZE",
+      "lat": 49.939,
+      "lon": 15.382,
+      "type": "airbase"
+    },
+    {
+      "name": "Kbely Air Base",
+      "faction": "United States of America",
+      "code": "CZE",
+      "lat": 50.127,
+      "lon": 14.543,
+      "type": "airbase"
+    },
+    {
+      "name": "Kleine Brogel Air Base",
+      "faction": "United States of America",
+      "code": "BEL",
+      "lat": 51.171,
+      "lon": 5.465,
+      "type": "airbase"
+    },
+    {
+      "name": "Florennes Air Base",
+      "faction": "United States of America",
+      "code": "BEL",
+      "lat": 50.243,
+      "lon": 4.645,
+      "type": "airbase"
+    },
+    {
+      "name": "Volkel Air Base",
+      "faction": "United States of America",
+      "code": "NLD",
+      "lat": 51.657,
+      "lon": 5.709,
+      "type": "airbase"
+    },
+    {
+      "name": "Gilze-Rijen Air Base",
+      "faction": "United States of America",
+      "code": "NLD",
+      "lat": 51.569,
+      "lon": 4.936,
+      "type": "airbase",
+      "infra": { "runway": 1, "hangar": 1, "barracks": 1, "helipad": 1 }
+    },
+    {
+      "name": "Naval Base Den Helder",
+      "faction": "United States of America",
+      "code": "NLD",
+      "lat": 52.956,
+      "lon": 4.789,
+      "type": "naval_base",
+      "infra": { "port": 2, "barracks": 1 }
+    },
+    {
+      "name": "Clausen Barracks",
+      "faction": "United States of America",
+      "code": "LUX",
+      "lat": 49.611,
+      "lon": 6.136,
+      "type": "military_installation"
+    },
+    {
+      "name": "Alcantara Launch Center",
+      "faction": "Brazilian Empire",
+      "code": "BRA",
+      "lat": -2.372,
+      "lon": -44.397,
+      "type": "missile_base",
+      "infra": { "barracks": 1, "radar": 2, "missile_silo": 2 }
+    },
+    {
+      "name": "Santa Cruz Air Force Base",
+      "faction": "Brazilian Empire",
+      "code": "BRA",
+      "lat": -22.933,
+      "lon": -43.719,
+      "type": "airbase",
+      "infra": { "runway": 2, "hangar": 1, "barracks": 1 }
+    },
+    {
+      "name": "Naval Base Rio de Janeiro",
+      "faction": "Brazilian Empire",
+      "code": "BRA",
+      "lat": -22.891,
+      "lon": -43.117,
+      "type": "naval_base",
+      "infra": { "port": 2, "barracks": 1 }
+    },
+    {
+      "name": "Manaus Military Command",
+      "faction": "Brazilian Empire",
+      "code": "BRA",
+      "lat": -3.119,
+      "lon": -60.022,
+      "type": "military_installation"
+    },
+    {
+      "name": "Boiso Lanza Air Base",
+      "faction": "Brazilian Empire",
+      "code": "URY",
+      "lat": -34.789,
+      "lon": -56.246,
+      "type": "airbase"
+    },
+    {
+      "name": "Naval Base Montevideo",
+      "faction": "Brazilian Empire",
+      "code": "URY",
+      "lat": -34.905,
+      "lon": -56.213,
+      "type": "naval_base",
+      "infra": { "port": 1, "barracks": 1 }
+    },
+    {
+      "name": "Pituffik Space Base",
+      "faction": "Glacier Empire",
+      "code": "GRL",
+      "lat": 76.531,
+      "lon": -68.703,
+      "type": "airbase",
+      "infra": { "runway": 2, "hangar": 1, "barracks": 1, "radar": 2 }
+    },
+    {
+      "name": "Kangerlussuaq Air Base",
+      "faction": "Glacier Empire",
+      "code": "GRL",
+      "lat": 67.01,
+      "lon": -50.709,
+      "type": "airbase"
+    },
+    {
+      "name": "NAS Keflavik",
+      "faction": "Glacier Empire",
+      "code": "ISL",
+      "lat": 63.985,
+      "lon": -22.601,
+      "type": "airbase",
+      "infra": { "runway": 2, "hangar": 1, "barracks": 1, "radar": 1 }
+    },
+    {
+      "name": "Bagram Airfield",
+      "faction": "Glacier Empire",
+      "code": "AFG",
+      "lat": 34.946,
+      "lon": 69.265,
+      "type": "airbase"
+    },
+    {
+      "name": "Kandahar Airfield",
+      "faction": "Glacier Empire",
+      "code": "AFG",
+      "lat": 31.507,
+      "lon": 65.848,
+      "type": "airbase"
+    },
+    {
+      "name": "Camp Shorabak",
+      "faction": "Glacier Empire",
+      "code": "AFG",
+      "lat": 31.38,
+      "lon": 64.402,
+      "type": "military_installation"
+    },
+    {
+      "name": "Sevastopol Naval Base",
+      "faction": "Russian Confederacy",
+      "code": "RUS",
+      "lat": 44.615,
+      "lon": 33.522,
+      "type": "naval_base",
+      "infra": { "port": 3, "barracks": 2, "depot": 2 }
+    },
+    {
+      "name": "Severomorsk Naval Base",
+      "faction": "Russian Confederacy",
+      "code": "RUS",
+      "lat": 69.069,
+      "lon": 33.42,
+      "type": "naval_base",
+      "infra": { "port": 3, "barracks": 2, "depot": 2, "radar": 2 }
+    },
+    {
+      "name": "Engels-2 Air Base",
+      "faction": "Russian Confederacy",
+      "code": "RUS",
+      "lat": 51.504,
+      "lon": 46.203,
+      "type": "airbase",
+      "infra": { "runway": 2, "hangar": 2, "barracks": 2 }
+    },
+    {
+      "name": "Alabino Training Area",
+      "faction": "Russian Confederacy",
+      "code": "RUS",
+      "lat": 55.537,
+      "lon": 36.998,
+      "type": "military_installation",
+      "infra": { "barracks": 2, "motor_pool": 2, "depot": 1 }
+    },
+    {
+      "name": "Baikonur Cosmodrome",
+      "faction": "Russian Confederacy",
+      "code": "KAZ",
+      "lat": 45.965,
+      "lon": 63.305,
+      "type": "missile_base",
+      "infra": { "barracks": 1, "radar": 1, "missile_silo": 1 }
+    },
+    {
+      "name": "Almaty Air Base",
+      "faction": "Russian Confederacy",
+      "code": "KAZ",
+      "lat": 43.37,
+      "lon": 77.078,
+      "type": "airbase"
+    },
+    {
+      "name": "Yulin Naval Base",
+      "faction": "Republic of Terra Australis",
+      "code": "CHN",
+      "lat": 18.187,
+      "lon": 109.563,
+      "type": "naval_base",
+      "infra": { "port": 3, "barracks": 2, "radar": 2 }
+    },
+    {
+      "name": "Lushunkou Naval Base",
+      "faction": "Republic of Terra Australis",
+      "code": "CHN",
+      "lat": 38.805,
+      "lon": 121.26,
+      "type": "naval_base",
+      "infra": { "port": 2, "barracks": 1 }
+    },
+    {
+      "name": "Jiuquan Air Base",
+      "faction": "Republic of Terra Australis",
+      "code": "CHN",
+      "lat": 39.77,
+      "lon": 99.53,
+      "type": "airbase",
+      "infra": { "runway": 1, "hangar": 1, "barracks": 1, "radar": 1 }
+    },
+    {
+      "name": "Ulaanbaatar Garrison",
+      "faction": "Republic of Terra Australis",
+      "code": "MNG",
+      "lat": 47.918,
+      "lon": 106.84,
+      "type": "military_installation"
+    },
+    {
+      "name": "HMAS Stirling",
+      "faction": "Republic of Terra Australis",
+      "code": "AUS",
+      "lat": -32.25,
+      "lon": 115.74,
+      "type": "naval_base",
+      "infra": { "port": 2, "barracks": 1, "depot": 1 }
+    },
+    {
+      "name": "RAAF Base Amberley",
+      "faction": "Republic of Terra Australis",
+      "code": "AUS",
+      "lat": -27.64,
+      "lon": 152.713,
+      "type": "airbase",
+      "infra": { "runway": 2, "hangar": 2, "barracks": 1 }
+    },
+    {
+      "name": "RAAF Base Darwin",
+      "faction": "Republic of Terra Australis",
+      "code": "AUS",
+      "lat": -12.411,
+      "lon": 130.882,
+      "type": "airbase"
+    },
+    {
+      "name": "Lone Pine Barracks",
+      "faction": "Republic of Terra Australis",
+      "code": "AUS",
+      "lat": -32.57,
+      "lon": 151.17,
+      "type": "military_installation",
+      "infra": { "barracks": 2, "motor_pool": 2 }
+    },
+    {
+      "name": "HMAS Lombrum",
+      "faction": "Republic of Terra Australis",
+      "code": "PNG",
+      "lat": -2.04,
+      "lon": 147.34,
+      "type": "naval_base",
+      "infra": { "port": 1, "barracks": 1 }
+    },
+    {
+      "name": "Taurama Barracks",
+      "faction": "Republic of Terra Australis",
+      "code": "PNG",
+      "lat": -9.435,
+      "lon": 147.156,
+      "type": "military_installation"
+    },
+    {
+      "name": "Surabaya Naval Base",
+      "faction": "Republic of Terra Australis",
+      "code": "IDN",
+      "lat": -7.26,
+      "lon": 112.79,
+      "type": "naval_base",
+      "infra": { "port": 2, "barracks": 1 }
+    },
+    {
+      "name": "Halim Perdanakusuma Air Base",
+      "faction": "Republic of Terra Australis",
+      "code": "IDN",
+      "lat": -6.266,
+      "lon": 106.891,
+      "type": "airbase"
+    },
+    {
+      "name": "Camp Humphreys",
+      "faction": "Republic of Terra Australis",
+      "code": "KOR",
+      "lat": 36.964,
+      "lon": 127.024,
+      "type": "military_installation",
+      "infra": { "barracks": 3, "motor_pool": 2, "helipad": 1 }
+    },
+    {
+      "name": "Osan Air Base",
+      "faction": "Republic of Terra Australis",
+      "code": "KOR",
+      "lat": 37.09,
+      "lon": 127.03,
+      "type": "airbase",
+      "infra": { "runway": 2, "hangar": 2, "barracks": 1 }
+    },
+    {
+      "name": "Naval Base Busan",
+      "faction": "Republic of Terra Australis",
+      "code": "KOR",
+      "lat": 35.126,
+      "lon": 129.098,
+      "type": "naval_base",
+      "infra": { "port": 2, "barracks": 1 }
+    },
+    {
+      "name": "Sunan Airbase",
+      "faction": "Republic of Terra Australis",
+      "code": "PRK",
+      "lat": 39.214,
+      "lon": 125.67,
+      "type": "airbase"
+    },
+    {
+      "name": "Nampo Naval Base",
+      "faction": "Republic of Terra Australis",
+      "code": "PRK",
+      "lat": 38.72,
+      "lon": 125.396,
+      "type": "naval_base",
+      "infra": { "port": 1, "barracks": 1 }
+    },
+    {
+      "name": "Nouakchott Airbase",
+      "faction": "Commonwealth of France",
+      "code": "MRT",
+      "lat": 18.098,
+      "lon": -15.948,
+      "type": "airbase"
+    },
+    {
+      "name": "Laayoune Air Base",
+      "faction": "Commonwealth of France",
+      "code": "ESH",
+      "lat": 27.152,
+      "lon": -13.212,
+      "type": "airbase"
+    },
+    {
+      "name": "Ben Guerir Air Base",
+      "faction": "Commonwealth of France",
+      "code": "MAR",
+      "lat": 32.231,
+      "lon": -7.982,
+      "type": "airbase"
+    },
+    {
+      "name": "Casablanca Naval Base",
+      "faction": "Commonwealth of France",
+      "code": "MAR",
+      "lat": 33.613,
+      "lon": -7.61,
+      "type": "naval_base",
+      "infra": { "port": 1, "barracks": 1 }
+    },
+    {
+      "name": "Mers el-Kebir Naval Base",
+      "faction": "Commonwealth of France",
+      "code": "DZA",
+      "lat": 35.724,
+      "lon": -0.694,
+      "type": "naval_base",
+      "infra": { "port": 2, "barracks": 1 }
+    },
+    {
+      "name": "Ain Oussera Air Base",
+      "faction": "Commonwealth of France",
+      "code": "DZA",
+      "lat": 35.542,
+      "lon": 2.877,
+      "type": "airbase"
+    },
+    {
+      "name": "Kati Military Camp",
+      "faction": "Commonwealth of France",
+      "code": "MLI",
+      "lat": 12.744,
+      "lon": -8.044,
+      "type": "military_installation"
+    },
+    {
+      "name": "Naval Base Abidjan",
+      "faction": "Commonwealth of France",
+      "code": "CIV",
+      "lat": 5.316,
+      "lon": -4.017,
+      "type": "naval_base",
+      "infra": { "port": 1, "barracks": 1 }
+    },
+    {
+      "name": "Barclay Training Center",
+      "faction": "Commonwealth of France",
+      "code": "LBR",
+      "lat": 6.313,
+      "lon": -10.807,
+      "type": "military_installation"
+    },
+    {
+      "name": "Wilberforce Barracks",
+      "faction": "Commonwealth of France",
+      "code": "SLE",
+      "lat": 8.486,
+      "lon": -13.251,
+      "type": "military_installation"
+    },
+    {
+      "name": "Camp Alpha Yaya",
+      "faction": "Commonwealth of France",
+      "code": "GIN",
+      "lat": 9.537,
+      "lon": -13.659,
+      "type": "military_installation"
+    },
+    {
+      "name": "Dakar Naval Base",
+      "faction": "Commonwealth of France",
+      "code": "SEN",
+      "lat": 14.718,
+      "lon": -17.5,
+      "type": "naval_base",
+      "infra": { "port": 1, "barracks": 1 }
+    },
+    {
+      "name": "Ouakam Air Base",
+      "faction": "Commonwealth of France",
+      "code": "SEN",
+      "lat": 14.701,
+      "lon": -17.489,
+      "type": "airbase"
+    },
+    {
+      "name": "Bissalanca Airbase",
+      "faction": "Commonwealth of France",
+      "code": "GNB",
+      "lat": 11.887,
+      "lon": -15.646,
+      "type": "airbase"
+    },
+    {
+      "name": "Niamey Air Base 101",
+      "faction": "Commonwealth of France",
+      "code": "NER",
+      "lat": 13.481,
+      "lon": 2.184,
+      "type": "airbase"
+    },
+    {
+      "name": "Naval Base Lagos",
+      "faction": "Commonwealth of France",
+      "code": "NGA",
+      "lat": 6.441,
+      "lon": 3.361,
+      "type": "naval_base",
+      "infra": { "port": 1, "barracks": 1 }
+    },
+    {
+      "name": "Air Force Base Abuja",
+      "faction": "Commonwealth of France",
+      "code": "NGA",
+      "lat": 9.006,
+      "lon": 7.263,
+      "type": "airbase"
+    },
+    {
+      "name": "Burma Camp",
+      "faction": "Commonwealth of France",
+      "code": "GHA",
+      "lat": 5.586,
+      "lon": -0.172,
+      "type": "military_installation"
+    },
+    {
+      "name": "Akpakpa Garrison",
+      "faction": "Commonwealth of France",
+      "code": "BEN",
+      "lat": 6.363,
+      "lon": 2.432,
+      "type": "military_installation"
+    },
+    {
+      "name": "Land Forces Camp Lome",
+      "faction": "Commonwealth of France",
+      "code": "TGO",
+      "lat": 6.134,
+      "lon": 1.221,
+      "type": "military_installation"
+    },
+    {
+      "name": "Camp Sangoule Lamizana",
+      "faction": "Commonwealth of France",
+      "code": "BFA",
+      "lat": 12.371,
+      "lon": -1.519,
+      "type": "military_installation"
+    },
+    {
+      "name": "Naval Station Rota",
+      "faction": "Commonwealth of France",
+      "code": "ESP",
+      "lat": 36.623,
+      "lon": -6.362,
+      "type": "naval_base",
+      "infra": { "port": 2, "barracks": 2, "helipad": 1 }
+    },
+    {
+      "name": "Torrejon Air Base",
+      "faction": "Commonwealth of France",
+      "code": "ESP",
+      "lat": 40.487,
+      "lon": -3.457,
+      "type": "airbase",
+      "infra": { "runway": 2, "hangar": 1, "barracks": 1 }
+    },
+    {
+      "name": "Moron Air Base",
+      "faction": "Commonwealth of France",
+      "code": "ESP",
+      "lat": 37.174,
+      "lon": -5.616,
+      "type": "airbase",
+      "infra": { "runway": 2, "hangar": 2, "barracks": 1 }
+    },
+    {
+      "name": "Montijo Air Base",
+      "faction": "Commonwealth of France",
+      "code": "PRT",
+      "lat": 38.703,
+      "lon": -9.035,
+      "type": "airbase"
+    },
+    {
+      "name": "Lajes Field",
+      "faction": "Commonwealth of France",
+      "code": "PRT",
+      "lat": 38.761,
+      "lon": -27.09,
+      "type": "airbase"
+    },
+    {
+      "name": "Naval Base Alfeite",
+      "faction": "Commonwealth of France",
+      "code": "PRT",
+      "lat": 38.664,
+      "lon": -9.108,
+      "type": "naval_base",
+      "infra": { "port": 1, "barracks": 1 }
+    },
+    {
+      "name": "Naval Base Toulon",
+      "faction": "Commonwealth of France",
+      "code": "FRA",
+      "lat": 43.092,
+      "lon": 5.935,
+      "type": "naval_base",
+      "infra": { "port": 3, "barracks": 2, "depot": 2 }
+    },
+    {
+      "name": "Evreux-Fauville Air Base",
+      "faction": "Commonwealth of France",
+      "code": "FRA",
+      "lat": 49.028,
+      "lon": 1.22,
+      "type": "airbase"
+    },
+    {
+      "name": "Orleans Air Base 123",
+      "faction": "Commonwealth of France",
+      "code": "FRA",
+      "lat": 47.911,
+      "lon": 1.856,
+      "type": "airbase"
+    },
+    {
+      "name": "Yundum Barracks",
+      "faction": "Commonwealth of France",
+      "code": "GMB",
+      "lat": 13.345,
+      "lon": -16.687,
+      "type": "military_installation"
+    },
+    {
+      "name": "Naval Base Tripoli",
+      "faction": "Turkish Empire",
+      "code": "LBY",
+      "lat": 32.895,
+      "lon": 13.189,
+      "type": "naval_base",
+      "infra": { "port": 1, "barracks": 1 }
+    },
+    {
+      "name": "Al-Watiyah Air Base",
+      "faction": "Turkish Empire",
+      "code": "LBY",
+      "lat": 32.482,
+      "lon": 11.91,
+      "type": "airbase"
+    },
+    {
+      "name": "Alexandria Naval Base",
+      "faction": "Turkish Empire",
+      "code": "EGY",
+      "lat": 31.2,
+      "lon": 29.883,
+      "type": "naval_base",
+      "infra": { "port": 2, "barracks": 1 }
+    },
+    {
+      "name": "Cairo West Air Base",
+      "faction": "Turkish Empire",
+      "code": "EGY",
+      "lat": 30.117,
+      "lon": 30.916,
+      "type": "airbase"
+    },
+    {
+      "name": "King Abdulaziz Naval Base",
+      "faction": "Turkish Empire",
+      "code": "SAU",
+      "lat": 21.682,
+      "lon": 39.154,
+      "type": "naval_base",
+      "infra": { "port": 1, "barracks": 1 }
+    },
+    {
+      "name": "King Khalid Air Base",
+      "faction": "Turkish Empire",
+      "code": "SAU",
+      "lat": 18.3,
+      "lon": 42.794,
+      "type": "airbase"
+    },
+    {
+      "name": "Aden Naval Base",
+      "faction": "Turkish Empire",
+      "code": "YEM",
+      "lat": 12.802,
+      "lon": 45.034,
+      "type": "naval_base",
+      "infra": { "port": 1, "barracks": 1 }
+    },
+    {
+      "name": "Al Mussanah Naval Base",
+      "faction": "Turkish Empire",
+      "code": "OMN",
+      "lat": 23.45,
+      "lon": 57.88,
+      "type": "naval_base",
+      "infra": { "port": 1, "barracks": 1 }
+    },
+    {
+      "name": "Al Dhafra Air Base",
+      "faction": "Turkish Empire",
+      "code": "ARE",
+      "lat": 24.248,
+      "lon": 54.547,
+      "type": "airbase",
+      "infra": { "runway": 2, "hangar": 2, "barracks": 1 }
+    },
+    {
+      "name": "Al Udeid Air Base",
+      "faction": "Turkish Empire",
+      "code": "QAT",
+      "lat": 25.035,
+      "lon": 51.397,
+      "type": "airbase",
+      "infra": { "runway": 2, "hangar": 2, "barracks": 1 }
+    },
+    {
+      "name": "Naval Support Activity Bahrain",
+      "faction": "Turkish Empire",
+      "code": "BHR",
+      "lat": 26.225,
+      "lon": 50.62,
+      "type": "naval_base",
+      "infra": { "port": 2, "barracks": 1 }
+    },
+    {
+      "name": "Taji Military Complex",
+      "faction": "Turkish Empire",
+      "code": "IRQ",
+      "lat": 33.554,
+      "lon": 44.253,
+      "type": "military_installation"
+    },
+    {
+      "name": "Tartus Naval Base",
+      "faction": "Turkish Empire",
+      "code": "SYR",
+      "lat": 34.902,
+      "lon": 35.868,
+      "type": "naval_base",
+      "infra": { "port": 1, "barracks": 1 }
+    },
+    {
+      "name": "King Abdullah II Air Base",
+      "faction": "Turkish Empire",
+      "code": "JOR",
+      "lat": 31.885,
+      "lon": 36.293,
+      "type": "airbase"
+    },
+    {
+      "name": "Haifa Naval Base",
+      "faction": "Turkish Empire",
+      "code": "ISR",
+      "lat": 32.826,
+      "lon": 34.973,
+      "type": "naval_base",
+      "infra": { "port": 2, "barracks": 1 }
+    },
+    {
+      "name": "Nevatim Airbase",
+      "faction": "Turkish Empire",
+      "code": "ISR",
+      "lat": 31.208,
+      "lon": 35.044,
+      "type": "airbase",
+      "infra": { "runway": 2, "hangar": 2, "barracks": 1 }
+    },
+    {
+      "name": "Beirut Naval Base",
+      "faction": "Turkish Empire",
+      "code": "LBN",
+      "lat": 33.901,
+      "lon": 35.513,
+      "type": "naval_base",
+      "infra": { "port": 1, "barracks": 1 }
+    },
+    {
+      "name": "Incirlik Air Base",
+      "faction": "Turkish Empire",
+      "code": "TUR",
+      "lat": 37.003,
+      "lon": 35.426,
+      "type": "airbase",
+      "infra": { "runway": 2, "hangar": 2, "barracks": 2 }
+    },
+    {
+      "name": "Golcuk Naval Base",
+      "faction": "Turkish Empire",
+      "code": "TUR",
+      "lat": 40.716,
+      "lon": 29.82,
+      "type": "naval_base",
+      "infra": { "port": 2, "barracks": 1 }
+    },
+    {
+      "name": "Aksaz Naval Base",
+      "faction": "Turkish Empire",
+      "code": "TUR",
+      "lat": 36.833,
+      "lon": 28.27,
+      "type": "naval_base",
+      "infra": { "port": 1, "barracks": 1 }
+    },
+    {
+      "name": "Naval Base Souda Bay",
+      "faction": "Turkish Empire",
+      "code": "GRC",
+      "lat": 35.484,
+      "lon": 24.149,
+      "type": "naval_base",
+      "infra": { "port": 2, "barracks": 1 }
+    },
+    {
+      "name": "Elefsis Air Base",
+      "faction": "Turkish Empire",
+      "code": "GRC",
+      "lat": 38.064,
+      "lon": 23.562,
+      "type": "airbase"
+    },
+    {
+      "name": "Lora Naval Base",
+      "faction": "Turkish Empire",
+      "code": "HRV",
+      "lat": 43.5,
+      "lon": 16.43,
+      "type": "naval_base",
+      "infra": { "port": 1, "barracks": 1 }
+    },
+    {
+      "name": "Butmir Camp",
+      "faction": "Turkish Empire",
+      "code": "BIH",
+      "lat": 43.837,
+      "lon": 18.306,
+      "type": "military_installation"
+    },
+    {
+      "name": "Bar Naval Base",
+      "faction": "Turkish Empire",
+      "code": "MNE",
+      "lat": 42.094,
+      "lon": 19.093,
+      "type": "naval_base",
+      "infra": { "port": 1, "barracks": 1 }
+    },
+    {
+      "name": "Krivolak Training Area",
+      "faction": "Turkish Empire",
+      "code": "MKD",
+      "lat": 41.53,
+      "lon": 22.07,
+      "type": "military_installation"
+    },
+    {
+      "name": "Naval Base Durres",
+      "faction": "Turkish Empire",
+      "code": "ALB",
+      "lat": 41.316,
+      "lon": 19.447,
+      "type": "naval_base",
+      "infra": { "port": 1, "barracks": 1 }
+    },
+    {
+      "name": "Camp Bondsteel",
+      "faction": "Turkish Empire",
+      "code": "KOS",
+      "lat": 42.361,
+      "lon": 21.246,
+      "type": "military_installation",
+      "infra": { "barracks": 2, "motor_pool": 1, "helipad": 1 }
+    },
+    {
+      "name": "Batajnica Air Base",
+      "faction": "Turkish Empire",
+      "code": "SRB",
+      "lat": 44.939,
+      "lon": 20.285,
+      "type": "airbase"
+    },
+    {
+      "name": "Bezmer Air Base",
+      "faction": "Turkish Empire",
+      "code": "BGR",
+      "lat": 42.455,
+      "lon": 26.352,
+      "type": "airbase"
+    },
+    {
+      "name": "Naval Base Varna",
+      "faction": "Turkish Empire",
+      "code": "BGR",
+      "lat": 42.595,
+      "lon": 27.67,
+      "type": "naval_base",
+      "infra": { "port": 1, "barracks": 1 }
+    },
+    {
+      "name": "Mihail Kogalniceanu Air Base",
+      "faction": "Turkish Empire",
+      "code": "ROU",
+      "lat": 44.362,
+      "lon": 28.488,
+      "type": "airbase"
+    },
+    {
+      "name": "Naval Base Constanta",
+      "faction": "Turkish Empire",
+      "code": "ROU",
+      "lat": 44.184,
+      "lon": 28.655,
+      "type": "naval_base",
+      "infra": { "port": 2, "barracks": 1 }
+    },
+    {
+      "name": "Camp Kokolo",
+      "faction": "Zarvak National Authority",
+      "code": "COD",
+      "lat": -4.323,
+      "lon": 15.286,
+      "type": "military_installation"
+    }
+  ]
+}

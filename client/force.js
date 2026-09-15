@@ -5,6 +5,8 @@ const systemStatusText =
 
 const units = [];
 
+const bases = [];
+
 const assets = {
     missiles: 0,
     satellites: 0
@@ -13,6 +15,66 @@ const assets = {
 let socket = null;
 let reconnectTimer = null;
 let reconnectDelay = 1000;
+
+const ALL_FORCE_TYPES = [
+    "infantry",
+    "armour",
+    "mechanized",
+    "recon",
+    "artillery",
+    "logistics",
+    "air",
+    "helicopter",
+    "naval"
+];
+
+const BASE_INFRA_DEFAULTS = {
+    military_installation: {
+        barracks: 1,
+        motor_pool: 1
+    },
+    airbase: {
+        barracks: 1,
+        runway: 1,
+        hangar: 1,
+        helipad: 1
+    },
+    naval_base: {
+        barracks: 1,
+        port: 1,
+        depot: 1
+    },
+    missile_base: {
+        barracks: 1,
+        radar: 1,
+        missile_silo: 1
+    }
+};
+
+const BUILDING_LABELS = {
+    barracks: "Barracks",
+    motor_pool: "Motor Pool",
+    runway: "Runway",
+    hangar: "Hangar",
+    helipad: "Helipad",
+    depot: "Depot",
+    port: "Port",
+    missile_silo: "Missile Silo",
+    radar: "Radar",
+    air_defense: "Air Defence"
+};
+
+const UNIT_BASE_REQUIREMENTS = {
+    infantry: [[{ type: "barracks", level: 1 }]],
+    armour: [[{ type: "motor_pool", level: 1 }]],
+    mechanized: [[{ type: "motor_pool", level: 1 }, { type: "depot", level: 1 }]],
+    recon: [[{ type: "barracks", level: 1 }], [{ type: "helipad", level: 1 }]],
+    artillery: [[{ type: "motor_pool", level: 1 }, { type: "depot", level: 1 }]],
+    logistics: [[{ type: "depot", level: 1 }]],
+    air: [[{ type: "runway", level: 1 }, { type: "hangar", level: 1 }]],
+    helicopter: [[{ type: "helipad", level: 1 }, { type: "hangar", level: 1 }]],
+    naval: [[{ type: "port", level: 1 }]]
+};
 
 function updateClock() {
     const now = new Date();
@@ -37,16 +99,7 @@ function setSystemStatus(online) {
 }
 
 function updateCounts() {
-    const types = [
-        "infantry",
-        "armour",
-        "mechanized",
-        "recon",
-        "artillery",
-        "logistics"
-    ];
-
-    types.forEach(type => {
+    ALL_FORCE_TYPES.forEach(type => {
         const element =
             document.getElementById(`${type}Count`);
 
@@ -67,6 +120,19 @@ function updateCounts() {
 
     if (groundCount) {
         groundCount.textContent = units.length;
+    }
+
+    const airNavalCount =
+        document.getElementById("airNavalCount");
+
+    if (airNavalCount) {
+        airNavalCount.textContent =
+            units.filter(
+                u =>
+                    u.type === "air" ||
+                    u.type === "helicopter" ||
+                    u.type === "naval"
+            ).length;
     }
 
     const totalUnits =
@@ -139,11 +205,18 @@ function updateCounts() {
         satelliteCount.textContent =
             assets.satellites;
     }
+
+    const baseCountEl =
+        document.getElementById("baseCount");
+
+    if (baseCountEl) {
+        baseCountEl.textContent = bases.length;
+    }
 }
 
-function setUnitMessage(message, error) {
+function setUnitMessage(elementId, message, error) {
     const element =
-        document.getElementById("unitMessage");
+        document.getElementById(elementId);
 
     if (!element) {
         return;
@@ -169,6 +242,318 @@ function escapeText(value) {
 function unitStatusClass(unit) {
     return String(unit.status || "")
         .toLowerCase();
+}
+
+function getRequirementLabel(unitType) {
+    const groups =
+        UNIT_BASE_REQUIREMENTS[String(unitType)] || [];
+
+    if (groups.length === 0) {
+        return "No base infrastructure required";
+    }
+
+    return groups
+        .map(
+            group =>
+                group
+                    .map(
+                        requirement =>
+                            `${BUILDING_LABELS[requirement.type] || requirement.type} Lv.${requirement.level}`
+                    )
+                    .join(" + ")
+        )
+        .join("  OR  ");
+}
+
+function checkBaseSupports(base, unitType) {
+    const groups =
+        UNIT_BASE_REQUIREMENTS[String(unitType)] || [];
+
+    const infra =
+        (base && base.infrastructure) || {};
+
+    for (const group of groups) {
+        const satisfied =
+            group.every(
+                requirement =>
+                    (Number(infra[requirement.type]) || 0) >= requirement.level
+            );
+
+        if (satisfied) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+function renderBasePanel() {
+    const select =
+        document.getElementById("baseSelect");
+
+    const originSelect =
+        document.getElementById("unitBase");
+
+    if (!select) {
+        return;
+    }
+
+    select.innerHTML = "";
+
+    if (originSelect) {
+        originSelect.innerHTML = "";
+    }
+
+    const placeholder =
+        document.createElement("option");
+
+    placeholder.value = "";
+    placeholder.textContent = "— SELECT A BASE —";
+
+    select.appendChild(placeholder);
+
+    for (const base of bases) {
+        const option =
+            document.createElement("option");
+
+        option.value = base.id;
+
+        option.textContent =
+            `[${(base.code || base.country).toUpperCase()}] ${base.name} — ${base.type.replace(/_/g, " ").toUpperCase()}`;
+
+        select.appendChild(option);
+
+        if (originSelect) {
+            const originOption =
+                option.cloneNode(true);
+
+            originSelect.appendChild(originOption);
+        }
+    }
+
+    if (originSelect && !originSelect.value) {
+        originSelect.value = select.value;
+        updateRequirementHint();
+    }
+
+    updateBaseSummary();
+}
+
+function updateBaseSummary() {
+    const select =
+        document.getElementById("baseSelect");
+
+    const summary =
+        document.getElementById("baseSummary");
+
+    const infraList =
+        document.getElementById("baseInfraList");
+
+    const hint =
+        document.getElementById("unitReqHint");
+
+    if (!select || !summary) {
+        return;
+    }
+
+    const baseId = select.value;
+
+    if (!baseId) {
+        summary.textContent = "SELECT A BASE";
+        summary.className = "base-summary";
+
+        if (infraList) {
+            infraList.innerHTML = "";
+        }
+
+        if (hint) {
+            hint.textContent = "";
+        }
+
+        return;
+    }
+
+    const base =
+        bases.find(b => b.id === baseId);
+
+    if (!base) {
+        summary.textContent = "BASE NOT FOUND";
+        summary.className = "base-summary error";
+
+        if (infraList) {
+            infraList.innerHTML = "";
+        }
+
+        return;
+    }
+
+    summary.textContent =
+        `${base.name} — ${base.country} — ${base.type.replace(/_/g, " ").toUpperCase()}`;
+    summary.className = "base-summary active";
+
+    const countryInput =
+        document.getElementById("unitCountry");
+
+    if (countryInput) {
+        countryInput.value =
+            base.country || "";
+    }
+
+    const originSelect =
+        document.getElementById("unitBase");
+
+    if (originSelect && originSelect.value !== baseId) {
+        originSelect.value = baseId;
+    }
+
+    renderInfraPanel(base);
+
+    updateRequirementHint();
+}
+
+function renderInfraPanel(base) {
+    const container =
+        document.getElementById("baseInfraList");
+
+    if (!container) {
+        return;
+    }
+
+    container.innerHTML = "";
+
+    const allInfraKeys =
+        Object.keys(BUILDING_LABELS);
+
+    const defaults =
+        BASE_INFRA_DEFAULTS[base.type] || {};
+
+    for (const key of allInfraKeys) {
+        if (
+            !base.built &&
+            !Object.prototype.hasOwnProperty.call(defaults, key) &&
+            !Object.prototype.hasOwnProperty.call(base.infrastructure || {}, key)
+        ) {
+            continue;
+        }
+
+        const level =
+            Number(base.infrastructure[key]) || 0;
+
+        const chip =
+            document.createElement("div");
+
+        chip.className =
+            "infra-chip" +
+            (level > 0 ? " active" : "");
+
+        const label =
+            document.createElement("span");
+
+        label.className = "infra-chip-label";
+
+        label.textContent =
+            BUILDING_LABELS[key];
+
+        const pips =
+            document.createElement("span");
+
+        pips.className = "infra-pips";
+
+        for (let i = 1; i <= 3; i++) {
+            const pip =
+                document.createElement("span");
+
+            pip.className =
+                "infra-pip" +
+                (i <= level ? " filled" : "");
+
+            pips.appendChild(pip);
+        }
+
+        const levelText =
+            document.createElement("span");
+
+        levelText.className = "infra-level-text";
+
+        levelText.textContent =
+            level > 0 ? `Lv.${level}` : "—";
+
+        chip.appendChild(label);
+        chip.appendChild(pips);
+        chip.appendChild(levelText);
+
+        if (level < 3 && base.built) {
+            const upgradeBtn =
+                document.createElement("button");
+
+            upgradeBtn.type = "button";
+            upgradeBtn.className =
+                "infra-upgrade-btn";
+            upgradeBtn.textContent = "+";
+            upgradeBtn.title =
+                `Upgrade ${BUILDING_LABELS[key]}`;
+            upgradeBtn.dataset.building = key;
+
+            upgradeBtn.addEventListener(
+                "click",
+                () => {
+                    sendBaseUpgrade(
+                        base.id,
+                        key
+                    );
+                }
+            );
+
+            chip.appendChild(upgradeBtn);
+        }
+
+        container.appendChild(chip);
+    }
+}
+
+function updateRequirementHint() {
+    const hint =
+        document.getElementById("unitReqHint");
+
+    const typeSelect =
+        document.getElementById("unitType");
+
+    const originSelect =
+        document.getElementById("unitBase");
+
+    if (!hint || !typeSelect || !originSelect) {
+        return;
+    }
+
+    const unitType = typeSelect.value;
+    const baseId = originSelect.value;
+
+    if (!baseId) {
+        hint.textContent = "";
+        return;
+    }
+
+    const base =
+        bases.find(b => b.id === baseId);
+
+    if (!base) {
+        hint.textContent = "";
+        return;
+    }
+
+    const supported =
+        checkBaseSupports(base, unitType);
+
+    const required =
+        getRequirementLabel(unitType);
+
+    hint.textContent = supported
+        ? `✓ Required: ${required}`
+        : `✗ Required: ${required}`;
+
+    hint.className =
+        "unit-req-hint" +
+        (supported ? " ok" : " fail");
 }
 
 function renderUnitList() {
@@ -260,10 +645,16 @@ function buildUnitRow(unit) {
 
     meta.className = "unit-row-meta";
 
+    const baseName =
+        unit.base && unit.base.name
+            ? unit.base.name
+            : "FIELD";
+
     meta.innerHTML =
         `<span>${unit.type.toUpperCase()}</span>` +
         `<span>${Number(unit.personnel) || 0} PERSONNEL</span>` +
         `<span>${escapeText(unit.country || "NO AFFILIATION")}</span>` +
+        `<span>${baseName}</span>` +
         `<span>${Number(unit.lat).toFixed(3)}° ${Number(unit.lon).toFixed(3)}°</span>`;
 
     row.appendChild(meta);
@@ -549,9 +940,39 @@ function connectWebSocket() {
 
                 if (
                     data.type ===
+                    "bases"
+                ) {
+                    bases.length = 0;
+                    bases.push(
+                        ...(Array.isArray(data.bases)
+                            ? data.bases
+                            : [])
+                    );
+                    renderBasePanel();
+                    updateCounts();
+                }
+
+                if (
+                    data.type ===
+                    "base_updated" ||
+                    data.type ===
+                    "base_created"
+                ) {
+                    setUnitMessage(
+                        "baseMessage",
+                        data.base
+                            ? `${data.base.name} updated.`
+                            : "Base updated.",
+                        false
+                    );
+                }
+
+                if (
+                    data.type ===
                     "unit_created"
                 ) {
                     setUnitMessage(
+                        "unitMessage",
                         `UNIT ${data.unit.id} RAISED.`,
                         false
                     );
@@ -561,11 +982,27 @@ function connectWebSocket() {
                     data.type ===
                     "error"
                 ) {
-                    setUnitMessage(
+                    const msg =
                         data.message ||
-                            "COMMAND ERROR.",
-                        true
-                    );
+                        "COMMAND ERROR.";
+
+                    if (
+                        msg.includes(
+                            "base"
+                        )
+                    ) {
+                        setUnitMessage(
+                            "unitMessage",
+                            msg,
+                            true
+                        );
+                    } else {
+                        setUnitMessage(
+                            "unitMessage",
+                            msg,
+                            true
+                        );
+                    }
                 }
             } catch (error) {
                 console.warn(
@@ -606,6 +1043,7 @@ function connected() {
 function sendUpdate(payload) {
     if (!connected()) {
         setUnitMessage(
+            "unitMessage",
             "COMMAND LINK OFFLINE.",
             true
         );
@@ -623,6 +1061,7 @@ function sendUpdate(payload) {
 function sendDelete(id) {
     if (!connected()) {
         setUnitMessage(
+            "unitMessage",
             "COMMAND LINK OFFLINE.",
             true
         );
@@ -660,19 +1099,10 @@ function raiseUnit() {
             .getElementById("unitCountry")
             .value.trim();
 
-    const lat =
-        Number(
-            document
-                .getElementById("unitLat")
-                .value
-        );
-
-    const lon =
-        Number(
-            document
-                .getElementById("unitLon")
-                .value
-        );
+    const baseId =
+        document
+            .getElementById("unitBase")
+            .value;
 
     const status =
         document
@@ -681,22 +1111,17 @@ function raiseUnit() {
 
     if (!name) {
         setUnitMessage(
+            "unitMessage",
             "ENTER A UNIT DESIGNATION.",
             true
         );
         return;
     }
 
-    if (
-        !Number.isFinite(lat) ||
-        !Number.isFinite(lon) ||
-        lat < -90 ||
-        lat > 90 ||
-        lon < -180 ||
-        lon > 180
-    ) {
+    if (!baseId) {
         setUnitMessage(
-            "ENTER A VALID LATITUDE / LONGITUDE.",
+            "unitMessage",
+            "SELECT A BASE TO RAISE UNITS FROM.",
             true
         );
         return;
@@ -704,6 +1129,7 @@ function raiseUnit() {
 
     if (!connected()) {
         setUnitMessage(
+            "unitMessage",
             "COMMAND LINK OFFLINE — PLEASE RETRY.",
             true
         );
@@ -718,15 +1144,118 @@ function raiseUnit() {
                 type,
                 personnel,
                 country,
-                lat,
-                lon,
+                baseId,
                 status
             }
         })
     );
 
     setUnitMessage(
+        "unitMessage",
         "TRANSMITTING UNIT...",
+        false
+    );
+}
+
+function establishBase() {
+    const name =
+        document
+            .getElementById("baseName")
+            .value.trim();
+
+    const type =
+        document
+            .getElementById("baseType")
+            .value;
+
+    const lat =
+        Number(
+            document
+                .getElementById("baseLat")
+                .value
+        );
+
+    const lon =
+        Number(
+            document
+                .getElementById("baseLon")
+                .value
+        );
+
+    if (!name) {
+        setUnitMessage(
+            "baseFormMessage",
+            "ENTER A BASE DESIGNATION.",
+            true
+        );
+        return;
+    }
+
+    if (
+        !Number.isFinite(lat) ||
+        !Number.isFinite(lon) ||
+        lat < -90 ||
+        lat > 90 ||
+        lon < -180 ||
+        lon > 180
+    ) {
+        setUnitMessage(
+            "baseFormMessage",
+            "ENTER A VALID LATITUDE / LONGITUDE.",
+            true
+        );
+        return;
+    }
+
+    if (!connected()) {
+        setUnitMessage(
+            "baseFormMessage",
+            "COMMAND LINK OFFLINE — PLEASE RETRY.",
+            true
+        );
+        return;
+    }
+
+    socket.send(
+        JSON.stringify({
+            type: "base_create",
+            base: {
+                name,
+                type,
+                lat,
+                lon
+            }
+        })
+    );
+
+    setUnitMessage(
+        "baseFormMessage",
+        "ESTABLISHING BASE...",
+        false
+    );
+}
+
+function sendBaseUpgrade(baseId, building) {
+    if (!connected()) {
+        setUnitMessage(
+            "baseMessage",
+            "COMMAND LINK OFFLINE.",
+            true
+        );
+        return;
+    }
+
+    socket.send(
+        JSON.stringify({
+            type: "base_upgrade",
+            baseId,
+            building
+        })
+    );
+
+    setUnitMessage(
+        "baseMessage",
+        `Upgrading ${building.replace(/_/g, " ")}...`,
         false
     );
 }
@@ -798,6 +1327,87 @@ function bind() {
                 raiseUnit();
             }
         });
+
+    const baseSelect =
+        document.getElementById("baseSelect");
+
+    if (baseSelect) {
+        baseSelect.addEventListener(
+            "change",
+            () => {
+                updateBaseSummary();
+            }
+        );
+    }
+
+    const originSelect =
+        document.getElementById("unitBase");
+
+    if (originSelect) {
+        originSelect.addEventListener(
+            "change",
+            () => {
+                const base =
+                    bases.find(b => b.id === originSelect.value);
+
+                const countryInput =
+                    document.getElementById("unitCountry");
+
+                if (countryInput) {
+                    countryInput.value =
+                        (base && base.country) || "";
+                }
+
+                const baseSelect =
+                    document.getElementById("baseSelect");
+
+                if (baseSelect && baseSelect.value !== originSelect.value) {
+                    baseSelect.value = originSelect.value;
+                    updateBaseSummary();
+                    return;
+                }
+
+                updateRequirementHint();
+            }
+        );
+    }
+
+    const unitTypeSelect =
+        document.getElementById("unitType");
+
+    if (unitTypeSelect) {
+        unitTypeSelect.addEventListener(
+            "change",
+            () => {
+                updateRequirementHint();
+            }
+        );
+    }
+
+    const establishBaseButton =
+        document.getElementById("establishBaseButton");
+
+    if (establishBaseButton) {
+        establishBaseButton.addEventListener(
+            "click",
+            establishBase
+        );
+    }
+
+    const baseForm =
+        document.getElementById("baseForm");
+
+    if (baseForm) {
+        baseForm.addEventListener(
+            "keydown",
+            event => {
+                if (event.key === "Enter") {
+                    event.preventDefault();
+                    establishBase();
+                }
+            }
+        );
+    }
 }
 
 updateClock();

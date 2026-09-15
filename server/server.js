@@ -3,13 +3,14 @@ dotenv.config();
 const express = require("express");
 const http = require("http");
 const path = require("path");
+const fs = require("fs");
 const crypto = require("crypto");
 const session = require("express-session");
 const WebSocket = require("ws");
 const app = express();
 const server = http.createServer(app);
 const PORT = Number(process.env.PORT) || 3000;
-const HOST = process.env.HOST || "127.0.0.1";
+const HOST = process.env.HOST || "0.0.0.0";
 const clientPath = path.join(__dirname, "..", "client");
 const tilesPath = path.join(__dirname, "tiles");
 const IS_PRODUCTION =
@@ -158,6 +159,51 @@ app.use(
     "/updates",
     express.static(upDATES_PATH)
 );
+const clientConfiguredOrigin =
+    String(APP_ORIGIN || "")
+        .replace(/["\\\r\n]/g, "")
+        .trim();
+app.get(
+    "/config.js",
+    (req, res) => {
+        res.type(
+            "application/javascript"
+        );
+        res.send(
+            [
+                "(function () {",
+                `var API_ORIGIN = ${JSON.stringify(clientConfiguredOrigin)};`,
+                "var sameOrigin = !API_ORIGIN || window.location.origin === API_ORIGIN;",
+                "var electron = !!(window.stardustElectron && window.stardustElectron.isElectron);",
+                "window.stardustApi = function (path) {",
+                "    return (sameOrigin || electron) ? path : API_ORIGIN + path;",
+                "};",
+                "window.stardustWsUrl = function () {",
+                '    var protocol = window.location.protocol === "https:" ? "wss:" : "ws:";',
+                '    var api = window.stardustApi("/");',
+                "    var host;",
+                "    if (/^https?:\\/\\//i.test(api)) {",
+                '        var anchor = document.createElement("a");',
+                "        anchor.href = api;",
+                "        host = anchor.host;",
+                "    } else {",
+                "        host = window.location.host;",
+                "    }",
+                '    return protocol + "//" + host;',
+                "};",
+                'document.addEventListener("click", function (event) {',
+                "    var link = event.target.closest ? event.target.closest('a[href=\"/auth/logout\"]') : null;",
+                "    if (link) {",
+                '        event.preventDefault();',
+                '        window.location.href = window.stardustApi("/auth/logout");',
+                "    }",
+                "}, true);",
+                "})();",
+                ""
+            ].join("\n")
+        );
+    }
+);
 app.use(
     express.static(clientPath, {
         index: false
@@ -169,6 +215,7 @@ const bannedUsers = new Map();
 const messageHistory = new Map();
 const orders = new Map();
 const units = new Map();
+const bases = new Map();
 const userSettings = new Map();
 const countryCodes = new Map();
 const countryLeaders = new Map();
@@ -221,13 +268,215 @@ const UNIT_TYPES = new Set([
     "mechanized",
     "recon",
     "artillery",
-    "logistics"
+    "logistics",
+    "air",
+    "helicopter",
+    "naval"
 ]);
 const UNIT_STATUSES = new Set([
     "OPERATIONAL",
     "MOVING",
     "RESERVE"
 ]);
+const BASE_TYPES = new Set([
+    "military_installation",
+    "airbase",
+    "naval_base",
+    "missile_base"
+]);
+const MAX_BASE_NAME = 60;
+const MAX_BUILDING_LEVEL = 3;
+const BASE_TYPE_LABELS = {
+    military_installation: "Military Installation",
+    airbase: "Air Base",
+    naval_base: "Naval Base",
+    missile_base: "Missile Base"
+};
+const BUILDING_LABELS = {
+    barracks: "Barracks",
+    motor_pool: "Motor Pool",
+    runway: "Runway",
+    hangar: "Hangar",
+    helipad: "Helipad",
+    depot: "Depot",
+    port: "Port",
+    missile_silo: "Missile Silo",
+    radar: "Radar",
+    air_defense: "Air Defence"
+};
+const BASE_INFRA_DEFAULTS = {
+    military_installation: {
+        barracks: 1,
+        motor_pool: 1
+    },
+    airbase: {
+        barracks: 1,
+        runway: 1,
+        hangar: 1,
+        helipad: 1
+    },
+    naval_base: {
+        barracks: 1,
+        port: 1,
+        depot: 1
+    },
+    missile_base: {
+        barracks: 1,
+        radar: 1,
+        missile_silo: 1
+    }
+};
+const UNIT_BASE_REQUIREMENTS = {
+    infantry: [
+        [{ type: "barracks", level: 1 }]
+    ],
+    armour: [
+        [{ type: "motor_pool", level: 1 }]
+    ],
+    mechanized: [
+        [
+            { type: "motor_pool", level: 1 },
+            { type: "depot", level: 1 }
+        ]
+    ],
+    recon: [
+        [{ type: "barracks", level: 1 }],
+        [{ type: "helipad", level: 1 }]
+    ],
+    artillery: [
+        [
+            { type: "motor_pool", level: 1 },
+            { type: "depot", level: 1 }
+        ]
+    ],
+    logistics: [
+        [{ type: "depot", level: 1 }]
+    ],
+    air: [
+        [
+            { type: "runway", level: 1 },
+            { type: "hangar", level: 1 }
+        ]
+    ],
+    helicopter: [
+        [
+            { type: "helipad", level: 1 },
+            { type: "hangar", level: 1 }
+        ]
+    ],
+    naval: [
+        [{ type: "port", level: 1 }]
+    ]
+};
+const BASES_PATH = path.join(
+    __dirname,
+    "bases.json"
+);
+function loadBasesFromFile() {
+    let loaded = 0;
+    try {
+        const raw = fs.readFileSync(
+            BASES_PATH,
+            "utf8"
+        );
+        const data = JSON.parse(raw);
+        const list =
+            Array.isArray(data && data.bases)
+                ? data.bases
+                : [];
+        for (const entry of list) {
+            const name = cleanString(
+                entry.name,
+                MAX_BASE_NAME
+            );
+            const country = cleanString(
+                entry.faction || entry.country,
+                MAX_COUNTRY_LENGTH
+            );
+            const lat = Number(entry.lat);
+            const lon = Number(entry.lon);
+            const type = BASE_TYPES.has(
+                String(entry.type)
+            )
+                ? String(entry.type)
+                : "military_installation";
+            if (
+                !name ||
+                !country ||
+                !Number.isFinite(lat) ||
+                !Number.isFinite(lon) ||
+                lat < -90 ||
+                lat > 90 ||
+                lon < -180 ||
+                lon > 180
+            ) {
+                continue;
+            }
+            const infra = {};
+            const defaults =
+                BASE_INFRA_DEFAULTS[
+                    type
+                ] || {};
+            for (const [building, level] of
+                Object.entries(defaults)) {
+                infra[building] = level;
+            }
+            if (
+                entry.infra &&
+                typeof entry.infra ===
+                    "object"
+            ) {
+                for (const [building, level] of
+                    Object.entries(entry.infra)) {
+                    if (
+                        Object.prototype
+                            .hasOwnProperty
+                            .call(
+                                BUILDING_LABELS,
+                                building
+                            )
+                    ) {
+                        infra[building] =
+                            Math.floor(
+                                Math.max(
+                                    0,
+                                    Math.min(
+                                        MAX_BUILDING_LEVEL,
+                                        Number(level) || 0
+                                    )
+                                )
+                            );
+                    }
+                }
+            }
+            const record = {
+                id: makeBaseId(),
+                name,
+                country,
+                code: cleanString(
+                    entry.code,
+                    8
+                ).toUpperCase() || null,
+                type,
+                lat,
+                lon,
+                infrastructure: infra,
+                createdAt:
+                    Date.now(),
+                updatedAt:
+                    Date.now()
+            };
+            bases.set(record.id, record);
+            loaded++;
+        }
+    } catch (error) {
+        console.warn(
+            "Failed to load bases file:",
+            error.message
+        );
+    }
+    return loaded;
+}
 const MAX_UNIT_NAME = 80;
 const CLIENT_PACKAGE_PATH = path.join(
     clientPath,
@@ -403,6 +652,36 @@ function broadcastServerStatus() {
         type: "server_status",
         onlineUsers: users.size
     });
+}
+const MAX_SYSTEM_LOGS = 300;
+const systemLogs = [];
+function addLog(level, source, message) {
+    systemLogs.push({
+        id: crypto
+            .randomBytes(4)
+            .toString("hex"),
+        level: level || "INFO",
+        source: source || "system",
+        message:
+            String(message || ""),
+        timestamp: Date.now()
+    });
+
+    if (
+        systemLogs.length >
+        MAX_SYSTEM_LOGS
+    ) {
+        systemLogs.splice(
+            0,
+            systemLogs.length -
+                MAX_SYSTEM_LOGS
+        );
+    }
+}
+function getSystemLogs() {
+    return systemLogs
+        .slice()
+        .reverse();
 }
 function requireAuth(req, res, next) {
     if (!req.session.user) {
@@ -637,6 +916,12 @@ function handleOrderCreate(
 
     broadcastOrders();
 
+    addLog(
+        "INFO",
+        "orders",
+        `${getUserName(socket.user)} created order "${name}" (${record.id})`
+    );
+
     send(socket, {
         type: "order_created",
         order: record
@@ -751,6 +1036,12 @@ function handleOrderUpdate(
     );
 
     broadcastOrders();
+
+    addLog(
+        "INFO",
+        "orders",
+        `${getUserName(socket.user)} updated order "${existing.name}" (${id})`
+    );
 }
 function handleOrderDelete(
     socket,
@@ -768,6 +1059,12 @@ function handleOrderDelete(
         orders.delete(id)
     ) {
         broadcastOrders();
+
+        addLog(
+            "INFO",
+            "orders",
+            `${getUserName(socket.user)} deleted order ${id}`
+        );
     }
 }
 function makeUnitId() {
@@ -794,6 +1091,93 @@ function broadcastUnits() {
         units:
             getUnitsSnapshot()
     });
+}
+function makeBaseId() {
+    return (
+        "BAS-" +
+        crypto
+            .randomBytes(4)
+            .toString("hex")
+            .toUpperCase()
+    );
+}
+function getBasesSnapshot() {
+    return Array.from(
+        bases.values()
+    ).sort(
+        (a, b) =>
+            a.country.localeCompare(
+                b.country
+            ) ||
+            a.name.localeCompare(
+                b.name
+            )
+    );
+}
+function broadcastBases() {
+    broadcast({
+        type: "bases",
+        bases:
+            getBasesSnapshot()
+    });
+}
+function checkBaseSupportsType(base, unitType) {
+    const groups =
+        UNIT_BASE_REQUIREMENTS[
+            String(unitType)
+        ] || [];
+    const missing = [];
+    for (const group of groups) {
+        const satisfied =
+            group.every(
+                requirement => {
+                    const level =
+                        Number(
+                            base &&
+                            base.infrastructure &&
+                            base.infrastructure[
+                                requirement.type
+                            ]
+                        ) || 0;
+                    return (
+                        level >=
+                        requirement.level
+                    );
+                }
+            );
+        if (!satisfied) {
+            missing.push(
+                group.map(
+                    requirement =>
+                        `${BUILDING_LABELS[requirement.type] || requirement.type} LV.${requirement.level}`
+                ).join(" + ")
+            );
+        }
+    }
+    return {
+        ok: missing.length === 0,
+        missing
+    };
+}
+function getUnitRequirementLabel(unitType) {
+    const groups =
+        UNIT_BASE_REQUIREMENTS[
+            String(unitType)
+        ] || [];
+    if (groups.length === 0) {
+        return "No base infrastructure required";
+    }
+    return groups
+        .map(
+            group =>
+                group
+                    .map(
+                        requirement =>
+                            `${BUILDING_LABELS[requirement.type] || requirement.type} LV.${requirement.level}`
+                    )
+                    .join(" + ")
+        )
+        .join("  OR  ");
 }
 function readUnitPosition(payload) {
     const lat = Number(payload.lat);
@@ -860,16 +1244,6 @@ function handleUnitCreate(
         return;
     }
 
-    if (!position) {
-        send(socket, {
-            type: "error",
-            message:
-                "Unit position (valid lat/lon) is required."
-        });
-
-        return;
-    }
-
     const personnel = Math.floor(
         Math.max(
             1,
@@ -890,15 +1264,134 @@ function handleUnitCreate(
         socket.user.country ||
         null;
 
+    const baseId =
+        cleanString(
+            unit.baseId,
+            16
+        );
+
+    const baseRecord =
+        baseId
+            ? bases.get(baseId)
+            : null;
+
+    if (
+        baseId &&
+        !baseRecord
+    ) {
+        send(socket, {
+            type: "error",
+            message:
+                "Selected base was not found."
+        });
+
+        return;
+    }
+
+    if (
+        baseRecord &&
+        country &&
+        baseRecord.country !==
+            country
+    ) {
+        send(socket, {
+            type: "error",
+            message:
+                `Unit country "${country}" does not match the selected base (${baseRecord.name}, ${baseRecord.country}).`
+        });
+
+        return;
+    }
+
+    const support =
+        baseRecord
+            ? checkBaseSupportsType(
+                  baseRecord,
+                  type
+              )
+            : null;
+
+    if (
+        support &&
+        !support.ok
+    ) {
+        send(socket, {
+            type: "error",
+            message:
+                `Base "${baseRecord.name}" lacks required infrastructure. Needed: ${support.missing.join("  OR  ")}. Build it in FORCES → BASES.`
+        });
+
+        return;
+    }
+
+    const freePlacement =
+        !baseRecord &&
+        isAdmin(socket.user);
+
+    if (
+        !baseRecord &&
+        !freePlacement
+    ) {
+        send(socket, {
+            type: "error",
+            message:
+                "Units must be raised at a military base. Select a base in FORCES → BASES."
+        });
+
+        return;
+    }
+
+    const effectivePosition =
+        baseRecord
+            ? {
+                  lat:
+                      baseRecord.lat,
+                  lon:
+                      baseRecord.lon
+              }
+            : position;
+
+    if (
+        !effectivePosition ||
+        !Number.isFinite(
+            effectivePosition.lat
+        ) ||
+        !Number.isFinite(
+            effectivePosition.lon
+        )
+    ) {
+        send(socket, {
+            type: "error",
+            message:
+                "Unit position (valid lat/lon) is required."
+        });
+
+        return;
+    }
+
+    const baseInfo = baseRecord
+        ? {
+              id: baseRecord.id,
+              name: baseRecord.name,
+              type: baseRecord.type,
+              country:
+                  baseRecord.country
+          }
+        : null;
+
     const record = {
         id: makeUnitId(),
         name,
         type,
         status,
         personnel,
-        country: country || null,
-        lat: position.lat,
-        lon: position.lon,
+        country:
+            baseRecord
+                ? baseRecord.country
+                : country || null,
+        lat: effectivePosition.lat,
+        lon: effectivePosition.lon,
+        base: baseInfo,
         createdBy: {
             id: String(userId),
             username:
@@ -918,6 +1411,12 @@ function handleUnitCreate(
     );
 
     broadcastUnits();
+
+    addLog(
+        "INFO",
+        "units",
+        `${getUserName(socket.user)} deployed unit "${name}" (${record.id}) at ${baseRecord ? baseRecord.name : "field location"}`
+    );
 
     send(socket, {
         type: "unit_created",
@@ -1046,6 +1545,12 @@ function handleUnitUpdate(
 
     broadcastUnits();
 
+    addLog(
+        "INFO",
+        "units",
+        `${getUserName(socket.user)} updated unit "${existing.name}" (${id})`
+    );
+
     send(socket, {
         type: "unit_updated",
         unit: existing
@@ -1067,7 +1572,363 @@ function handleUnitDelete(
         units.delete(id)
     ) {
         broadcastUnits();
+
+        addLog(
+            "INFO",
+            "units",
+            `${getUserName(socket.user)} removed unit ${id}`
+        );
     }
+}
+function canManageBase(user, baseRecord) {
+    if (!user) {
+        return false;
+    }
+    if (isAdmin(user)) {
+        return true;
+    }
+    const leaderCountry =
+        getClaimedCountry(
+            String(user.id)
+        );
+    if (
+        leaderCountry &&
+        leaderCountry ===
+            baseRecord.country
+    ) {
+        return true;
+    }
+    const userCountry =
+        cleanString(
+            user.country,
+            MAX_COUNTRY_LENGTH
+        );
+    return (
+        userCountry &&
+        userCountry ===
+            baseRecord.country
+    );
+}
+function handleBaseCreate(
+    socket,
+    message,
+    userId
+) {
+    const payload =
+        message.base || {};
+
+    const name =
+        cleanString(
+            payload.name,
+            MAX_BASE_NAME
+        );
+
+    const type =
+        BASE_TYPES.has(
+            String(payload.type)
+        )
+            ? String(payload.type)
+            : "military_installation";
+
+    const country =
+        cleanString(
+            payload.country,
+            MAX_COUNTRY_LENGTH
+        ) ||
+        socket.user.country ||
+        null;
+
+    const lat =
+        Number(payload.lat);
+
+    const lon =
+        Number(payload.lon);
+
+    if (!name) {
+        send(socket, {
+            type: "error",
+            message:
+                "Base designation is required."
+        });
+
+        return;
+    }
+
+    if (
+        !Number.isFinite(lat) ||
+        !Number.isFinite(lon) ||
+        lat < -90 ||
+        lat > 90 ||
+        lon < -180 ||
+        lon > 180
+    ) {
+        send(socket, {
+            type: "error",
+            message:
+                "Base position (valid lat/lon) is required."
+        });
+
+        return;
+    }
+
+    if (!country) {
+        send(socket, {
+            type: "error",
+            message:
+                "You must be assigned to a country to establish a base."
+        });
+
+        return;
+    }
+
+    const leader =
+        getClaimedCountry(
+            String(userId)
+        );
+
+    if (
+        leader !== country &&
+        !isAdmin(socket.user)
+    ) {
+        send(socket, {
+            type: "error",
+            message:
+                "Only the country leader or an admin can establish new bases."
+        });
+
+        return;
+    }
+
+    const infra = {};
+    const defaults =
+        BASE_INFRA_DEFAULTS[type] || {};
+
+    for (const [building, level] of
+        Object.entries(defaults)) {
+        infra[building] = level;
+    }
+
+    const record = {
+        id: makeBaseId(),
+        name,
+        country,
+        code: null,
+        type,
+        lat,
+        lon,
+        infrastructure: infra,
+        built: true,
+        builtBy: {
+            id: String(userId),
+            username:
+                getUserName(
+                    socket.user
+                )
+        },
+        createdAt:
+            Date.now(),
+        updatedAt:
+            Date.now()
+    };
+
+    bases.set(
+        record.id,
+        record
+    );
+
+    broadcastBases();
+
+    addLog(
+        "INFO",
+        "bases",
+        `${getUserName(socket.user)} established base "${name}" (${record.id}) in ${country}`
+    );
+
+    send(socket, {
+        type: "base_created",
+        base: record
+    });
+}
+function handleBaseUpgrade(
+    socket,
+    message,
+    userId
+) {
+    const id =
+        cleanString(
+            message.baseId,
+            16
+        );
+
+    const base =
+        id
+            ? bases.get(id)
+            : null;
+
+    if (!base) {
+        send(socket, {
+            type: "error",
+            message:
+                "Base not found."
+        });
+
+        return;
+    }
+
+    if (
+        !canManageBase(
+            socket.user,
+            base
+        )
+    ) {
+        send(socket, {
+            type: "error",
+            message:
+                "You do not have command authority over this base."
+        });
+
+        return;
+    }
+
+    if (
+        base.built !== true
+    ) {
+        send(socket, {
+            type: "error",
+            message:
+                "Government infrastructure at this base is fixed and cannot be upgraded."
+        });
+
+        return;
+    }
+
+    const building =
+        cleanString(
+            message.building,
+            24
+        );
+
+    if (
+        !Object.prototype
+            .hasOwnProperty
+            .call(
+                BUILDING_LABELS,
+                building
+            )
+    ) {
+        send(socket, {
+            type: "error",
+            message:
+                "Unknown infrastructure type."
+        });
+
+        return;
+    }
+
+    const current =
+        Number(
+            base.infrastructure[
+                building
+            ]
+        ) || 0;
+
+    if (
+        current >=
+        MAX_BUILDING_LEVEL
+    ) {
+        send(socket, {
+            type: "error",
+            message:
+                `${BUILDING_LABELS[building]} already at maximum level (LV.${current}).`
+        });
+
+        return;
+    }
+
+    base.infrastructure[building] =
+        current + 1;
+
+    base.updatedAt =
+        Date.now();
+
+    bases.set(id, base);
+
+    broadcastBases();
+
+    addLog(
+        "INFO",
+        "bases",
+        `${getUserName(socket.user)} upgraded ${BUILDING_LABELS[building]} at "${base.name}" to LV.${current + 1}`
+    );
+
+    send(socket, {
+        type: "base_updated",
+        base
+    });
+}
+function handleBaseDelete(
+    socket,
+    message,
+    userId
+) {
+    const id =
+        cleanString(
+            message.baseId,
+            16
+        );
+
+    const base =
+        id
+            ? bases.get(id)
+            : null;
+
+    if (!base) {
+        send(socket, {
+            type: "error",
+            message:
+                "Base not found."
+        });
+
+        return;
+    }
+
+    if (
+        base.built &&
+        canManageBase(
+            socket.user,
+            base
+        )
+    ) {
+        bases.delete(id);
+
+        broadcastBases();
+
+        addLog(
+            "INFO",
+            "bases",
+            `${getUserName(socket.user)} dismantled base "${base.name}" (${id})`
+        );
+    } else {
+        send(socket, {
+            type: "error",
+            message:
+                "Only built bases can be dismantled, and only by their country leader or an admin."
+        });
+
+        return;
+    }
+
+    for (const unit of
+        units.values()) {
+        if (
+            unit.base &&
+            unit.base.id === id
+        ) {
+            unit.base = null;
+        }
+    }
+
+    broadcastUnits();
 }
 app.get("/health", (req, res) => {
     res.json({
@@ -1623,6 +2484,12 @@ app.post(
 
         broadcastCountryLeaders();
 
+        addLog(
+            "INFO",
+            "country",
+            `${req.session.user.global_name || req.session.user.username || userId} now commands ${country}`
+        );
+
         return res.json({
             authenticated: true,
             settings,
@@ -1674,6 +2541,12 @@ app.post(
 
         broadcastCountryLeaders();
 
+        addLog(
+            "INFO",
+            "country",
+            `${req.session.user.global_name || req.session.user.username || userId} relinquished control of ${country}`
+        );
+
         return res.json({
             authenticated: true,
             isCountryLeader: false,
@@ -1719,7 +2592,10 @@ app.get(
         banned:
             Array.from(
                 bannedUsers.entries()
-            )
+            ),
+
+        logs:
+            getSystemLogs()
     });
 }
 );
@@ -1747,6 +2623,12 @@ app.post(
             type: "update",
             version
         });
+
+        addLog(
+            "ADMIN",
+            "deploy",
+            `${req.session.user.global_name || req.session.user.username || req.session.user.id} signalled update ${version}`
+        );
 
         return res.json({
             success: true,
@@ -1816,6 +2698,12 @@ app.post(
         userId,
         duration: minutes
     });
+
+    addLog(
+        "ADMIN",
+        "moderation",
+        `${req.session.user.global_name || req.session.user.username || req.session.user.id} muted ${userId} for ${minutes} min`
+    );
 
     return res.json({
         success: true
@@ -1906,6 +2794,12 @@ app.post(
         duration: minutes
     });
 
+    addLog(
+        "ADMIN",
+        "moderation",
+        `${req.session.user.global_name || req.session.user.username || req.session.user.id} banned ${userId} for ${minutes} min`
+    );
+
     return res.json({
         success: true
     });
@@ -1965,6 +2859,14 @@ app.post(
                 kicked = true;
             }
         }
+    );
+
+    addLog(
+        "ADMIN",
+        "moderation",
+        kicked
+            ? `${req.session.user.global_name || req.session.user.username || req.session.user.id} kicked ${userId}`
+            : `${req.session.user.global_name || req.session.user.username || req.session.user.id} attempted to kick ${userId} (not connected)`
     );
 
     return res.json({
@@ -2149,6 +3051,12 @@ wss.on(
         `User connected: ${getUserName(user)} (${userId})`
     );
 
+    addLog(
+        "INFO",
+        "network",
+        `User connected: ${getUserName(user)} (${userId})`
+    );
+
     send(
         socket,
         {
@@ -2196,6 +3104,12 @@ wss.on(
         type: "units",
         units:
             getUnitsSnapshot()
+    });
+
+    send(socket, {
+        type: "bases",
+        bases:
+            getBasesSnapshot()
     });
 
     send(socket, {
@@ -2422,6 +3336,45 @@ wss.on(
                 }
 
                 if (
+                    message.type ===
+                    "base_create"
+                ) {
+                    handleBaseCreate(
+                        socket,
+                        message,
+                        userId
+                    );
+
+                    return;
+                }
+
+                if (
+                    message.type ===
+                    "base_upgrade"
+                ) {
+                    handleBaseUpgrade(
+                        socket,
+                        message,
+                        userId
+                    );
+
+                    return;
+                }
+
+                if (
+                    message.type ===
+                    "base_delete"
+                ) {
+                    handleBaseDelete(
+                        socket,
+                        message,
+                        userId
+                    );
+
+                    return;
+                }
+
+                if (
                     message.type !==
                     "chat"
                 ) {
@@ -2541,6 +3494,12 @@ wss.on(
                         Date.now()
                 };
 
+                addLog(
+                    "CHAT",
+                    channel,
+                    `${getUserName(serverUser)}: ${text}`
+                );
+
                 if (
                     channel ===
                     "country"
@@ -2616,6 +3575,12 @@ wss.on(
             }
 
             console.log(
+                `User disconnected: ${getUserName(user)} (${userId})`
+            );
+
+            addLog(
+                "INFO",
+                "network",
                 `User disconnected: ${getUserName(user)} (${userId})`
             );
 
@@ -2717,6 +3682,19 @@ server.listen(
     HOST,
     () => {
             console.log("Stardust server running on " + HOST + ":" + PORT);
+
+    const loadedBases =
+        loadBasesFromFile();
+
+    console.log(
+        `Military bases loaded: ${loadedBases}`
+    );
+
+    addLog(
+        "INFO",
+        "server",
+        `Stardust server running on ${HOST}:${PORT}`
+    );
     console.log(
         `Public access should be provided through Cloudflare + Nginx.`
     );

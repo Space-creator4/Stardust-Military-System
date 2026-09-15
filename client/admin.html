@@ -510,6 +510,67 @@ button:focus-visible {
     letter-spacing: 1px;
 }
 
+.logs {
+    max-height: 340px;
+    overflow-y: auto;
+    padding: 6px 0;
+}
+
+.log-row {
+    display: grid;
+    grid-template-columns: 62px 84px 1fr;
+    gap: 10px;
+    padding: 6px 18px;
+    font-size: 11px;
+    border-bottom: 1px solid #111c26;
+    font-family: "Courier New", Courier, monospace;
+}
+
+.log-row:last-child {
+    border-bottom: none;
+}
+
+.log-time {
+    color: #45545f;
+    white-space: nowrap;
+}
+
+.log-tag {
+    display: inline-block;
+    text-align: center;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    padding: 2px 6px;
+    border-radius: 2px;
+}
+
+.log-info {
+    color: #4cc9f0;
+    border: 1px solid rgba(76, 201, 240, 0.25);
+}
+
+.log-chat {
+    color: #5ee6a0;
+    border: 1px solid rgba(94, 230, 160, 0.25);
+}
+
+.log-admin {
+    color: #f2c14e;
+    border: 1px solid rgba(242, 193, 78, 0.25);
+}
+
+.log-error {
+    color: #e5533b;
+    border: 1px solid rgba(229, 83, 59, 0.25);
+}
+
+.log-message {
+    color: #9fb2bf;
+    overflow-wrap: anywhere;
+    white-space: pre-wrap;
+}
+
 .notice {
     display: none;
     position: fixed;
@@ -757,6 +818,26 @@ button:focus-visible {
 
     </section>
 
+    <section class="panel">
+
+        <div class="panel-header">
+            <div class="panel-title">
+                SYSTEM LOGS
+            </div>
+
+            <div class="panel-meta" id="logUpdate">
+                UPDATING...
+            </div>
+        </div>
+
+        <div class="logs" id="logs">
+            <div class="empty">
+                No system logs recorded.
+            </div>
+        </div>
+
+    </section>
+
 </main>
 
 <div class="notice" id="notice"></div>
@@ -772,6 +853,116 @@ const serverStatus = document.getElementById("serverStatus");
 const adminName = document.getElementById("adminName");
 const lastUpdate = document.getElementById("lastUpdate");
 const notice = document.getElementById("notice");
+const logsContainer = document.getElementById("logs");
+const logUpdate = document.getElementById("logUpdate");
+const renderedLogIds = new Set();
+
+function formatLogTime(timestamp) {
+
+    const date = new Date(timestamp);
+
+    const pad = value => String(value).padStart(2, "0");
+
+    return (
+        pad(date.getHours()) +
+        ":" + pad(date.getMinutes()) +
+        ":" + pad(date.getSeconds())
+    );
+}
+
+function renderSystemLogs(logs) {
+
+    if (!logsContainer) {
+        return;
+    }
+
+    if (!logs?.length) {
+
+        if (renderedLogIds.size === 0) {
+
+            logsContainer.innerHTML =
+                '<div class="empty">NO SYSTEM LOGS RECORDED</div>';
+        }
+
+        return;
+    }
+
+    if (renderedLogIds.size === 0) {
+
+        logsContainer.innerHTML = "";
+    }
+
+    const pin =
+        logsContainer.scrollTop +
+            logsContainer.clientHeight >=
+            logsContainer.scrollHeight - 8;
+
+    let firstNew = true;
+
+    for (const entry of logs) {
+
+        if (renderedLogIds.has(entry.id)) {
+            continue;
+        }
+
+        renderedLogIds.add(entry.id);
+
+        const level = String(entry.level || "INFO").toUpperCase();
+
+        const tagClass =
+            level === "CHAT" ? "log-tag log-chat"
+            : level === "ADMIN" ? "log-tag log-admin"
+            : level === "ERROR" ? "log-tag log-error"
+            : "log-tag log-info";
+
+        const row = document.createElement("div");
+
+        row.className = "log-row";
+
+        row.innerHTML = `
+
+            <div class="log-time">
+                ${formatLogTime(entry.timestamp || Date.now())}
+            </div>
+
+            <div>
+                <span class="${tagClass}">${escapeHtml(level)}</span>
+            </div>
+
+            <div class="log-message">
+                ${escapeHtml(entry.message)}
+            </div>
+        `;
+
+        if (firstNew) {
+
+            logsContainer.prepend(row);
+            firstNew = false;
+
+        } else {
+
+            logsContainer.insertBefore(
+                row,
+                logsContainer.firstChild
+            );
+        }
+    }
+
+    while (renderedLogIds.size > 300) {
+
+        renderedLogIds.delete(
+            Array.from(renderedLogIds)[0]
+        );
+
+        logsContainer.lastChild?.remove();
+    }
+
+    if (pin) {
+
+        logsContainer.scrollTop =
+            logsContainer.scrollHeight;
+    }
+}
 
 function showNotice(message, type = "success") {
     notice.textContent = message;
@@ -864,6 +1055,10 @@ async function loadStatus() {
 
         renderUsers(users);
 
+        renderSystemLogs(
+            data.logs || []
+        );
+
         lastUpdate.textContent =
             "UPDATED " +
             new Date().toLocaleTimeString([], {
@@ -871,6 +1066,20 @@ async function loadStatus() {
                 minute: "2-digit",
                 second: "2-digit"
             });
+
+        if (logUpdate) {
+
+            const logCount =
+                (data.logs || []).length;
+
+            logUpdate.textContent =
+                `${logCount} EVENT${logCount === 1 ? "" : "S"} · ` +
+                new Date().toLocaleTimeString([], {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                    second: "2-digit"
+                });
+        }
 
     } catch (error) {
 
