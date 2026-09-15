@@ -2,6 +2,7 @@ const dotenv = require("dotenv");
 dotenv.config();
 const express = require("express");
 const http = require("http");
+const https = require("https");
 const path = require("path");
 const fs = require("fs");
 const crypto = require("crypto");
@@ -159,6 +160,202 @@ app.use(
     "/updates",
     express.static(upDATES_PATH)
 );
+const GITHUB_REPO_OWNER =
+    "Space-creator4";
+const GITHUB_REPO_NAME =
+    "Stardust-Military-System";
+const GITHUB_REPO =
+    `${GITHUB_REPO_OWNER}/${GITHUB_REPO_NAME}`;
+const GITHUB_LATEST_API = `https://api.github.com/repos/${GITHUB_REPO}/releases/latest`;
+const GITHUB_DOWNLOAD_BASE = `https://github.com/${GITHUB_REPO}/releases/download/`;
+const UPDATES_SYNC_INTERVAL =
+    30 * 60 * 1000;
+function githubGetText(url) {
+    return new Promise((resolve, reject) => {
+        const request = (target) => {
+            const lib =
+                String(target).startsWith(
+                    "https"
+                )
+                    ? https
+                    : http;
+            const headers = {
+                "User-Agent":
+                    "Stardust-Server",
+                Accept:
+                    "application/vnd.github+json"
+            };
+            if (process.env.GITHUB_TOKEN) {
+                headers.Authorization =
+                    "Bearer " +
+                    process.env.GITHUB_TOKEN;
+            }
+            lib.get(
+                target,
+                { headers },
+                res => {
+                    if (
+                        res.statusCode >=
+                            300 &&
+                        res.statusCode <
+                            400 &&
+                        res.headers
+                            .location
+                    ) {
+                        res.resume();
+                        return request(
+                            res.headers
+                                .location
+                        );
+                    }
+                    const chunks = [];
+                    res.on(
+                        "data",
+                        chunk =>
+                            chunks.push(chunk)
+                    );
+                    res.on(
+                        "end",
+                        () => {
+                            const body =
+                                Buffer.concat(
+                                    chunks
+                                ).toString(
+                                    "utf8"
+                                );
+                            if (
+                                res.statusCode !==
+                                200
+                            ) {
+                                reject(
+                                    new Error(
+                                        `HTTP ${res.statusCode} for ${target}`
+                                    )
+                                );
+                                return;
+                            }
+                            resolve(body);
+                        }
+                    );
+                }
+            ).on("error", reject);
+        };
+        request(url);
+    });
+}
+function syncUpdatesFromGitHub() {
+    const logFail = error => {
+        addLog(
+            "WARN",
+            "updates",
+            `GitHub update sync failed: ${error.message}`
+        );
+    };
+    return githubGetText(
+        GITHUB_LATEST_API
+    )
+        .then(
+            body => {
+                const release =
+                    JSON.parse(body);
+                const tag =
+                    release &&
+                    release.tag_name;
+                if (
+                    !tag ||
+                    !Array.isArray(
+                        release.assets
+                    )
+                ) {
+                    return [];
+                }
+                const downloadBase =
+                    GITHUB_DOWNLOAD_BASE +
+                    encodeURIComponent(tag) +
+                    "/";
+                const manifestNames =
+                    release.assets
+                        .map(
+                            asset =>
+                                asset &&
+                                asset.name
+                        )
+                        .filter(
+                            name =>
+                                typeof name ===
+                                    "string" &&
+                                /^latest.*\.yml$/.test(
+                                    name
+                                )
+                        );
+                return Promise.all(
+                    manifestNames.map(
+                        name =>
+                            githubGetText(
+                                downloadBase +
+                                    encodeURIComponent(name)
+                            ).then(
+                                content => {
+                                    const rewritten =
+                                        content
+                                            .split("\n")
+                                            .map(
+                                                line => {
+                                                    const match =
+                                                        line.match(
+                                                            /^(\s*(?:-\s*)?(?:url|path):\s+)(\S+.*)$/
+                                                        );
+                                                    if (
+                                                        !match ||
+                                                        /^https?:\/\//.test(
+                                                            match[2]
+                                                        )
+                                                    ) {
+                                                        return line;
+                                                    }
+                                                    return (
+                                                        match[1] +
+                                                        downloadBase +
+                                                        encodeURIComponent(
+                                                            match[2]
+                                                        ).replace(
+                                                            /%2F/g,
+                                                            "/"
+                                                        )
+                                                    );
+                                                }
+                                            )
+                                            .join("\n");
+                                    fs.writeFileSync(
+                                        path.join(
+                                            upDATES_PATH,
+                                            name
+                                        ),
+                                        rewritten
+                                    );
+                                    return name;
+                                }
+                            )
+                    )
+                ).then(
+                    synced => {
+                        if (synced.length) {
+                            addLog(
+                                "INFO",
+                                "updates",
+                                `Synced ${synced.length} update manifest(s) from GitHub Releases (${tag})`
+                            );
+                            console.log(
+                                `Synced update manifest(s): ${synced.join(", ")} (${tag})`
+                            );
+                        }
+                    },
+                    logFail
+                );
+            },
+            logFail
+        );
+}
 const clientConfiguredOrigin =
     String(APP_ORIGIN || "")
         .replace(/["\\\r\n]/g, "")
@@ -3823,6 +4020,12 @@ server.listen(
 
     console.log(
         `Tiles path: ${tilesPath}`
+    );
+
+    syncUpdatesFromGitHub();
+    setInterval(
+        syncUpdatesFromGitHub,
+        UPDATES_SYNC_INTERVAL
     );
 }
 );

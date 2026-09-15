@@ -43,7 +43,8 @@
     "win": {
       "icon": "assets/icon.png",
       "target": [
-        "nsis"
+        "nsis",
+        "zip"
       ]
     },
     "mac": {

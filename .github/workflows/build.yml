@@ -2,6 +2,10 @@ name: Build Distributions
 
 on:
   workflow_dispatch:
+    inputs:
+      tag:
+        description: "Version tag to release (e.g. v0.0.2)"
+        required: false
   push:
     tags:
       - "v*"
@@ -51,3 +55,51 @@ jobs:
         with:
           name: ${{ matrix.name }}-build
           path: ${{ matrix.artifact }}
+
+  release:
+    needs: build
+    if: github.event_name == 'push' || github.event.inputs.tag != ''
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Download all builds
+        uses: actions/download-artifact@v4
+        with:
+          path: dists
+
+      - name: Determine release tag
+        id: tag
+        run: |
+          TAG="${{ github.event.inputs.tag }}"
+          if [ -z "$TAG" ]; then
+            TAG="${{ github.ref_name }}"
+          fi
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+
+      - name: Stage release files
+        run: |
+          mkdir -p release
+          find dists \
+            \( -name "*.exe" -o -name "*.zip" -o -name "*.dmg" \
+            -o -name "*.AppImage" -o -name "latest*.yml" \
+            -o -name "*.blockmap" -o -name "*.blockmap.*" \) \
+            -exec cp {} release/ \;
+          ls -la release
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.tag.outputs.tag }}
+          name: Release ${{ steps.tag.outputs.tag }}
+          body: |
+            Auto-generated distribution of Stardust Military System.
+
+            **Assets**
+            - Windows installer (`.exe`) + `.zip` archive
+            - Linux `.AppImage`
+            - macOS `.dmg`
+            - Update manifests (`latest*.yml`) + differential blockmaps
+          files: release/
+          fail_on_unmatched_artifacts: true
