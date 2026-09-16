@@ -442,7 +442,7 @@ body::before {
 
 .user-row {
     display: grid;
-    grid-template-columns: minmax(200px, 1fr) 130px 150px 250px;
+    grid-template-columns: minmax(200px, 1fr) 170px 150px 250px;
     align-items: center;
     gap: 10px;
     min-height: 66px;
@@ -477,11 +477,18 @@ body::before {
 }
 
 .username {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
     font-size: 13px;
     font-weight: 600;
+}
+
+.uname {
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+    max-width: 100%;
 }
 
 .userid {
@@ -505,6 +512,44 @@ body::before {
     border-radius: 50%;
     background: #5ee6a0;
     box-shadow: 0 0 8px rgba(94, 230, 160, 0.35);
+    flex-shrink: 0;
+}
+
+.status-dot.idle {
+    background: #5b6c7a;
+    box-shadow: none;
+}
+
+.tag {
+    display: inline-block;
+    padding: 1px 6px;
+    margin-left: 6px;
+    font-family: var(--font-mono);
+    font-size: 8px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    vertical-align: middle;
+    border-radius: 3px;
+    border: 1px solid;
+}
+
+.tag-admin {
+    color: #8ab4ff;
+    border-color: rgba(138, 180, 255, 0.45);
+    background: rgba(138, 180, 255, 0.08);
+}
+
+.tag-console {
+    color: #5ee6a0;
+    border-color: rgba(94, 230, 160, 0.45);
+    background: rgba(94, 230, 160, 0.08);
+}
+
+.tag-self {
+    color: #8a99a8;
+    border-color: rgba(138, 153, 168, 0.35);
+    background: rgba(138, 153, 168, 0.07);
+    margin-left: 0;
 }
 
 .action-group {
@@ -944,6 +989,38 @@ const notice = document.getElementById("notice");
 const logsContainer = document.getElementById("logs");
 const logUpdate = document.getElementById("logUpdate");
 const renderedLogIds = new Set();
+let currentAdminId = null;
+
+function formatAgo(timestamp) {
+
+    if (!timestamp) {
+        return null;
+    }
+
+    const seconds =
+        Math.max(
+            0,
+            Math.floor(
+                (Date.now() - timestamp) / 1000
+            )
+        );
+
+    if (seconds < 60) {
+        return `${seconds}s`;
+    }
+
+    const minutes =
+        Math.floor(seconds / 60);
+
+    if (minutes < 60) {
+        return `${minutes}m`;
+    }
+
+    const hours =
+        Math.floor(minutes / 60);
+
+    return `${hours}h`;
+}
 
 function formatLogTime(timestamp) {
 
@@ -1106,6 +1183,9 @@ async function loadCurrentUser() {
             data.user.username ||
             "ADMINISTRATOR";
 
+        currentAdminId =
+            String(data.user.id || "");
+
         return true;
 
     } catch {
@@ -1209,6 +1289,73 @@ function renderUsers(users) {
             user.id ||
             "UNKNOWN";
 
+        const isSelf =
+            currentAdminId &&
+            userId === currentAdminId;
+
+        const isConsole =
+            String(user.source) === "console";
+
+        const isActive =
+            isConsole ||
+            user.active === true;
+
+        const lastRef =
+            user.lastActive ||
+            user.lastSeen ||
+            null;
+
+        const ago =
+            isActive
+                ? null
+                : formatAgo(lastRef);
+
+        const statusClass =
+            isActive
+                ? "status-dot live"
+                : "status-dot idle";
+
+        const statusLabel =
+            isActive
+                ? "ACTIVE"
+                : (ago ? `AWAY · ${ago} AGO` : "AWAY");
+
+        const sourceTag =
+            isConsole
+                ? '<span class="tag tag-console">CONSOLE</span>'
+                : "";
+
+        const adminTag =
+            user.isAdmin
+                ? '<span class="tag tag-admin">ADMIN</span>'
+                : "";
+
+        const actions =
+            isSelf
+                ? '<span class="tag tag-self">THIS CONSOLE</span>'
+                : `
+                    <button
+                        class="primary"
+                        onclick="kickUser('${escapeJs(userId)}')"
+                    >
+                        KICK
+                    </button>
+
+                    <button
+                        class="warning"
+                        onclick="muteUser('${escapeJs(userId)}')"
+                    >
+                        MUTE
+                    </button>
+
+                    <button
+                        class="danger"
+                        onclick="banUser('${escapeJs(userId)}')"
+                    >
+                        BAN
+                    </button>
+                `;
+
         row.innerHTML = `
 
             <div class="user-info">
@@ -1222,7 +1369,11 @@ function renderUsers(users) {
                 <div>
 
                     <div class="username">
-                        ${escapeHtml(displayName)}
+                        <span class="uname">
+                            ${escapeHtml(displayName)}
+                        </span>
+                        ${adminTag}
+                        ${sourceTag}
                     </div>
 
                     <div class="userid">
@@ -1237,9 +1388,9 @@ function renderUsers(users) {
 
                 <span class="user-status">
 
-                    <span class="status-dot"></span>
+                    <span class="${statusClass}"></span>
 
-                    CONNECTED
+                    ${statusLabel}
 
                 </span>
 
@@ -1257,26 +1408,7 @@ function renderUsers(users) {
 
             <div class="action-group">
 
-                <button
-                    class="primary"
-                    onclick="kickUser('${escapeJs(userId)}')"
-                >
-                    KICK
-                </button>
-
-                <button
-                    class="warning"
-                    onclick="muteUser('${escapeJs(userId)}')"
-                >
-                    MUTE
-                </button>
-
-                <button
-                    class="danger"
-                    onclick="banUser('${escapeJs(userId)}')"
-                >
-                    BAN
-                </button>
+                ${actions}
 
             </div>
         `;

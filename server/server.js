@@ -576,6 +576,9 @@ app.use(
         index: false
     })
 );
+const PRESENCE_GRACE_MS = 60 * 1000;
+const ADMIN_PRESENCE_MS = 45 * 1000;
+const ACTIVE_WINDOW_MS = 60 * 1000;
 const users = new Map();
 const mutedUsers = new Map();
 const bannedUsers = new Map();
@@ -1053,9 +1056,90 @@ function getOnlineUsers() {
         id: user.id,
         username: user.username,
         global_name: user.global_name,
+        display_name: user.display_name || null,
+        avatar: user.avatar || null,
         country: user.country || null,
-        connectedAt: user.connectedAt
+        connectedAt: user.connectedAt,
+        lastSeen: user.lastSeen || null,
+        lastActive: user.lastActive || null,
+        source: user.socket ? "client" : "console",
+        isAdmin: isAdmin(user),
+        active: isPresenceActive(user)
     }));
+}
+function isPresenceActive(user) {
+    if (!user) {
+        return false;
+    }
+    const ref =
+        user.lastActive ||
+        user.lastSeen ||
+        user.connectedAt;
+    return (
+        Boolean(ref) &&
+        Date.now() - ref <= ACTIVE_WINDOW_MS
+    );
+}
+function ensurePresence(user, socket) {
+    const now = Date.now();
+    const userId =
+        String(user.id);
+    const settings =
+        getUserSettings(userId);
+    let entry =
+        users.get(userId);
+    if (!entry) {
+        entry = {
+            id: userId,
+            username:
+                user.username || null,
+            global_name:
+                user.global_name || null,
+            avatar:
+                user.avatar || null,
+            display_name:
+                settings.display_name || null,
+            country:
+                resolveCountryName(
+                    settings.country ||
+                    user.country
+                ),
+            socket:
+                socket || null,
+            consoleSrc:
+                !socket,
+            connectedAt: now,
+            lastSeen: now,
+            lastActive: now
+        };
+        users.set(userId, entry);
+    } else {
+        entry.username =
+            user.username ||
+            entry.username;
+        entry.global_name =
+            user.global_name ||
+            entry.global_name;
+        entry.avatar =
+            user.avatar ||
+            entry.avatar;
+        entry.display_name =
+            entry.display_name ||
+            settings.display_name ||
+            null;
+        entry.country =
+            resolveCountryName(
+                entry.country ||
+                settings.country ||
+                user.country
+            );
+        entry.lastSeen = now;
+        if (socket) {
+            entry.socket = socket;
+            entry.consoleSrc = false;
+        }
+    }
+    return entry;
 }
 function broadcastServerStatus() {
     broadcast({
@@ -3225,6 +3309,19 @@ app.get(
                         "Administrator access required."
                 });
         }
+    const presence =
+        ensurePresence(
+            req.session.user,
+            null
+        );
+
+    if (presence) {
+        presence.lastActive =
+            Date.now();
+        presence.consoleSrc =
+            true;
+    }
+
     return res.json({
         users:
             getOnlineUsers(),
@@ -3650,6 +3747,7 @@ wss.on(
 
     if (
         existing &&
+        existing.socket &&
         existing.socket !== socket
     ) {
         existing.socket.close(
@@ -3658,37 +3756,8 @@ wss.on(
         );
     }
 
-    const settings =
-        getUserSettings(userId);
-
-    const connection = {
-        id: userId,
-
-        username:
-            user.username || null,
-
-        global_name:
-            user.global_name || null,
-
-        display_name:
-            settings.display_name || null,
-
-        country:
-            resolveCountryName(
-                settings.country ||
-                user.country
-            ),
-
-        socket,
-
-        connectedAt:
-            Date.now()
-    };
-
-    users.set(
-        userId,
-        connection
-    );
+    const connection =
+        ensurePresence(user, socket);
 
     socket.user =
         connection;
@@ -3812,6 +3881,19 @@ wss.on(
                         "object"
                 ) {
                     return;
+                }
+
+                const presence =
+                    socket.user ||
+                    users.get(
+                        userId
+                    );
+
+                if (presence) {
+                    presence.lastActive =
+                        Date.now();
+                    presence.lastSeen =
+                        presence.lastActive;
                 }
 
                 if (
@@ -4239,9 +4321,9 @@ wss.on(
                 current.socket ===
                     socket
             ) {
-                users.delete(
-                    userId
-                );
+                current.socket = null;
+                current.lastSeen =
+                    Date.now();
             }
 
             console.log(
@@ -4331,6 +4413,35 @@ setInterval(
                 ban.expiresAt
         ) {
             bannedUsers.delete(
+                userId
+            );
+        }
+    }
+
+    for (
+        const [
+            userId,
+            presence
+        ] of users
+    ) {
+        if (
+            presence.socket
+        ) {
+            continue;
+        }
+        const grace =
+            presence.consoleSrc
+                ? ADMIN_PRESENCE_MS
+                : PRESENCE_GRACE_MS;
+        const ref =
+            presence.lastSeen ||
+            presence.lastActive ||
+            presence.connectedAt;
+        if (
+            !ref ||
+            now - ref > grace
+        ) {
+            users.delete(
                 userId
             );
         }
