@@ -551,10 +551,25 @@ function createTactical(context) {
         return { changed: changed || events.length > 0, events };
     }
 
-    function getPayload() {
-        const now = Date.now();
+    function getPayload(viewerCountry) {
+        const scoped =
+            viewerCountry == null
+                ? null
+                : String(
+                      viewerCountry
+                  ) || "__ALL__";
+
+        const now =
+            Date.now();
         const unitPayload = [];
         for (const unit of units.values()) {
+            if (
+                scoped &&
+                unit.country !==
+                    scoped
+            ) {
+                continue;
+            }
             const st = seedState(unit);
             unitPayload.push({
                 id: unit.id,
@@ -613,6 +628,9 @@ function createTactical(context) {
 
         const objectives = [];
         for (const order of orders.values()) {
+            if (scoped && order.country !== scoped) {
+                continue;
+            }
             if (
                 order.status !== "ACTIVE" ||
                 !order.target ||
@@ -629,6 +647,7 @@ function createTactical(context) {
                 lat: order.target.lat,
                 lon: order.target.lon,
                 label: order.target.label || null,
+                country: order.country || null,
                 createdBy: order.createdBy || null,
                 createdAt: order.createdAt
             });

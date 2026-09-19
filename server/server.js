@@ -1462,18 +1462,58 @@ wss.clients.forEach(client => {
     client.send(payload);
 });
 }
-function broadcastTac(data) {
-    const payload = JSON.stringify(data);
-for (const client of mapClients) {
-    if (
-        client.readyState !==
-        WebSocket.OPEN
-    ) {
-        continue;
+function broadcastTac() {
+    if (mapClients.size === 0) {
+        return;
     }
-
-    client.send(payload);
-}
+    const payloadCache =
+        new Map();
+    mapClients.forEach(
+        client => {
+            if (
+                client.readyState !==
+                WebSocket.OPEN
+            ) {
+                return;
+            }
+            const connection =
+                client.user;
+            const admin =
+                isAdminConnection(
+                    connection
+                );
+            const key =
+                !connection
+                    ? "anon"
+                    : admin
+                        ? "admin"
+                        : "c:" +
+                          (connection.country ||
+                              "");
+            let payload =
+                payloadCache.get(
+                    key
+                );
+            if (!payload) {
+                payload =
+                    JSON.stringify(
+                        tactical.getPayload(
+                            admin
+                                ? null
+                                : connection.country ||
+                                      null
+                        )
+                    );
+                payloadCache.set(
+                    key,
+                    payload
+                );
+            }
+            client.send(
+                payload
+            );
+        }
+    );
 }
 function getOnlineUsers() {
     return Array.from(
@@ -1866,6 +1906,11 @@ function handleOrderCreate(
         type,
         priority,
         description,
+        country:
+            (socket.user &&
+                socket.user
+                    .country) ||
+            null,
         status: "ACTIVE",
         target,
         createdBy: {
@@ -4826,9 +4871,20 @@ wss.on(
                     "map_register"
                 ) {
                     mapClients.add(socket);
+                    const connection =
+                        socket.user;
                     send(
                         socket,
-                        tactical.getPayload()
+                        tactical.getPayload(
+                            !connection
+                                ? null
+                                : isAdminConnection(
+                                      connection
+                                  )
+                                    ? null
+                                    : (connection.country ||
+                                          null)
+                        )
                     );
 
                     return;
