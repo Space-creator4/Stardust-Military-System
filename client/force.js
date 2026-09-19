@@ -15,6 +15,8 @@ const assets = {
 let socket = null;
 let reconnectTimer = null;
 let reconnectDelay = 1000;
+let reconnectResetTimer = null;
+let reconnectDisabled = false;
 
 const ALL_FORCE_TYPES = [
     "infantry",
@@ -651,10 +653,10 @@ function buildUnitRow(unit) {
             : "FIELD";
 
     meta.innerHTML =
-        `<span>${unit.type.toUpperCase()}</span>` +
+        `<span>${escapeText(String(unit.type || "").toUpperCase())}</span>` +
         `<span>${Number(unit.personnel) || 0} PERSONNEL</span>` +
         `<span>${escapeText(unit.country || "NO AFFILIATION")}</span>` +
-        `<span>${baseName}</span>` +
+        `<span>${escapeText(baseName)}</span>` +
         `<span>${Number(unit.lat).toFixed(3)}° ${Number(unit.lon).toFixed(3)}°</span>`;
 
     row.appendChild(meta);
@@ -851,6 +853,10 @@ function getWebSocketURL() {
 }
 
 function scheduleReconnect() {
+    if (reconnectDisabled) {
+        return;
+    }
+
     if (reconnectTimer) {
         return;
     }
@@ -911,7 +917,19 @@ function connectWebSocket() {
             console.log(
                 "Stardust Forces connected."
             );
-            reconnectDelay = 1000;
+
+            if (reconnectResetTimer) {
+                clearTimeout(reconnectResetTimer);
+            }
+
+            reconnectResetTimer = setTimeout(
+                () => {
+                    reconnectResetTimer = null;
+                    reconnectDelay = 1000;
+                },
+                10000
+            );
+
             setSystemStatus(true);
         }
     );
@@ -1015,8 +1033,25 @@ function connectWebSocket() {
 
     socket.addEventListener(
         "close",
-        () => {
+        event => {
             setSystemStatus(false);
+
+            if (
+                event &&
+                (event.code === 4001 ||
+                    event.code === 4003 ||
+                    event.code === 4004)
+            ) {
+                reconnectDisabled = true;
+                console.warn(
+                    "Forces WebSocket closed with terminal code " +
+                        event.code +
+                        "; auto-reconnect disabled."
+                );
+
+                return;
+            }
+
             scheduleReconnect();
         }
     );

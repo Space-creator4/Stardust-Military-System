@@ -1,12 +1,14 @@
 const CESIUM_ION_TOKEN =
-    window.CESIUM_ION_TOKEN ||
-    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJub25jZSI6InM2VTIxd2dLM05zdG1IaS0iLCJqdGkiOiIzM2VhMGY5Ni01NWE1LTQ5YmYtOGU1Zi04ODFlY2YwYTEwYzMiLCJpZCI6NDgzNjczLCJzdWIiOiJTcGFjZTAxNDEwMSIsImlzcyI6Imh0dHBzOi8vYXBpLmNlc2l1bS5jb20iLCJhdWQiOiJTcGFjZTAxNDEwMV9kZWZhdWx0IiwiaWF0IjoxNzg5MjM0NzI2fQ.GNUwAzYQxneeJvk1TdgnXvL_5gE3cba6noef-U8bLTg";
+    window.CESIUM_ION_TOKEN || "";
 
-Cesium.Ion.defaultAccessToken = CESIUM_ION_TOKEN;
+if (CESIUM_ION_TOKEN) {
+    Cesium.Ion.defaultAccessToken = CESIUM_ION_TOKEN;
+}
 
 const clockElement = document.getElementById("clock");
 const systemStatusText = document.getElementById("systemStatusText");
 const statusDot = document.querySelector(".status-dot");
+const mapStatusText = document.getElementById("mapStatusText");
 const chatInput = document.getElementById("chatInput");
 const sendButton = document.getElementById("sendButton");
 const chat = document.getElementById("chat");
@@ -17,7 +19,30 @@ const activeOrders = document.getElementById("activeOrders");
 let currentUser = null;
 let socket = null;
 let reconnectTimer = null;
+
+window.stardustSend = function (message) {
+    if (
+        socket &&
+        socket.readyState ===
+            WebSocket.OPEN
+    ) {
+        try {
+            socket.send(
+                JSON.stringify(message)
+            );
+            return true;
+        } catch (error) {
+            console.warn(
+                "Failed to send WebSocket message:",
+                error
+            );
+        }
+    }
+    return false;
+};
 let reconnectDelay = 1000;
+let reconnectResetTimer = null;
+let reconnectDisabled = false;
 let stardustUnits = [];
 let stardustBases = [];
 let markerEntities = new Map();
@@ -510,6 +535,12 @@ function setSystemStatus(online) {
 
     if (statusDot) {
         statusDot.classList.toggle("offline", !online);
+    }
+
+    if (mapStatusText) {
+        mapStatusText.textContent = online
+            ? "GLOBAL MAP ONLINE"
+            : "MAP OFFLINE";
     }
 }
 
@@ -1370,6 +1401,13 @@ async function createGlobe() {
     window.stardustFactions = COUNTRY_FACTIONS;
     window.stardustCountryFactionByName = FACTION_BY_NAME;
 
+    if (
+        window.TacView &&
+        document.getElementById("mapGlobe")
+    ) {
+        window.TacView.init(viewer);
+    }
+
     bindMapControls(viewer);
 
     renderUnitMarkers(viewer);
@@ -1427,6 +1465,14 @@ function clearUnitMarkers() {
 
 function renderUnitMarkers(viewer) {
     if (!viewer) {
+        return;
+    }
+
+    if (
+        window.TacView &&
+        window.TacView.enabled
+    ) {
+        window.TacView.setUnits(stardustUnits);
         return;
     }
 
@@ -2424,7 +2470,17 @@ function connectChat() {
                 "Stardust WebSocket connected."
             );
 
-            reconnectDelay = 1000;
+            if (reconnectResetTimer) {
+                clearTimeout(reconnectResetTimer);
+            }
+
+            reconnectResetTimer = setTimeout(
+                () => {
+                    reconnectResetTimer = null;
+                    reconnectDelay = 1000;
+                },
+                10000
+            );
 
             setSystemStatus(true);
 
@@ -2491,6 +2547,16 @@ function connectChat() {
                                 ? data.orders.length
                                 : 0;
                     }
+
+                    if (window.TacView) {
+                        window.TacView.onOrders(
+                            Array.isArray(
+                                data.orders
+                            )
+                                ? data.orders
+                                : []
+                        );
+                    }
                 }
 
                 if (
@@ -2518,6 +2584,33 @@ if (
 
                     window.currentUser =
                         currentUser;
+                }
+
+                if (
+                    data.type ===
+                    "sim_telemetry"
+                ) {
+                    if (window.TacView) {
+                        window.TacView.onTelemetry(data);
+                    }
+                }
+
+                if (
+                    data.type ===
+                    "sim_event"
+                ) {
+                    if (window.TacView) {
+                        window.TacView.onSimEvent(data);
+                    }
+                }
+
+                if (
+                    data.type ===
+                    "error"
+                ) {
+                    if (window.TacView) {
+                        window.TacView.onError(data);
+                    }
                 }
 
                 if (
@@ -2570,11 +2663,9 @@ if (
                         stardustBases;
 
                     if (
-                        viewerRef ||
                         window.stardustViewer
                     ) {
                         renderBaseMarkers(
-                            viewerRef ||
                             window.stardustViewer
                         );
                     }
@@ -2626,12 +2717,29 @@ if (
 
     socket.addEventListener(
         "close",
-        () => {
+        event => {
             console.warn(
-                "Stardust WebSocket disconnected."
+                "Stardust WebSocket disconnected.",
+                event && event.code
             );
 
             setSystemStatus(false);
+
+            if (
+                event &&
+                (event.code === 4001 ||
+                    event.code === 4003 ||
+                    event.code === 4004)
+            ) {
+                reconnectDisabled = true;
+                console.warn(
+                    "WebSocket closed with terminal code " +
+                        event.code +
+                        "; auto-reconnect disabled."
+                );
+
+                return;
+            }
 
             scheduleReconnect();
         }
@@ -2649,6 +2757,10 @@ if (
 }
 
 function scheduleReconnect() {
+    if (reconnectDisabled) {
+        return;
+    }
+
     if (reconnectTimer) {
         return;
     }
@@ -2789,6 +2901,12 @@ window.addEventListener(
                 String(unitId);
         }
 
+        window.stardustUnitFilter =
+            unitForceFilter;
+
+        window.stardustHighlightUnitId =
+            highlightUnitId;
+
         const filterChip =
             document.getElementById(
                 "forceFilterChip"
@@ -2808,6 +2926,8 @@ window.addEventListener(
                 "click",
                 () => {
                     unitForceFilter =
+                        null;
+                    window.stardustUnitFilter =
                         null;
                     filterChip.style.display =
                         "none";

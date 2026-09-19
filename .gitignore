@@ -20,6 +20,7 @@ server/.env
 
 # ---- Generated / runtime content ----
 server/tiles/
+server/runtime-state.json
 server/logs/
 logs/
 *.log

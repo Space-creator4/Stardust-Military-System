@@ -8,6 +8,7 @@ const fs = require("fs");
 const crypto = require("crypto");
 const session = require("express-session");
 const WebSocket = require("ws");
+const { createTactical, TICK_MS } = require("./tactical");
 const app = express();
 const server = http.createServer(app);
 const PORT = Number(process.env.PORT) || 3000;
@@ -217,9 +218,10 @@ async function upsertPlayer(discordId, fields) {
         return null;
     }
 }
+const MAX_WS_MESSAGE_BYTES = 32768;
 const wss = new WebSocket.Server({
     noServer: true,
-    maxPayload: 4096
+    maxPayload: MAX_WS_MESSAGE_BYTES
 });
 app.disable("x-powered-by");
 app.set("trust proxy", IS_PRODUCTION ? 1 : false);
@@ -233,7 +235,6 @@ app.use(
         limit: "32kb"
     })
 );
-app.use(sessionMiddleware);
 app.use(
     (req, res, next) => {
         const origin = req.headers.origin;
@@ -561,6 +562,7 @@ app.get(
                 "/** STARDUST DYNAMIC CONFIG (server-injected) */",
                 `window.STARDUST_ORIGIN = ${JSON.stringify(clientConfiguredOrigin)};`,
                 `window.STARDUST_VERSION = ${JSON.stringify(getAppVersion())};`,
+                `window.CESIUM_ION_TOKEN = ${JSON.stringify(process.env.CESIUM_ION_TOKEN || "")};`,
                 ""
             ].join("\n");
         res.type(
@@ -576,6 +578,7 @@ app.use(
         index: false
     })
 );
+app.use(sessionMiddleware);
 const PRESENCE_GRACE_MS = 60 * 1000;
 const ADMIN_PRESENCE_MS = 45 * 1000;
 const ACTIVE_WINDOW_MS = 60 * 1000;
@@ -586,6 +589,18 @@ const messageHistory = new Map();
 const orders = new Map();
 const units = new Map();
 const bases = new Map();
+const tactical = createTactical({
+    units,
+    orders,
+    send,
+    broadcast,
+    cleanString,
+    getUserName,
+    isAdmin,
+    canManageUnit,
+    addLog,
+    scheduleBroadcastUnits
+});
 const userSettings = new Map();
 const countryCodes = new Map();
 const countryLeaders = new Map();
@@ -831,7 +846,12 @@ function loadBasesFromFile() {
                 }
             }
             const record = {
-                id: makeBaseId(),
+                id: makeStableBaseId(
+                    name,
+                    country,
+                    lat,
+                    lon
+                ),
                 name,
                 country,
                 code: cleanString(
@@ -857,6 +877,397 @@ function loadBasesFromFile() {
         );
     }
     return loaded;
+}
+const STATE_PATH = path.join(
+    __dirname,
+    "runtime-state.json"
+);
+const MAX_STATE_ENTRIES = 20000;
+let persistTimer = null;
+function makeStableBaseId(name, country, lat, lon) {
+    const hash = crypto
+        .createHash("sha1")
+        .update(
+            `${name}|${country}|${Number(lat).toFixed(5)}|${Number(lon).toFixed(5)}`
+        )
+        .digest("hex")
+        .slice(0, 8)
+        .toUpperCase();
+    return `BAS-${hash}`;
+}
+function persistStateNow() {
+    try {
+        const payload = JSON.stringify({
+            version: 1,
+            savedAt: Date.now(),
+            bases: Array.from(bases.values()),
+            units: Array.from(units.values()),
+            orders: Array.from(orders.values())
+        });
+        fs.writeFileSync(
+            STATE_PATH,
+            payload,
+            "utf8"
+        );
+    } catch (error) {
+        console.warn(
+            "Failed to persist runtime state:",
+            error.message
+        );
+    }
+}
+function schedulePersistState() {
+    if (persistTimer) {
+        return;
+    }
+    persistTimer = setTimeout(() => {
+        persistTimer = null;
+        persistStateNow();
+    }, 1000);
+}
+function loadStateFromFile() {
+    const counts = {
+        bases: 0,
+        units: 0,
+        orders: 0
+    };
+    let raw;
+    try {
+        raw = fs.readFileSync(
+            STATE_PATH,
+            "utf8"
+        );
+    } catch (error) {
+        if (error.code !== "ENOENT") {
+            console.warn(
+                "Failed to read runtime state:",
+                error.message
+            );
+        }
+        return counts;
+    }
+    let data;
+    try {
+        data = JSON.parse(raw);
+    } catch (error) {
+        console.warn(
+            "Runtime state file is corrupt; ignoring it:",
+            error.message
+        );
+        return counts;
+    }
+    const listOf = key =>
+        Array.isArray(data && data[key])
+            ? data[key].slice(
+                  0,
+                  MAX_STATE_ENTRIES
+              )
+            : [];
+    for (const entry of listOf("bases")) {
+        if (!entry || typeof entry !== "object") {
+            continue;
+        }
+        const id = cleanString(entry.id, 32);
+        const name = cleanString(
+            entry.name,
+            MAX_BASE_NAME
+        );
+        const country = cleanString(
+            entry.country,
+            MAX_COUNTRY_LENGTH
+        );
+        const lat = Number(entry.lat);
+        const lon = Number(entry.lon);
+        if (
+            !id ||
+            !name ||
+            !country ||
+            !Number.isFinite(lat) ||
+            !Number.isFinite(lon) ||
+            lat < -90 ||
+            lat > 90 ||
+            lon < -180 ||
+            lon > 180
+        ) {
+            continue;
+        }
+        const type = BASE_TYPES.has(
+            String(entry.type)
+        )
+            ? String(entry.type)
+            : "military_installation";
+        const infrastructure = {};
+        if (
+            entry.infrastructure &&
+            typeof entry.infrastructure ===
+                "object"
+        ) {
+            for (const [building, level] of
+                Object.entries(
+                    entry.infrastructure
+                )) {
+                if (
+                    Object.prototype
+                        .hasOwnProperty.call(
+                            BUILDING_LABELS,
+                            building
+                        )
+                ) {
+                    infrastructure[building] =
+                        Math.floor(
+                            Math.max(
+                                0,
+                                Math.min(
+                                    MAX_BUILDING_LEVEL,
+                                    Number(level) || 0
+                                )
+                            )
+                        );
+                }
+            }
+        }
+        bases.set(id, {
+            id,
+            name,
+            country,
+            code:
+                cleanString(
+                    entry.code,
+                    8
+                ).toUpperCase() || null,
+            type,
+            lat,
+            lon,
+            infrastructure,
+            built: !!entry.built,
+            builtBy:
+                entry.builtBy &&
+                typeof entry.builtBy ===
+                    "object"
+                    ? {
+                          id: cleanString(
+                              entry.builtBy.id,
+                              32
+                          ),
+                          username:
+                              cleanString(
+                                  entry.builtBy
+                                      .username,
+                                  MAX_USERNAME_LENGTH
+                              )
+                      }
+                    : null,
+            createdAt:
+                Number(entry.createdAt) ||
+                Date.now(),
+            updatedAt:
+                Number(entry.updatedAt) ||
+                Date.now()
+        });
+        counts.bases++;
+    }
+    for (const entry of listOf("units")) {
+        if (!entry || typeof entry !== "object") {
+            continue;
+        }
+        const id = cleanString(entry.id, 32);
+        const name = cleanString(
+            entry.name,
+            MAX_UNIT_NAME
+        );
+        const lat = Number(entry.lat);
+        const lon = Number(entry.lon);
+        if (
+            !id ||
+            !name ||
+            !Number.isFinite(lat) ||
+            !Number.isFinite(lon)
+        ) {
+            continue;
+        }
+        units.set(id, {
+            id,
+            name,
+            type: UNIT_TYPES.has(
+                String(entry.type)
+            )
+                ? String(entry.type)
+                : "infantry",
+            status: UNIT_STATUSES.has(
+                String(entry.status)
+            )
+                ? String(entry.status)
+                : "OPERATIONAL",
+            personnel: Math.floor(
+                Math.max(
+                    1,
+                    Math.min(
+                        1000000,
+                        Number(entry.personnel) ||
+                            1
+                    )
+                )
+            ),
+            country:
+                cleanString(
+                    entry.country,
+                    MAX_COUNTRY_LENGTH
+                ) || null,
+            lat,
+            lon,
+            base:
+                entry.base &&
+                typeof entry.base ===
+                    "object" &&
+                cleanString(
+                    entry.base.id,
+                    32
+                )
+                    ? {
+                          id: cleanString(
+                              entry.base.id,
+                              32
+                          ),
+                          name: cleanString(
+                              entry.base.name,
+                              MAX_BASE_NAME
+                          ),
+                          type: BASE_TYPES.has(
+                              String(
+                                  entry.base
+                                      .type
+                              )
+                          )
+                              ? String(
+                                    entry.base
+                                        .type
+                                )
+                              : null,
+                          country:
+                              cleanString(
+                                  entry.base
+                                      .country,
+                                  MAX_COUNTRY_LENGTH
+                              ) || null
+                      }
+                    : null,
+            createdBy:
+                entry.createdBy &&
+                typeof entry.createdBy ===
+                    "object"
+                    ? {
+                          id: cleanString(
+                              entry.createdBy.id,
+                              32
+                          ),
+                          username:
+                              cleanString(
+                                  entry.createdBy
+                                      .username,
+                                  MAX_USERNAME_LENGTH
+                              )
+                      }
+                    : null,
+            createdAt:
+                Number(entry.createdAt) ||
+                Date.now(),
+            updatedAt:
+                Number(entry.updatedAt) ||
+                Date.now()
+        });
+        counts.units++;
+    }
+    for (const entry of listOf("orders")) {
+        if (!entry || typeof entry !== "object") {
+            continue;
+        }
+        const id = cleanString(entry.id, 32);
+        const name = cleanString(
+            entry.name,
+            MAX_ORDER_NAME
+        );
+        const description = cleanString(
+            entry.description,
+            MAX_ORDER_DESCRIPTION
+        );
+        if (!id || !name) {
+            continue;
+        }
+        let target = null;
+        if (
+            entry.target &&
+            typeof entry.target ===
+                "object"
+        ) {
+            const tLat =
+                Number(entry.target.lat);
+            const tLon =
+                Number(entry.target.lon);
+            if (
+                Number.isFinite(tLat) &&
+                Number.isFinite(tLon) &&
+                tLat >= -90 &&
+                tLat <= 90 &&
+                tLon >= -180 &&
+                tLon <= 180
+            ) {
+                target = {
+                    lat: tLat,
+                    lon: tLon,
+                    label:
+                        cleanString(
+                            entry.target.label,
+                            120
+                        ) || null
+                };
+            }
+        }
+        orders.set(id, {
+            id,
+            name,
+            description,
+            type: ORDER_TYPES.has(
+                String(entry.type)
+            )
+                ? String(entry.type)
+                : "ground",
+            priority: ORDER_PRIORITIES.has(
+                String(entry.priority)
+            )
+                ? String(entry.priority)
+                : "routine",
+            status: cleanString(
+                entry.status,
+                24
+            ) || "ACTIVE",
+            target,
+            createdBy:
+                entry.createdBy &&
+                typeof entry.createdBy ===
+                    "object"
+                    ? {
+                          id: cleanString(
+                              entry.createdBy.id,
+                              32
+                          ),
+                          username:
+                              cleanString(
+                                  entry.createdBy
+                                      .username,
+                                  MAX_USERNAME_LENGTH
+                              )
+                      }
+                    : null,
+            createdAt:
+                Number(entry.createdAt) ||
+                Date.now(),
+            updatedAt:
+                Number(entry.updatedAt) ||
+                Date.now()
+        });
+        counts.orders++;
+    }
+    return counts;
 }
 const MAX_UNIT_NAME = 80;
 const CLIENT_PACKAGE_PATH = path.join(
@@ -1052,7 +1463,13 @@ wss.clients.forEach(client => {
 function getOnlineUsers() {
     return Array.from(
         users.values()
-    ).map(user => ({
+    )
+        .filter(
+            user =>
+                user.socket ||
+                user.consoleSrc
+        )
+        .map(user => ({
         id: user.id,
         username: user.username,
         global_name: user.global_name,
@@ -1065,7 +1482,16 @@ function getOnlineUsers() {
         source: user.socket ? "client" : "console",
         isAdmin: isAdmin(user),
         active: isPresenceActive(user)
-    }));
+        }));
+}
+function getOnlineCount() {
+    let count = 0;
+    for (const user of users.values()) {
+        if (user.socket || user.consoleSrc) {
+            count += 1;
+        }
+    }
+    return count;
 }
 function isPresenceActive(user) {
     if (!user) {
@@ -1144,7 +1570,7 @@ function ensurePresence(user, socket) {
 function broadcastServerStatus() {
     broadcast({
         type: "server_status",
-        onlineUsers: users.size
+        onlineUsers: getOnlineCount()
     });
 }
 const MAX_SYSTEM_LOGS = 300;
@@ -1336,6 +1762,7 @@ function getOrdersSnapshot() {
     );
 }
 function broadcastOrders() {
+    schedulePersistState();
     broadcast({
         type: "orders",
         orders:
@@ -1386,6 +1813,38 @@ function handleOrderCreate(
         return;
     }
 
+    let target = null;
+    const targetRaw =
+        order.target;
+    if (
+        targetRaw &&
+        typeof targetRaw ===
+            "object"
+    ) {
+        const tLat =
+            Number(targetRaw.lat);
+        const tLon =
+            Number(targetRaw.lon);
+        if (
+            Number.isFinite(tLat) &&
+            Number.isFinite(tLon) &&
+            tLat >= -90 &&
+            tLat <= 90 &&
+            tLon >= -180 &&
+            tLon <= 180
+        ) {
+            target = {
+                lat: tLat,
+                lon: tLon,
+                label:
+                    cleanString(
+                        targetRaw.label,
+                        120
+                    ) || null
+            };
+        }
+    }
+
     const record = {
         id: makeOrderId(),
         name,
@@ -1393,6 +1852,7 @@ function handleOrderCreate(
         priority,
         description,
         status: "ACTIVE",
+        target,
         createdBy: {
             id: String(userId),
             username:
@@ -1524,6 +1984,44 @@ function handleOrderUpdate(
             );
     }
 
+    const targetRaw =
+        next.target;
+    if (
+        targetRaw &&
+        typeof targetRaw ===
+            "object"
+    ) {
+        const tLat =
+            Number(targetRaw.lat);
+        const tLon =
+            Number(targetRaw.lon);
+        if (
+            Number.isFinite(tLat) &&
+            Number.isFinite(tLon) &&
+            tLat >= -90 &&
+            tLat <= 90 &&
+            tLon >= -180 &&
+            tLon <= 180
+        ) {
+            existing.target = {
+                lat: tLat,
+                lon: tLon,
+                label:
+                    cleanString(
+                        targetRaw.label,
+                        120
+                    ) ||
+                    (existing.target &&
+                        existing.target.label) ||
+                    null
+            };
+        }
+    } else if (
+        targetRaw === null
+    ) {
+        existing.target = null;
+    }
+
     existing.updatedAt =
         Date.now();
 
@@ -1583,6 +2081,7 @@ function getUnitsSnapshot() {
     );
 }
 function broadcastUnits() {
+    schedulePersistState();
     broadcast({
         type: "units",
         units:
@@ -1659,6 +2158,7 @@ function getVisibleBasesFor(connection) {
     );
 }
 function broadcastBases() {
+    schedulePersistState();
     const payloadCache =
         new Map();
     wss.clients.forEach(
@@ -1877,11 +2377,21 @@ function handleUnitCreate(
         )
     );
 
-    const country =
+    const requestedCountry =
         cleanString(
             unit.country,
             MAX_COUNTRY_LENGTH
-        ) ||
+        );
+
+    const leaderCountry =
+        getClaimedCountry(
+            String(userId)
+        );
+
+    const country =
+        (isAdmin(socket.user) &&
+            requestedCountry) ||
+        leaderCountry ||
         socket.user.country ||
         null;
 
@@ -2070,6 +2580,21 @@ function handleUnitUpdate(
         return;
     }
 
+    if (
+        !canManageUnit(
+            socket.user,
+            existing
+        )
+    ) {
+        send(socket, {
+            type: "error",
+            message:
+                "You are not authorized to modify this unit."
+        });
+
+        return;
+    }
+
     const next =
         message.unit || {};
 
@@ -2188,6 +2713,27 @@ function handleUnitDelete(
             32
         );
 
+    const unitRecord =
+        id
+            ? units.get(id)
+            : null;
+
+    if (
+        unitRecord &&
+        !canManageUnit(
+            socket.user,
+            unitRecord
+        )
+    ) {
+        send(socket, {
+            type: "error",
+            message:
+                "You are not authorized to remove this unit."
+        });
+
+        return;
+    }
+
     if (
         id &&
         units.delete(id)
@@ -2230,6 +2776,41 @@ function canManageBase(user, baseRecord) {
             baseRecord.country
     );
 }
+function canManageUnit(user, unitRecord) {
+    if (!user || !unitRecord) {
+        return false;
+    }
+    if (isAdmin(user)) {
+        return true;
+    }
+    const unitCountry =
+        cleanString(
+            unitRecord.country,
+            MAX_COUNTRY_LENGTH
+        );
+    if (!unitCountry) {
+        return false;
+    }
+    const leaderCountry =
+        getClaimedCountry(
+            String(user.id)
+        );
+    if (
+        leaderCountry &&
+        leaderCountry === unitCountry
+    ) {
+        return true;
+    }
+    const userCountry =
+        cleanString(
+            user.country,
+            MAX_COUNTRY_LENGTH
+        );
+    return (
+        userCountry &&
+        userCountry === unitCountry
+    );
+}
 function handleBaseCreate(
     socket,
     message,
@@ -2251,13 +2832,26 @@ function handleBaseCreate(
             ? String(payload.type)
             : "military_installation";
 
-    const country =
+    const requestedCountry =
         cleanString(
             payload.country,
             MAX_COUNTRY_LENGTH
-        ) ||
-        socket.user.country ||
-        null;
+        );
+
+    const leader =
+        getClaimedCountry(
+            String(userId)
+        );
+
+    const country =
+        isAdmin(socket.user)
+            ? (requestedCountry ||
+                leader ||
+                socket.user.country ||
+                null)
+            : (leader ||
+                socket.user.country ||
+                null);
 
     const lat =
         Number(payload.lat);
@@ -2301,11 +2895,6 @@ function handleBaseCreate(
 
         return;
     }
-
-    const leader =
-        getClaimedCountry(
-            String(userId)
-        );
 
     if (
         leader !== country &&
@@ -2556,7 +3145,7 @@ app.get("/health", (req, res) => {
         status: "online",
         service: "Stardust Command Network",
         websocket: true,
-        onlineUsers: users.size,
+        onlineUsers: getOnlineCount(),
         environment: IS_PRODUCTION
             ? "production"
             : "development",
@@ -2683,10 +3272,34 @@ app.get(
             .randomBytes(32)
             .toString("hex");
 
-    req.session.oauthState = state;
+    req.session.oauthStates =
+        req.session.oauthStates &&
+        typeof req.session.oauthStates ===
+            "object"
+            ? req.session.oauthStates
+            : {};
 
-    req.session.oauthCountry =
-        countryParam || null;
+    req.session.oauthStates[state] = {
+        country: countryParam || null,
+        createdAt: Date.now()
+    };
+
+    const oauthEntries =
+        Object.entries(
+            req.session.oauthStates
+        ).sort(
+            (a, b) =>
+                (a[1].createdAt || 0) -
+                (b[1].createdAt || 0)
+        );
+
+    while (oauthEntries.length > 8) {
+        const [oldest] =
+            oauthEntries.shift();
+        delete req.session.oauthStates[
+            oldest
+        ];
+    }
 
     req.session.save(error => {
         if (error) {
@@ -2749,10 +3362,14 @@ app.get(
         );
     }
 
-    if (
-        !req.session.oauthState ||
-        state !== req.session.oauthState
-    ) {
+    const stateEntry =
+        req.session.oauthStates &&
+        typeof req.session.oauthStates ===
+            "object"
+            ? req.session.oauthStates[state]
+            : null;
+
+    if (!stateEntry) {
         return oauthError(
             res,
             "Invalid OAuth state.",
@@ -2760,7 +3377,7 @@ app.get(
         );
     }
 
-    delete req.session.oauthState;
+    delete req.session.oauthStates[state];
 
     try {
         const tokenResponse =
@@ -2843,7 +3460,7 @@ app.get(
 
         let country =
             resolveCountryName(
-                req.session.oauthCountry ||
+                stateEntry.country ||
                 (playerRecord &&
                     playerRecord.country)
             );
@@ -3326,6 +3943,9 @@ app.get(
         users:
             getOnlineUsers(),
 
+        onlineCount:
+            getOnlineCount(),
+
         muted:
             Array.from(
                 mutedUsers.entries()
@@ -3375,7 +3995,7 @@ app.post(
         return res.json({
             success: true,
             version,
-            clients: users.size
+            clients: getOnlineCount()
         });
     }
 );
@@ -3777,7 +4397,7 @@ wss.on(
         {
             type: "server_status",
             onlineUsers:
-                users.size
+                getOnlineCount()
         }
     );
 
@@ -3835,6 +4455,8 @@ wss.on(
             )
     });
 
+    send(socket, tactical.getPayload());
+
     send(socket, {
         type: "country_leaders",
         leaders:
@@ -3858,7 +4480,7 @@ wss.on(
                     Buffer.byteLength(
                         raw,
                         "utf8"
-                    ) > 4096
+                    ) > MAX_WS_MESSAGE_BYTES
                 ) {
                     send(
                         socket,
@@ -4121,6 +4743,66 @@ wss.on(
                         socket,
                         message,
                         userId
+                    );
+
+                    return;
+                }
+
+                if (
+                    message.type ===
+                    "sim_move"
+                ) {
+                    tactical.handleSimMove(
+                        socket,
+                        message
+                    );
+
+                    return;
+                }
+
+                if (
+                    message.type ===
+                    "sim_cancel"
+                ) {
+                    tactical.handleSimCancel(
+                        socket,
+                        message
+                    );
+
+                    return;
+                }
+
+                if (
+                    message.type ===
+                    "sim_spawn"
+                ) {
+                    tactical.handleSimSpawn(
+                        socket,
+                        message
+                    );
+
+                    return;
+                }
+
+                if (
+                    message.type ===
+                    "sim_despawn"
+                ) {
+                    tactical.handleSimDespawn(
+                        socket,
+                        message
+                    );
+
+                    return;
+                }
+
+                if (
+                    message.type ===
+                    "sim_threat_move"
+                ) {
+                    tactical.handleSimThreatMove(
+                        socket,
+                        message
                     );
 
                     return;
@@ -4449,6 +5131,34 @@ setInterval(
 },
 30000
 );
+let lastTacticalPersistAt = 0;
+setInterval(
+    () => {
+        const result =
+            tactical.tick(TICK_MS);
+
+        if (
+            wss.clients.size === 0
+        ) {
+            return;
+        }
+
+        tactical.broadcast();
+
+        const now =
+            Date.now();
+        if (
+            result.changed &&
+            now - lastTacticalPersistAt >=
+                20000
+        ) {
+            lastTacticalPersistAt =
+                now;
+            schedulePersistState();
+        }
+    },
+    TICK_MS
+);
 server.on(
     "error",
     error => {
@@ -4458,6 +5168,21 @@ server.on(
         );
     }
 );
+function flushStateOnExit() {
+    if (persistTimer) {
+        clearTimeout(persistTimer);
+        persistTimer = null;
+    }
+    persistStateNow();
+}
+process.on("SIGINT", () => {
+    flushStateOnExit();
+    process.exit(0);
+});
+process.on("SIGTERM", () => {
+    flushStateOnExit();
+    process.exit(0);
+});
 server.listen(
     PORT,
     HOST,
@@ -4469,6 +5194,13 @@ server.listen(
 
     console.log(
         `Military bases loaded: ${loadedBases}`
+    );
+
+    const restored =
+        loadStateFromFile();
+
+    console.log(
+        `Runtime state restored: ${restored.bases} bases, ${restored.units} units, ${restored.orders} orders`
     );
 
     addLog(

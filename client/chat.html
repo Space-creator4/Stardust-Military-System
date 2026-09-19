@@ -706,6 +706,8 @@ let currentUser = null;
 let currentChannel = "world";
 let socket = null;
 let reconnectTimer = null;
+let reconnectDelay = 1000;
+let reconnectResetTimer = null;
 let manuallyClosed = false;
 
 const channelMessages = {
@@ -1175,6 +1177,18 @@ function connectWebSocket() {
 
             setConnection(true);
 
+            if (reconnectResetTimer) {
+                clearTimeout(reconnectResetTimer);
+            }
+
+            reconnectResetTimer = setTimeout(
+                () => {
+                    reconnectResetTimer = null;
+                    reconnectDelay = 1000;
+                },
+                10000
+            );
+
             addMessage(
                 "SYSTEM",
                 "Connected to Stardust Command Network.",
@@ -1228,6 +1242,18 @@ function connectWebSocket() {
                 return;
             }
 
+            if (event.code === 4004) {
+
+                addMessage(
+                    "SYSTEM",
+                    "Another session connected to this account. Auto-reconnect disabled.",
+                    true,
+                    currentChannel
+                );
+
+                return;
+            }
+
             addMessage(
                 "SYSTEM",
                 "Command network connection lost. Reconnecting...",
@@ -1237,8 +1263,15 @@ function connectWebSocket() {
 
             reconnectTimer =
                 setTimeout(
-                    connectWebSocket,
-                    3000
+                    () => {
+                        reconnectTimer = null;
+                        connectWebSocket();
+                        reconnectDelay = Math.min(
+                            reconnectDelay * 2,
+                            30000
+                        );
+                    },
+                    reconnectDelay
                 );
         }
     );

@@ -1209,7 +1209,9 @@ async function loadStatus() {
             data.users ||
             [];
 
-        onlineCount.textContent = users.length;
+        onlineCount.textContent =
+            data.onlineCount ??
+            users.length;
 
         mutedCount.textContent =
             data.mutedCount ??

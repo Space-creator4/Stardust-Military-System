@@ -108,12 +108,36 @@ async function runUpdateCheck({ force = false } = {}) {
     }
 }
 
+const allowInsecureTls =
+    process.env.STARDUST_ALLOW_INSECURE_TLS === "1";
+
 app.on("certificate-error", (event, webContents, url, error, certificate, callback) => {
-    const target = new URL(appUrl);
-    const incoming = new URL(url);
-    const isTrustedOrigin = incoming.hostname === target.hostname && incoming.port === target.port;
+    if (!allowInsecureTls) {
+        callback(false);
+        return;
+    }
+
+    let isTrustedOrigin = false;
+
+    try {
+        const target = new URL(appUrl);
+        const incoming = new URL(url);
+        isTrustedOrigin =
+            incoming.protocol === "https:" &&
+            incoming.hostname === target.hostname &&
+            incoming.port === target.port;
+    } catch (parseError) {
+        isTrustedOrigin = false;
+    }
+
     if (isTrustedOrigin) {
         event.preventDefault();
+        console.warn(
+            "Ignoring TLS certificate error for",
+            url,
+            ":",
+            error
+        );
         callback(true);
     } else {
         callback(false);

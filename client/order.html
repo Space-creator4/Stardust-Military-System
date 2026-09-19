@@ -832,6 +832,8 @@ let selectedOrder = null;
 let currentUser = null;
 let socket = null;
 let reconnectTimer = null;
+let reconnectDelay = 1000;
+let reconnectResetTimer = null;
 let manuallyClosed = false;
 
 function getElement(id) {
@@ -1226,6 +1228,15 @@ function connectWebSocket() {
 
         setSystemStatus(true);
 
+        if (reconnectResetTimer) {
+            clearTimeout(reconnectResetTimer);
+        }
+
+        reconnectResetTimer = setTimeout(() => {
+            reconnectResetTimer = null;
+            reconnectDelay = 1000;
+        }, 10000);
+
         if (reconnectTimer) {
             clearTimeout(reconnectTimer);
             reconnectTimer = null;
@@ -1250,8 +1261,22 @@ function connectWebSocket() {
             return;
         }
 
+        if (event.code === 4004) {
+            console.warn(
+                "Another session connected; auto-reconnect disabled."
+            );
+            return;
+        }
+
         reconnectTimer =
-            setTimeout(connectWebSocket, 3000);
+            setTimeout(() => {
+                reconnectTimer = null;
+                connectWebSocket();
+                reconnectDelay = Math.min(
+                    reconnectDelay * 2,
+                    30000
+                );
+            }, reconnectDelay);
     });
 
     socket.addEventListener("error", error => {
