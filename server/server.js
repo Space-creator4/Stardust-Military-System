@@ -589,11 +589,13 @@ const messageHistory = new Map();
 const orders = new Map();
 const units = new Map();
 const bases = new Map();
+const mapClients = new Set();
 const tactical = createTactical({
     units,
     orders,
     send,
     broadcast,
+    broadcastTac,
     cleanString,
     getUserName,
     isAdmin,
@@ -1459,6 +1461,19 @@ wss.clients.forEach(client => {
 
     client.send(payload);
 });
+}
+function broadcastTac(data) {
+    const payload = JSON.stringify(data);
+for (const client of mapClients) {
+    if (
+        client.readyState !==
+        WebSocket.OPEN
+    ) {
+        continue;
+    }
+
+    client.send(payload);
+}
 }
 function getOnlineUsers() {
     return Array.from(
@@ -4455,8 +4470,6 @@ wss.on(
             )
     });
 
-    send(socket, tactical.getPayload());
-
     send(socket, {
         type: "country_leaders",
         leaders:
@@ -4809,6 +4822,19 @@ wss.on(
                 }
 
                 if (
+                    message.type ===
+                    "map_register"
+                ) {
+                    mapClients.add(socket);
+                    send(
+                        socket,
+                        tactical.getPayload()
+                    );
+
+                    return;
+                }
+
+                if (
                     message.type !==
                     "chat"
                 ) {
@@ -4998,6 +5024,10 @@ wss.on(
                     userId
                 );
 
+            mapClients.delete(
+                socket
+            );
+
             if (
                 current &&
                 current.socket ===
@@ -5132,21 +5162,14 @@ setInterval(
 30000
 );
 let lastTacticalPersistAt = 0;
+let lastTacticalBroadcastAt = 0;
 setInterval(
     () => {
         const result =
             tactical.tick(TICK_MS);
-
-        if (
-            wss.clients.size === 0
-        ) {
-            return;
-        }
-
-        tactical.broadcast();
-
         const now =
             Date.now();
+
         if (
             result.changed &&
             now - lastTacticalPersistAt >=
@@ -5155,6 +5178,22 @@ setInterval(
             lastTacticalPersistAt =
                 now;
             schedulePersistState();
+        }
+
+        if (
+            mapClients.size === 0
+        ) {
+            return;
+        }
+
+        if (
+            result.changed ||
+            now - lastTacticalBroadcastAt >=
+                5000
+        ) {
+            lastTacticalBroadcastAt =
+                now;
+            tactical.broadcast();
         }
     },
     TICK_MS

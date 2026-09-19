@@ -372,12 +372,23 @@
        columns: X=(0,1,0), Y=(0,0,1), Z=(1,0,0). */
     const BASE_ROTATION = C.Matrix3.fromArray([0, 1, 0, 0, 0, 1, 1, 0, 0]);
 
+    const baseScaleCache = new Map();
+
+    function baseRotScale(scale) {
+        let m = baseScaleCache.get(scale);
+        if (!m) {
+            const s = C.Matrix3.fromScale(new C.Cartesian3(scale, scale, scale));
+            m = C.Matrix3.multiply(BASE_ROTATION, s, new C.Matrix3());
+            baseScaleCache.set(scale, m);
+        }
+        return m;
+    }
+
     function composeModelMatrix(lon, lat, alt, headingDeg, scale) {
         const origin = C.Cartesian3.fromDegrees(lon, lat, alt);
         const enu = C.Transforms.eastNorthUpToFixedFrame(origin);
-        const s = C.Matrix3.fromScale(new C.Cartesian3(scale, scale, scale));
         const rz = C.Matrix3.fromRotationZ(C.Math.toRadians(-headingDeg || 0));
-        const rot = C.Matrix3.multiply(rz, C.Matrix3.multiply(BASE_ROTATION, s, new C.Matrix3()), new C.Matrix3());
+        const rot = C.Matrix3.multiply(rz, baseRotScale(scale), new C.Matrix3());
         return C.Matrix4.multiply(enu, C.Matrix4.fromRotationTranslation(rot), new C.Matrix4());
     }
 

@@ -49,6 +49,10 @@
 
     const LOD_DETAIL_M = 260000;
 
+    const COL_LABEL = C.Color.fromCssColorString("#e7eef6");
+    const COL_OUTLINE = C.Color.BLACK.withAlpha(0.9);
+    const COL_BG = C.Color.BLACK.withAlpha(0.65);
+
     /* ------------------------------- state -------------------------------- */
 
     let viewer = null;
@@ -74,8 +78,15 @@
 
     /* ------------------------------- helpers ------------------------------ */
 
+    const colorCache = new Map();
+
     function cssToColor(css) {
-        return C.Color.fromCssColorString(css);
+        let c = colorCache.get(css);
+        if (!c) {
+            c = C.Color.fromCssColorString(css);
+            colorCache.set(css, c);
+        }
+        return c;
     }
 
     function colorForUnit(type, team) {
@@ -88,6 +99,10 @@
     function hexToComponents(hex) {
         const c = cssToColor(hex);
         return [c.red, c.green, c.blue];
+    }
+
+    function typeKey(rec) {
+        return rec.type || rec.kind || null;
     }
 
     function isGroundType(type) {
@@ -120,11 +135,12 @@
     }
 
     function actorAltFor(rec, now) {
-        if (isGroundType(rec.type)) {
-            const lift = GROUND_LIFT[rec.type] != null ? GROUND_LIFT[rec.type] : 0.3;
+        const tk = typeKey(rec);
+        if (tk && isGroundType(tk)) {
+            const lift = GROUND_LIFT[tk] != null ? GROUND_LIFT[tk] : 0.3;
             return groundHeightAt(rec.lat, rec.lon, now) + lift;
         }
-        return Math.max(rec.alt || 0, 0);
+        return Number.isFinite(rec.alt) ? rec.alt : 0;
     }
 
     function requestRender() {
@@ -182,7 +198,7 @@
             point: {
                 pixelSize: isThreat ? 11 : 8,
                 color: cssToColor(hex),
-                outlineColor: C.Color.BLACK.withAlpha(0.9),
+                outlineColor: COL_OUTLINE,
                 outlineWidth: 1.5,
                 heightReference: C.HeightReference.NONE
             },
@@ -191,10 +207,10 @@
                 font: "600 10px 'Rajdhani', 'Segoe UI', sans-serif",
                 fillColor: isThreat
                     ? cssToColor(THREAT_COLOR)
-                    : C.Color.fromCssColorString("#e7eef6"),
+                    : COL_LABEL,
                 pixelOffset: new C.Cartesian2(0, -14),
                 showBackground: true,
-                backgroundColor: C.Color.BLACK.withAlpha(0.65),
+                backgroundColor: COL_BG,
                 position: initial,
                 horizontalOrigin: C.HorizontalOrigin.CENTER,
                 verticalOrigin: C.VerticalOrigin.BOTTOM,
@@ -207,6 +223,12 @@
             }
         });
 
+        let trailColor = colorCache.get("t:" + hex);
+        if (!trailColor) {
+            trailColor = cssToColor(hex).withAlpha(0.85);
+            colorCache.set("t:" + hex, trailColor);
+        }
+
         const trailEntity = viewer.entities.add({
             id: "simtrail:" + id,
             polyline: {
@@ -214,7 +236,7 @@
                 width: isThreat ? 2.0 : 1.4,
                 arcType: C.ArcType.NONE,
                 material: new C.PolylineGlowMaterialProperty({
-                    color: cssToColor(hex).withAlpha(0.85),
+                    color: trailColor,
                     glowPower: 0.18,
                     taperPower: 0.4
                 })
@@ -270,13 +292,13 @@
         point.point.outlineWidth = selectedId === actor.id ? 3 : 1.5;
         point.point.outlineColor = selectedId === actor.id
             ? C.Color.WHITE
-            : C.Color.BLACK.withAlpha(0.9);
+            : COL_OUTLINE;
         point.label.text = actorLabel(rec);
         point.label.fillColor = actor.isThreat
             ? cssToColor(THREAT_COLOR)
             : (selectedId === actor.id
                 ? C.Color.WHITE
-                : C.Color.fromCssColorString("#e7eef6"));
+                : COL_LABEL);
 
         updateTrail(actor, rec, now);
         actor.lastState = { lat: rec.lat, lon: rec.lon, alt: alt, heading: rec.heading || 0 };
@@ -284,15 +306,19 @@
 
     function updateTrail(actor, rec, now) {
         const history = rec.history || null;
-        if (!history || history.length < 1) {
+        if (!trailsOn || !actor.trailEntity.show || !history || history.length < 1) {
             actor.trailEntity.polyline.positions = [];
             return;
         }
+        const tk = typeKey(rec);
+        const isGround = tk && isGroundType(tk);
+        const lift = isGround
+            ? (GROUND_LIFT[tk] != null ? GROUND_LIFT[tk] : 0.3)
+            : 0;
         const pts = [];
         for (const p of history) {
             let alt = p.alt || 0;
-            if (isGroundType(rec.type)) {
-                const lift = GROUND_LIFT[rec.type] != null ? GROUND_LIFT[rec.type] : 0.3;
+            if (isGround) {
                 alt = groundHeightAt(p.lat, p.lon, now) + lift;
             }
             pts.push(C.Cartesian3.fromDegrees(p.lon, p.lat, alt));
@@ -315,7 +341,7 @@
             window.TacModels.setShow(actor.model, showModel);
             actor.trailEntity.show = showModel && trailsOn;
             actor.pointEntity.show = !showModel;
-            actor.pointEntity.label.show = !showModel || labelsOn;
+            actor.pointEntity.label.show = labelsOn;
         }
         requestRender();
     }
@@ -693,7 +719,7 @@
         let best = null;
         let bestDist = 18;
         for (const actor of actors.values()) {
-            if (!actor.lastState || !actor.pointEntity.show) {
+            if (!actor.lastState) {
                 continue;
             }
             const pos = C.Cartesian3.fromDegrees(

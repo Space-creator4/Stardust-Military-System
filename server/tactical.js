@@ -253,7 +253,15 @@ function createTactical(context) {
         return st;
     }
 
-    function pushHistory(st, now) {
+    function pushHistory(st, now, force) {
+        if (
+            !force &&
+            st.lastHistoryAt &&
+            now - st.lastHistoryAt < 5000
+        ) {
+            return;
+        }
+        st.lastHistoryAt = now;
         st.history.push({
             t: now,
             lat: st.lat,
@@ -265,30 +273,6 @@ function createTactical(context) {
         if (st.history.length > HISTORY_MAX) {
             st.history.shift();
         }
-    }
-
-    function advanceEntity(e, speedMs, dt, behavior) {
-        /* behavior(lat, lon, state) -> { headingDeg, stepM } | null (halt) */
-        if (!speedMs || speedMs <= 0) {
-            e.speed = 0;
-            return false;
-        }
-        const move = behavior(e.lat, e.lon);
-        if (!move) {
-            e.speed = 0;
-            return false;
-        }
-        e.heading = normalizeHeading(move.headingDeg);
-        const p = destinationPoint(
-            e.lat,
-            e.lon,
-            e.heading,
-            move.stepM
-        );
-        e.lat = roundPos(p.lat);
-        e.lon = roundPos(p.lon);
-        e.speed = Math.min(speedMs, move.stepM / Math.max(dt, 0.001));
-        return true;
     }
 
     function tickAll(dtMs) {
@@ -397,7 +381,7 @@ function createTactical(context) {
                 unit.lon = st.lon;
                 unit.heading = Math.round(st.heading);
             }
-            pushHistory(st, now);
+            pushHistory(st, now, moved);
             changed = changed || moved;
         }
 
@@ -560,7 +544,7 @@ function createTactical(context) {
             } else {
                 thr.alt = wantAlt;
             }
-            pushHistory(thr, now);
+            pushHistory(thr, now, moved);
             changed = changed || moved;
         }
 
@@ -660,7 +644,12 @@ function createTactical(context) {
     }
 
     function broadcast() {
-        ctx.broadcast(getPayload());
+        const payload = getPayload();
+        if (ctx.broadcastTac) {
+            ctx.broadcastTac(payload);
+        } else if (ctx.broadcast) {
+            ctx.broadcast(payload);
+        }
     }
 
     function handleSimMove(socket, message) {

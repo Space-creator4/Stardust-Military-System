@@ -2499,6 +2499,23 @@ function connectChat() {
                     error
                 );
             }
+
+            if (
+                document.getElementById("mapGlobe")
+            ) {
+                try {
+                    socket.send(
+                        JSON.stringify({
+                            type: "map_register"
+                        })
+                    );
+                } catch (error) {
+                    console.warn(
+                        "Failed to register map client:",
+                        error
+                    );
+                }
+            }
         }
     );
 
