@@ -1498,10 +1498,8 @@ function broadcastTac() {
                 payload =
                     JSON.stringify(
                         tactical.getPayload(
-                            admin
-                                ? null
-                                : connection.country ||
-                                      null
+                            connection.country ||
+                                null
                         )
                     );
                 payloadCache.set(
@@ -2197,16 +2195,9 @@ function isAdminConnection(connection) {
 function getVisibleBasesFor(connection) {
     const all =
         getBasesSnapshot();
-    if (
-        !connection ||
-        isAdminConnection(
-            connection
-        )
-    ) {
-        return all;
-    }
     const country =
-        connection.country ||
+        (connection &&
+            connection.country) ||
         null;
     if (!country) {
         return [];
@@ -2232,13 +2223,8 @@ function broadcastBases() {
             const connection =
                 client.user;
             const key =
-                !connection ||
-                isAdminConnection(
-                    connection
-                )
-                    ? connection
-                        ? "admin"
-                        : "anon"
+                !connection
+                    ? "anon"
                     : "c:" +
                       (
                           connection.country ||
@@ -4876,14 +4862,10 @@ wss.on(
                     send(
                         socket,
                         tactical.getPayload(
-                            !connection
-                                ? null
-                                : isAdminConnection(
-                                      connection
-                                  )
-                                    ? null
-                                    : (connection.country ||
-                                          null)
+                            connection &&
+                                connection.country
+                                ? connection.country
+                                : null
                         )
                     );
 
