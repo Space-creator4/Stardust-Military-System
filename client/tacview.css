@@ -1,4 +1,6 @@
-/* STARDUST TACTICAL OVERLAY STYLES */
+/* STARDUST TACTICAL OVERLAY STYLES
+   Re-themed: dark "green/blue ops console" — night-ops lambda glow.
+   Palette driven by CSS custom properties so future theming is trivial. */
 
 #tacScroll {
     pointer-events: none;
@@ -16,22 +18,26 @@
     top: 16px;
     right: 16px;
     width: 196px;
-    border: 1px solid rgba(148, 184, 255, 0.1);
-    background: linear-gradient(180deg, rgba(12, 18, 25, 0.88), rgba(7, 11, 16, 0.94));
+    border: 1px solid rgba(94, 230, 160, 0.12);
+    background: linear-gradient(180deg, rgba(6, 14, 18, 0.88), rgba(3, 8, 12, 0.94));
     border-radius: 10px;
     overflow: hidden;
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04), 0 18px 40px -20px rgba(0, 0, 0, 0.8);
+    box-shadow: inset 0 1px 0 rgba(148, 184, 255, 0.06), 0 0 30px -6px rgba(56, 189, 248, 0.12), 0 18px 40px -20px rgba(0, 0, 0, 0.8);
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
 }
 
+.tac-legend:hover {
+    border-color: rgba(94, 230, 160, 0.22);
+}
+
 .tac-overlay-title {
-    height: 34px;
+    height: 32px;
     display: flex;
     align-items: center;
     padding: 0 13px;
-    border-bottom: 1px solid rgba(148, 184, 255, 0.1);
-    color: #8a99a8;
+    border-bottom: 1px solid rgba(94, 230, 160, 0.1);
+    color: #6fd6ff;
     font-family: var(--font-display);
     font-size: 9px;
     font-weight: 600;
@@ -44,7 +50,7 @@
     align-items: center;
     gap: 9px;
     padding: 5px 13px;
-    color: #8a99a8;
+    color: #7d94a8;
     font-family: var(--font-display);
     font-size: 8px;
     font-weight: 600;
@@ -57,7 +63,7 @@
     height: 8px;
     border-radius: 50%;
     flex: 0 0 auto;
-    box-shadow: 0 0 8px rgba(255, 255, 255, 0.15);
+    box-shadow: 0 0 8px rgba(94, 230, 160, 0.4);
 }
 
 .tac-swat-threat {
@@ -70,14 +76,14 @@
     flex-wrap: wrap;
     gap: 6px;
     padding: 8px 13px 4px;
-    border-top: 1px solid rgba(148, 184, 255, 0.08);
+    border-top: 1px solid rgba(94, 230, 160, 0.08);
 }
 
 .tac-toggle {
     padding: 4px 8px;
-    border: 1px solid rgba(148, 184, 255, 0.16);
+    border: 1px solid rgba(56, 189, 248, 0.18);
     border-radius: 999px;
-    background: rgba(10, 15, 21, 0.5);
+    background: rgba(6, 14, 18, 0.5);
     color: #5b6c7a;
     font-family: var(--font-display);
     font-size: 8px;
@@ -90,19 +96,20 @@
 
 .tac-toggle:hover {
     color: #e7eef6;
-    border-color: rgba(148, 184, 255, 0.4);
+    border-color: rgba(94, 230, 160, 0.4);
 }
 
 .tac-toggle-on {
     color: #e7eef6;
     border-color: #5ee6a0;
     background: rgba(94, 230, 160, 0.08);
+    box-shadow: 0 0 12px -2px rgba(94, 230, 160, 0.25);
 }
 
 .tac-live {
     padding: 7px 13px;
-    border-top: 1px solid rgba(148, 184, 255, 0.08);
-    color: #7ec8e3;
+    border-top: 1px solid rgba(94, 230, 160, 0.08);
+    color: #5ee6a0;
     font-family: var(--font-mono);
     font-size: 9px;
     letter-spacing: 0.6px;
@@ -113,19 +120,20 @@
     left: 16px;
     bottom: 16px;
     width: 248px;
-    border: 1px solid rgba(148, 184, 255, 0.1);
-    background: linear-gradient(180deg, rgba(12, 18, 25, 0.88), rgba(7, 11, 16, 0.94));
+    border: 1px solid rgba(94, 230, 160, 0.12);
+    background: linear-gradient(180deg, rgba(6, 14, 18, 0.9), rgba(3, 8, 12, 0.96));
     border-radius: 10px;
     overflow: hidden;
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04), 0 18px 40px -20px rgba(0, 0, 0, 0.8);
+    box-shadow: inset 0 1px 0 rgba(148, 184, 255, 0.05), 0 0 30px -6px rgba(56, 189, 248, 0.1), 0 18px 40px -20px rgba(0, 0, 0, 0.8);
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
 }
 
 .tac-inspector-head {
     padding: 10px 13px;
-    border-bottom: 1px solid rgba(148, 184, 255, 0.1);
+    border-bottom: 1px solid rgba(56, 189, 248, 0.1);
     border-left: 3px solid #5ee6a0;
+    background: linear-gradient(90deg, rgba(94, 230, 160, 0.06), transparent);
 }
 
 .tac-inspector-title {
@@ -139,7 +147,7 @@
 .tac-inspector-kind {
     display: block;
     margin-top: 2px;
-    color: #5b6c7a;
+    color: #6fd6ff;
     font-family: var(--font-display);
     font-size: 8px;
     font-weight: 600;
@@ -152,7 +160,7 @@
     align-items: center;
     justify-content: space-between;
     padding: 6px 13px;
-    border-top: 1px solid rgba(148, 184, 255, 0.06);
+    border-top: 1px solid rgba(94, 230, 160, 0.06);
 }
 
 .tac-inspector-row span:first-child {
@@ -165,7 +173,7 @@
 }
 
 .tac-inspector-row span:last-child {
-    color: #e7eef6;
+    color: #d7e6f2;
     font-family: var(--font-mono);
     font-size: 9px;
     text-align: right;
@@ -177,7 +185,7 @@
 
 .tac-inspector-close button {
     background: transparent;
-    border: 1px solid rgba(148, 184, 255, 0.3);
+    border: 1px solid rgba(56, 189, 248, 0.28);
     color: #8a99a8;
     font-family: var(--font-display);
     font-size: 8px;
@@ -192,11 +200,12 @@
 .tac-inspector-close button:hover {
     color: #e7eef6;
     border-color: #5ee6a0;
+    box-shadow: 0 0 12px -2px rgba(94, 230, 160, 0.3);
 }
 
 .tac-chart {
     padding: 8px 13px 2px;
-    border-top: 1px solid rgba(148, 184, 255, 0.08);
+    border-top: 1px solid rgba(94, 230, 160, 0.07);
 }
 
 .tac-chart-label {
@@ -205,6 +214,7 @@
     font-size: 8px;
     font-weight: 600;
     letter-spacing: 2px;
+    text-transform: uppercase;
     margin-bottom: 3px;
 }
 
@@ -218,11 +228,11 @@
     position: absolute;
     min-width: 190px;
     max-width: 250px;
-    border: 1px solid rgba(148, 184, 255, 0.18);
-    background: linear-gradient(180deg, rgba(12, 18, 25, 0.95), rgba(7, 11, 16, 0.98));
+    border: 1px solid rgba(56, 189, 248, 0.2);
+    background: linear-gradient(180deg, rgba(6, 14, 18, 0.95), rgba(3, 8, 12, 0.98));
     border-radius: 8px;
     overflow: hidden;
-    box-shadow: 0 18px 40px -12px rgba(0, 0, 0, 0.85);
+    box-shadow: 0 18px 40px -12px rgba(0, 0, 0, 0.85), 0 0 24px -6px rgba(94, 230, 160, 0.12);
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
     z-index: 20;
@@ -230,7 +240,7 @@
 
 .tac-menu-head {
     padding: 8px 12px;
-    border-bottom: 1px solid rgba(148, 184, 255, 0.1);
+    border-bottom: 1px solid rgba(94, 230, 160, 0.1);
     border-left: 3px solid #5ee6a0;
     color: #e7eef6;
     font-family: var(--font-mono);
@@ -244,7 +254,7 @@
     text-align: left;
     padding: 9px 12px;
     border: 0;
-    border-top: 1px solid rgba(148, 184, 255, 0.06);
+    border-top: 1px solid rgba(56, 189, 248, 0.06);
     background: transparent;
     color: #8a99a8;
     font-family: var(--font-display);
@@ -256,7 +266,7 @@
 }
 
 .tac-menu-item:hover {
-    background: rgba(28, 40, 52, 0.5);
+    background: rgba(6, 22, 28, 0.6);
     color: #e7eef6;
 }
 
@@ -290,8 +300,8 @@
 .tac-toast {
     padding: 7px 14px;
     border-radius: 999px;
-    border: 1px solid rgba(94, 230, 160, 0.4);
-    background: rgba(10, 15, 21, 0.85);
+    border: 1px solid rgba(94, 230, 160, 0.45);
+    background: rgba(6, 14, 18, 0.85);
     color: #5ee6a0;
     font-family: var(--font-display);
     font-size: 9px;
@@ -305,8 +315,8 @@
 }
 
 .tac-toast-error {
-    border-color: rgba(255, 107, 87, 0.5);
-    color: #ff6b57;
+    border-color: rgba(255, 107, 87, 0.55);
+    color: #ff8f7d;
 }
 
 .tac-toast-out {
@@ -322,3 +332,4 @@
         width: 168px;
     }
 }
+</content>
