@@ -608,6 +608,9 @@ function createTactical(context) {
 
         const threatPayload = [];
         for (const thr of threats.values()) {
+            if (scoped && thr.country !== scoped) {
+                continue;
+            }
             threatPayload.push({
                 id: thr.id,
                 name: thr.name,

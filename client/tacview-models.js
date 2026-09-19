@@ -394,11 +394,13 @@
 
     function makePrimitive(kind, r, g, b, id) {
         const geometry = geometryForKind(kind);
-        const color = [r, g, b, 1];
+        const color = new C.Color(r, g, b, 1);
         const instance = new C.GeometryInstance({
             id: id,
             geometry: geometry,
-            attributes: { color: color },
+            attributes: {
+                color: C.ColorGeometryInstanceAttribute.fromColor(color)
+            },
             modelMatrix: C.Matrix4.IDENTITY
         });
         const primitive = new C.Primitive({
@@ -410,15 +412,24 @@
         return {
             primitive: primitive,
             instance: instance,
-            colorArray: color
+            color: color
         };
     }
 
     function setColor(model, r, g, b) {
-        const c = model.colorArray;
-        c[0] = r;
-        c[1] = g;
-        c[2] = b;
+        if (!model || !model.primitive) {
+            return;
+        }
+        model.color = new C.Color(r, g, b, 1);
+        try {
+            const attributes = model.primitive.getGeometryInstanceAttributes(model.instance.id);
+            if (attributes) {
+                attributes.color = C.ColorGeometryInstanceAttribute.toValue(model.color);
+            }
+        } catch (error) {
+            /* A primitive can be recoloured before Cesium has created its
+               instance attributes; its initial colour remains valid. */
+        }
     }
 
     function setPose(model, lon, lat, alt, headingDeg, scale) {

@@ -984,7 +984,7 @@
             '<div id="tacToasts"></div>' +
 
             '<div class="tac-legend" id="tacLegend">' +
-            '<div class="tac-overlay-title">TACTICAL PICTURE</div>' +
+            '<div class="tac-overlay-title"><span>TACTICAL PICTURE</span><button class="tac-drawer-toggle" id="tacDrawerToggle" aria-expanded="true" aria-controls="tacLegend" title="Collapse tactical drawer">−</button></div>' +
             '<div class="tac-legend-row"><span class="tac-swat" style="background:#62d18b"></span>INFANTRY</div>' +
             '<div class="tac-legend-row"><span class="tac-swat" style="background:#f0b94d"></span>ARMOUR</div>' +
             '<div class="tac-legend-row"><span class="tac-swat" style="background:#4d9bf0"></span>MECHANIZED</div>' +
@@ -1025,6 +1025,13 @@
         document.getElementById("tacToggleTrails").addEventListener("click", function (event) {
             event.stopPropagation();
             self.toggleTrails();
+        });
+        document.getElementById("tacDrawerToggle").addEventListener("click", function (event) {
+            event.stopPropagation();
+            const legend = document.getElementById("tacLegend");
+            const collapsed = legend.classList.toggle("tac-legend-collapsed");
+            event.currentTarget.setAttribute("aria-expanded", String(!collapsed));
+            event.currentTarget.textContent = collapsed ? "+" : "−";
         });
     }
 
@@ -1081,6 +1088,7 @@
         }
         viewer = viewerRef;
         enabled = true;
+        self.enabled = true;
 
         buildDom();
         setupInteractions();

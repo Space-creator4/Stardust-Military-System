@@ -1,7 +1,7 @@
 const CESIUM_ION_TOKEN =
     window.CESIUM_ION_TOKEN || "";
 
-if (CESIUM_ION_TOKEN) {
+if (CESIUM_ION_TOKEN && window.Cesium) {
     Cesium.Ion.defaultAccessToken = CESIUM_ION_TOKEN;
 }
 
@@ -1285,6 +1285,13 @@ async function createGlobe() {
                 terrainProvider:
                     new Cesium.EllipsoidTerrainProvider(),
 
+                /* Local imagery keeps the command globe visible without an
+                   Ion token or external imagery service. */
+                imageryProvider:
+                    new Cesium.SingleTileImageryProvider({
+                        url: "assets/earth/earth-21600.jpg"
+                    }),
+
                 animation: false,
                 timeline: false,
                 baseLayerPicker: false,
@@ -2306,6 +2313,10 @@ function bindMapControls(viewer) {
                 longitude.textContent =
                     lon.toFixed(3) +
                     "°";
+                const locationReadout = document.getElementById("mapLocation");
+                if (locationReadout) {
+                    locationReadout.textContent = "POS · " + lat.toFixed(2) + " / " + lon.toFixed(2);
+                }
             },
             Cesium.ScreenSpaceEventType
                 .MOUSE_MOVE
@@ -2314,7 +2325,18 @@ function bindMapControls(viewer) {
 }
 
 function startStardustGlobe() {
+    const showMapFallback = message => {
+        const container = document.getElementById("mapGlobe");
+        if (!container || container.querySelector(".map-fallback")) return;
+        container.innerHTML = '<div class="map-fallback" role="status"><strong>TACTICAL MAP UNAVAILABLE</strong><span>' + message + '</span><button type="button" onclick="location.reload()">RETRY LINK</button></div>';
+        const status = document.getElementById("mapStatusText");
+        if (status) status.textContent = "MAP LINK DEGRADED";
+    };
     const start = () => {
+        if (!window.Cesium) {
+            showMapFallback("The globe service did not load. Check the network connection and retry.");
+            return;
+        }
         createGlobe()
             .then(() => {
                 console.log(
@@ -2330,6 +2352,7 @@ function startStardustGlobe() {
                 );
 
                 setSystemStatus(false);
+                showMapFallback("The globe could not be initialized. Retry the map link.");
             });
     };
 
@@ -2592,8 +2615,7 @@ function connectChat() {
                 }
 
 if (
-                    data.type ===
-                    "user"
+                    (data.type === "user" || data.type === "identity")
                 ) {
                     currentUser =
                         data.user ||
@@ -2601,6 +2623,12 @@ if (
 
                     window.currentUser =
                         currentUser;
+                    const roleReadout = document.getElementById("mapRole");
+                    if (roleReadout) {
+                        roleReadout.textContent = currentUser && currentUser.isAdmin
+                            ? "ROLE · COMMAND"
+                            : "ROLE · OPERATOR";
+                    }
                 }
 
                 if (

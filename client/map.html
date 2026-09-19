@@ -8,7 +8,10 @@
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Black+Ops+One&family=Rajdhani:wght@500;600;700&family=Stardos+Stencil:wght@400;700&display=swap"
+        rel="stylesheet"
+    >
 
     <link rel="stylesheet" href="style.css">
 
@@ -27,8 +30,49 @@
     </script>
 
     <style>
+        :root {
+            --bg: #0e110b;
+            --bg-2: #15190f;
+            --plate-a: rgba(28, 33, 19, 0.78);
+            --plate-b: rgba(11, 13, 7, 0.92);
+            --line: rgba(214, 204, 158, 0.14);
+            --line-2: rgba(214, 204, 158, 0.28);
+            --text: #e8e2cc;
+            --text-2: #aaa37f;
+            --text-3: #6f6b54;
+            --olive: #a3b04c;
+            --sand: #cdb878;
+            --amber: #c9a35f;
+            --hazard: #e06b2a;
+            --hazard-2: #ff8a5c;
+            --radius-panel: 8px;
+            --radius-control: 4px;
+            --font-stencil: "Black Ops One", "Stardos Stencil", "Rajdhani", "Segoe UI", sans-serif;
+            --font-display: "Rajdhani", "Segoe UI", system-ui, sans-serif;
+            --font-body: "Segoe UI", system-ui, -apple-system, sans-serif;
+            --font-mono: "Courier New", Courier, ui-monospace, monospace;
+            --shadow-panel: 0 24px 50px -28px rgba(0, 0, 0, 0.85);
+            --hl-top: inset 0 1px 0 rgba(232, 226, 204, 0.06);
+            --green: #a3b04c;
+            --cyan: #cdb878;
+            --red: #e06b2a;
+            --gold: #c9a35f;
+            --surface-1: var(--plate-a);
+            --surface-2: var(--plate-b);
+        }
+
         body {
             font-family: var(--font-body);
+        }
+
+        body::before {
+            background:
+                radial-gradient(1000px 520px at 12% -8%, rgba(163, 176, 76, 0.05), transparent 60%),
+                radial-gradient(900px 620px at 104% 4%, rgba(205, 184, 120, 0.04), transparent 55%),
+                radial-gradient(1200px 800px at 50% 120%, rgba(163, 176, 76, 0.045), transparent 60%),
+                linear-gradient(rgba(214, 204, 158, 0.022) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(214, 204, 158, 0.022) 1px, transparent 1px);
+            background-size: auto, auto, auto, 44px 44px, 44px 44px;
         }
 
         .map-page {
@@ -38,7 +82,15 @@
             background: transparent;
         }
 
+        .map-page :focus-visible {
+            outline: 2px solid rgba(205, 184, 120, 0.55);
+            outline-offset: 2px;
+        }
+
+        /* ---------- Map page header ---------- */
+
         .map-header {
+            position: relative;
             height: 70px;
             display: flex;
             align-items: center;
@@ -47,17 +99,30 @@
             border-bottom: 1px solid var(--line);
         }
 
+        .map-header::before {
+            content: "";
+            position: absolute;
+            right: 0;
+            bottom: -4px;
+            width: 140px;
+            height: 4px;
+            background: repeating-linear-gradient(45deg, rgba(224, 107, 42, 0.4) 0 5px, transparent 5px 10px);
+            opacity: 0.55;
+            pointer-events: none;
+        }
+
         .map-title {
-            color: #e7eef6;
-            font-family: var(--font-display);
-            font-size: 26px;
-            font-weight: 700;
-            letter-spacing: 6px;
+            color: var(--text);
+            font-family: var(--font-stencil);
+            font-weight: 400;
+            font-size: 30px;
+            line-height: 1.1;
+            letter-spacing: 4px;
         }
 
         .map-subtitle {
-            margin-top: 7px;
-            color: #8a99a8;
+            margin-top: 9px;
+            color: var(--text-3);
             font-family: var(--font-display);
             font-size: 9px;
             font-weight: 600;
@@ -65,16 +130,18 @@
             text-transform: uppercase;
         }
 
+        /* ---------- Status pill ---------- */
+
         .map-status {
             display: flex;
             align-items: center;
-            gap: 9px;
-            padding: 6px 12px;
-            border: 1px solid rgba(148, 184, 255, 0.12);
-            border-radius: 999px;
-            background: rgba(10, 15, 21, 0.5);
-            color: #8a99a8;
-            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+            gap: 10px;
+            padding: 7px 14px;
+            border: 1px solid var(--line);
+            border-radius: var(--radius-control);
+            background: linear-gradient(180deg, var(--plate-a), var(--plate-b));
+            color: var(--text-2);
+            box-shadow: var(--hl-top), var(--shadow-panel);
             font-family: var(--font-display);
             font-size: 10px;
             font-weight: 600;
@@ -85,32 +152,49 @@
             width: 7px;
             height: 7px;
             border-radius: 50%;
-            background: #5ee6a0;
-            box-shadow: 0 0 9px rgba(94, 230, 160, 0.45);
+            background: var(--olive);
+            box-shadow: 0 0 9px rgba(163, 176, 76, 0.5);
+            animation: stardust-pulse 2.2s ease-in-out infinite;
         }
 
+        @keyframes stardust-pulse {
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.35;
+            }
+        }
+
+        /* ---------- Force filter chip (desert/sand) ---------- */
+
         .force-filter-chip {
+            margin-left: 4px;
             padding: 5px 11px;
-            border: 1px solid rgba(217, 196, 122, 0.45);
-            background: rgba(217, 196, 122, 0.07);
-            color: #d9c47a;
+            border: 1px solid rgba(205, 184, 120, 0.5);
+            border-radius: var(--radius-control);
+            background: linear-gradient(180deg, rgba(45, 40, 24, 0.6), rgba(24, 22, 13, 0.82));
+            color: var(--sand);
             font-family: var(--font-display);
             font-size: 9px;
             font-weight: 600;
             letter-spacing: 1.5px;
             text-transform: uppercase;
             cursor: pointer;
-            border-radius: 999px;
-            box-shadow: 0 0 12px rgba(217, 196, 122, 0.12);
+            box-shadow: var(--hl-top);
             transition: color 0.15s ease, border-color 0.15s ease, background-color 0.15s ease, box-shadow 0.15s ease;
         }
 
         .force-filter-chip:hover {
-            color: #f3e3a8;
-            border-color: #d9c47a;
-            background: rgba(217, 196, 122, 0.12);
-            box-shadow: 0 0 16px rgba(217, 196, 122, 0.18);
+            color: var(--text);
+            border-color: var(--sand);
+            background: linear-gradient(180deg, rgba(60, 53, 31, 0.7), rgba(32, 29, 17, 0.85));
+            box-shadow: 0 0 14px rgba(205, 184, 120, 0.15);
         }
+
+        /* ---------- Globe frame ---------- */
 
         .map-container {
             position: relative;
@@ -118,20 +202,23 @@
             height: calc(100vh - 126px);
             margin-top: 20px;
             overflow: hidden;
-            border: 1px solid rgba(148, 184, 255, 0.1);
-            background: radial-gradient(760px 500px at 52% 44%, rgba(26, 40, 64, 0.32), rgba(5, 8, 12, 0.95) 74%);
-            border-radius: 12px;
-            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05), 0 22px 48px -28px rgba(0, 0, 0, 0.9);
+            border: 1px solid var(--line);
+            border-radius: var(--radius-panel);
+            background: linear-gradient(180deg, var(--plate-a), var(--plate-b));
+            box-shadow:
+                inset 0 1px 0 rgba(232, 226, 204, 0.05),
+                inset 0 0 0 1px rgba(214, 204, 158, 0.04),
+                0 24px 50px -28px rgba(0, 0, 0, 0.85);
         }
 
         .map-container::before,
         .map-container::after {
             content: "";
             position: absolute;
-            z-index: 12;
+            z-index: 5;
             width: 18px;
             height: 18px;
-            border: 0 solid rgba(76, 201, 240, 0.4);
+            border: 0 solid rgba(163, 176, 76, 0.45);
             pointer-events: none;
         }
 
@@ -154,28 +241,54 @@
             height: 100%;
         }
 
+        /* ---------- Map controls plate ---------- */
+
         .map-overlay {
             position: absolute;
             top: 16px;
             left: 16px;
             z-index: 10;
             width: 220px;
-            border: 1px solid rgba(148, 184, 255, 0.1);
-            background: linear-gradient(180deg, rgba(12, 18, 25, 0.86), rgba(7, 11, 16, 0.92));
-            border-radius: 10px;
+            border: 1px solid var(--line);
+            background: linear-gradient(180deg, var(--plate-a), var(--plate-b));
+            border-radius: var(--radius-panel);
             overflow: hidden;
-            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04), 0 18px 40px -20px rgba(0, 0, 0, 0.8);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
+            box-shadow: var(--hl-top), 0 18px 40px -20px rgba(0, 0, 0, 0.8);
+        }
+
+        .map-overlay::before,
+        .map-overlay::after {
+            content: "";
+            position: absolute;
+            z-index: 2;
+            width: 9px;
+            height: 9px;
+            border: 0 solid rgba(163, 176, 76, 0.4);
+            pointer-events: none;
+        }
+
+        .map-overlay::before {
+            left: 7px;
+            top: 7px;
+            border-left-width: 1px;
+            border-top-width: 1px;
+        }
+
+        .map-overlay::after {
+            right: 7px;
+            bottom: 7px;
+            border-right-width: 1px;
+            border-bottom-width: 1px;
         }
 
         .overlay-title {
             height: 42px;
             display: flex;
             align-items: center;
-            padding: 0 15px;
-            border-bottom: 1px solid rgba(148, 184, 255, 0.1);
-            color: #8a99a8;
+            padding: 0 18px;
+            border-bottom: 1px solid var(--line);
+            background: linear-gradient(180deg, rgba(163, 176, 76, 0.07), transparent);
+            color: var(--text-2);
             font-family: var(--font-display);
             font-size: 10px;
             font-weight: 600;
@@ -183,52 +296,60 @@
             text-transform: uppercase;
         }
 
-        .map-control {
+        .overlay-title::before {
+            content: "";
+            width: 6px;
+            height: 6px;
+            margin-right: 10px;
+            background: var(--olive);
+            box-shadow: 0 0 8px rgba(163, 176, 76, 0.35);
+            flex: 0 0 auto;
+        }
+
+        .map-page .map-control {
             width: 100%;
             height: 40px;
             display: flex;
             align-items: center;
-            padding: 0 15px;
+            padding: 0 18px;
             border: 0;
             border-left: 2px solid transparent;
-            border-bottom: 1px solid rgba(148, 184, 255, 0.1);
+            border-bottom: 1px solid var(--line);
+            border-radius: 0;
             background: transparent;
-            color: #8a99a8;
+            color: var(--text-3);
             font-family: var(--font-display);
             font-size: 9px;
             font-weight: 600;
-            letter-spacing: 1.5px;
+            letter-spacing: 1.6px;
             text-align: left;
             text-transform: uppercase;
             cursor: pointer;
             transition: color 0.15s ease, background-color 0.15s ease, border-color 0.15s ease;
         }
 
-        .map-control:last-child {
+        .map-page .map-control:last-child {
             border-bottom: 0;
         }
 
-        .map-control:hover {
-            background: rgba(28, 40, 52, 0.45);
-            color: #e7eef6;
+        .map-page .map-control:hover {
+            background: rgba(28, 33, 19, 0.5);
+            color: var(--text);
+            box-shadow: none;
         }
 
-        .map-control.active {
-            color: #e7eef6;
-            border-left-color: #5ee6a0;
-            background: linear-gradient(90deg, rgba(94, 230, 160, 0.1), transparent 70%);
+        .map-page .map-control.active {
+            color: var(--text);
+            border-left-color: var(--olive);
+            background: linear-gradient(90deg, rgba(163, 176, 76, 0.13), transparent 72%);
         }
 
-        .map-control:disabled {
+        .map-page .map-control:disabled {
             opacity: 0.45;
             cursor: not-allowed;
         }
 
-        .map-control:focus-visible,
-        .force-filter-chip:focus-visible {
-            outline: 2px solid rgba(76, 201, 240, 0.75);
-            outline-offset: 2px;
-        }
+        /* ---------- Cursor readout plate ---------- */
 
         .map-info {
             position: absolute;
@@ -236,21 +357,45 @@
             bottom: 16px;
             z-index: 10;
             width: 230px;
-            border: 1px solid rgba(148, 184, 255, 0.1);
-            background: linear-gradient(180deg, rgba(12, 18, 25, 0.86), rgba(7, 11, 16, 0.92));
-            border-radius: 10px;
+            border: 1px solid var(--line);
+            background: linear-gradient(180deg, var(--plate-a), var(--plate-b));
+            border-radius: var(--radius-panel);
             overflow: hidden;
-            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04), 0 18px 40px -20px rgba(0, 0, 0, 0.8);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
+            box-shadow: var(--hl-top), 0 18px 40px -20px rgba(0, 0, 0, 0.8);
+        }
+
+        .map-info::before,
+        .map-info::after {
+            content: "";
+            position: absolute;
+            z-index: 2;
+            width: 9px;
+            height: 9px;
+            border: 0 solid rgba(163, 176, 76, 0.4);
+            pointer-events: none;
+        }
+
+        .map-info::before {
+            left: 7px;
+            top: 7px;
+            border-left-width: 1px;
+            border-top-width: 1px;
+        }
+
+        .map-info::after {
+            right: 7px;
+            bottom: 7px;
+            border-right-width: 1px;
+            border-bottom-width: 1px;
         }
 
         .map-info-row {
             display: flex;
             align-items: center;
             justify-content: space-between;
+            gap: 12px;
             padding: 11px 15px;
-            border-bottom: 1px solid rgba(148, 184, 255, 0.1);
+            border-bottom: 1px solid var(--line);
         }
 
         .map-info-row:last-child {
@@ -258,20 +403,28 @@
         }
 
         .map-info-row span:first-child {
-            color: #5b6c7a;
+            color: var(--text-3);
             font-family: var(--font-display);
             font-size: 8px;
             font-weight: 600;
             letter-spacing: 2px;
             text-transform: uppercase;
+            white-space: nowrap;
         }
 
         .map-info-row span:last-child {
-            color: #e7eef6;
+            color: var(--text);
             font-family: var(--font-mono);
             font-size: 10px;
             letter-spacing: 0.4px;
+            font-variant-numeric: tabular-nums;
+            padding: 3px 8px;
+            border-radius: 2px;
+            background: rgba(0, 0, 0, 0.28);
+            box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.55), inset 0 -1px 0 rgba(232, 226, 204, 0.05);
         }
+
+        /* ---------- Cesium chrome ---------- */
 
         .cesium-viewer-bottom {
             left: 12px !important;
@@ -279,19 +432,22 @@
         }
 
         .cesium-widget-credits {
+            font-family: var(--font-mono);
             font-size: 9px;
-            color: rgba(138, 153, 168, 0.45) !important;
+            color: rgba(111, 107, 84, 0.5) !important;
             background: transparent !important;
         }
 
         .cesium-widget-credits a {
-            color: rgba(138, 153, 168, 0.5) !important;
+            color: rgba(170, 163, 127, 0.55) !important;
         }
 
         @media (prefers-reduced-motion: reduce) {
             .force-filter-chip,
-            .map-control {
+            .map-control,
+            .map-status .status-dot {
                 transition: none;
+                animation: none;
             }
         }
 
@@ -306,6 +462,10 @@
                 gap: 12px;
             }
 
+            .map-header::before {
+                width: 90px;
+            }
+
             .map-container {
                 height: calc(100vh - 160px);
             }
@@ -318,6 +478,29 @@
                 display: none;
             }
         }
+
+        /* Mission-control skin: the globe remains the primary surface. */
+        :root { --bg:#080d16; --bg-2:#0b1320; --plate-a:rgba(16,26,41,.94); --plate-b:rgba(8,13,22,.97); --line:rgba(95,179,255,.22); --line-2:rgba(95,179,255,.48); --text:#e8f0fa; --text-2:#b7c8dd; --text-3:#8fa2bb; --olive:#42d8c7; --sand:#5fb3ff; --amber:#f2b84b; --hazard:#ff6b6b; --hazard-2:#ff9898; --green:#42d8c7; --cyan:#5fb3ff; --red:#ff6b6b; --gold:#f2b84b; --radius-panel:3px; --radius-control:2px; }
+        body::before { background: linear-gradient(rgba(95,179,255,.035) 1px,transparent 1px),linear-gradient(90deg,rgba(95,179,255,.035) 1px,transparent 1px),radial-gradient(900px 600px at 50% 40%,rgba(23,61,104,.18),transparent 68%); background-size:48px 48px,48px 48px,auto; }
+        .map-page { padding:16px; }
+        .map-header { height:54px; padding:0 2px 12px; }
+        .map-header::before { left:0; right:auto; width:150px; background:repeating-linear-gradient(90deg,var(--cyan) 0 3px,transparent 3px 8px); opacity:.72; }
+        .map-title { font-family:var(--font-display); font-size:22px; font-weight:700; letter-spacing:4px; }
+        .map-subtitle { margin-top:3px; color:var(--text-3); font-size:9px; letter-spacing:2px; }
+        .map-status { border-radius:2px; padding:6px 9px; background:rgba(16,26,41,.75); color:var(--text-2); box-shadow:none; }
+        .map-container { margin-top:12px; height:calc(100vh - 112px); border-radius:3px; background:#080d16; box-shadow:inset 0 0 0 1px rgba(95,179,255,.08); }
+        .map-container::before,.map-container::after { border-color:var(--cyan); opacity:.8; }
+        .map-overlay { width:42px; top:12px; left:12px; border-radius:2px; background:rgba(16,26,41,.92); overflow:visible; }
+        .map-overlay::before,.map-overlay::after,.overlay-title { display:none; }
+        .map-page .map-control { height:42px; padding:0; justify-content:center; border-left:0; color:var(--text-2); font-size:0; }
+        .map-page .map-control::before { font-size:17px; line-height:1; } #homeMap::before{content:'⌂'} #zoomIn::before{content:'+'} #zoomOut::before{content:'−'} #toggleBorders::before{content:'▦'} #buildingsToggle::before{content:'▧'}
+        .map-page .map-control.active { border-left:0; border-right:2px solid var(--cyan); background:rgba(95,179,255,.13); } .map-page .map-control:hover { background:rgba(95,179,255,.18); }
+        .map-info { right:12px; bottom:12px; width:196px; border-radius:2px; background:rgba(16,26,41,.9); box-shadow:none; } .map-info::before,.map-info::after { display:none; } .map-info-row{padding:7px 10px}.map-info-row span:first-child{font-size:8px;letter-spacing:1.3px}.map-info-row span:last-child{background:transparent;padding:0;color:var(--cyan)}
+        @media (max-width:900px){ .map-page{padding:10px}.map-container{height:calc(100vh - 106px)}.map-status{font-size:9px}.force-filter-chip{display:none!important}.map-info{display:none}.map-overlay{top:10px;left:10px} }
+        .map-command-readout{display:flex;align-items:center;gap:12px;color:var(--text-3);font:600 9px var(--font-mono);letter-spacing:.7px}.map-command-readout span+span{padding-left:12px;border-left:1px solid var(--line)}
+        .map-fallback{position:absolute;inset:0;display:flex;z-index:2;align-items:center;justify-content:center;flex-direction:column;gap:10px;background:radial-gradient(circle at 50% 45%,#122844 0,#080d16 58%);color:var(--text);font:600 12px var(--font-display);letter-spacing:1.6px;text-align:center}.map-fallback strong{color:var(--amber);font-size:15px}.map-fallback span{color:var(--text-2);max-width:340px;letter-spacing:.5px}.map-fallback button{padding:7px 10px;border:1px solid var(--cyan);background:transparent;color:var(--cyan);font:600 10px var(--font-display);letter-spacing:1.3px;cursor:pointer}
+        @media (max-width:900px){ body:has(#mapGlobe) > #app > header,body:has(#mapGlobe) .sidebar{display:none}body:has(#mapGlobe) main{height:100vh}body:has(#mapGlobe) .content{width:100%}.map-header{height:64px}.map-status{display:none}.map-command-readout{gap:7px;font-size:8px}.map-command-readout span+span{padding-left:7px}.map-container{height:calc(100vh - 86px)} }
+        @media (max-width:600px){.map-page{padding:8px}.map-header{height:58px;padding-bottom:8px}.map-title{font-size:19px}.map-subtitle{font-size:8px}.map-command-readout{position:absolute;right:0;bottom:8px}.map-command-readout span:first-child{display:none}.map-container{margin-top:8px;height:calc(100vh - 74px)} }
     </style>
 </head>
 
@@ -447,6 +630,12 @@
 
                     </div>
 
+                    <div class="map-command-readout" aria-label="Operational status">
+                        <span id="mapRole">ROLE · OPERATOR</span>
+                        <span id="mapUtc">UTC · --:--:--</span>
+                        <span id="mapLocation">POS · WAITING</span>
+                    </div>
+
                 </div>
 
                 <div class="map-container">
@@ -520,6 +709,16 @@
 
 </div>
 <script src="/config.js"></script>
+<script>
+    (function () {
+        const clock = document.getElementById("mapUtc");
+        const update = () => {
+            if (clock) clock.textContent = "UTC · " + new Date().toISOString().slice(11, 19);
+        };
+        update();
+        setInterval(update, 1000);
+    })();
+</script>
 <script src="/userdata.js"></script>
 <script src="/tacview-models.js"></script>
 <script src="/tacview-map.js"></script>

@@ -8,14 +8,285 @@
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Black+Ops+One&family=Rajdhani:wght@500;600;700&family=Stardos+Stencil:wght@400;700&display=swap" rel="stylesheet">
 
     <link rel="stylesheet" href="/style.css">
 
     <style>
+        :root {
+            --bg: #0e110b;
+            --bg-2: #15190f;
+            --plate-a: rgba(28, 33, 19, 0.78);
+            --plate-b: rgba(11, 13, 7, 0.92);
+            --line: rgba(214, 204, 158, 0.14);
+            --line-2: rgba(214, 204, 158, 0.28);
+            --text: #e8e2cc;
+            --text-2: #aaa37f;
+            --text-3: #6f6b54;
+            --olive: #a3b04c;
+            --sand: #cdb878;
+            --amber: #c9a35f;
+            --hazard: #e06b2a;
+            --hazard-2: #ff8a5c;
+            --radius-panel: 8px;
+            --radius-control: 4px;
+            --font-stencil: "Black Ops One", "Stardos Stencil", "Rajdhani", "Segoe UI", sans-serif;
+            --font-display: "Rajdhani", "Segoe UI", system-ui, sans-serif;
+            --font-body: "Segoe UI", system-ui, -apple-system, sans-serif;
+            --font-mono: "Courier New", Courier, ui-monospace, monospace;
+            --shadow-panel: 0 24px 50px -28px rgba(0, 0, 0, 0.85);
+            --hl-top: inset 0 1px 0 rgba(232, 226, 204, 0.06);
+            /* legacy aliases so old JS/var() references keep working */
+            --green: #a3b04c;
+            --cyan: #cdb878;
+            --red: #e06b2a;
+            --gold: #c9a35f;
+            --surface-1: var(--plate-a);
+            --surface-2: var(--plate-b);
+        }
+
+        html, body {
+            background: linear-gradient(180deg, #0e110b 0%, #15190f 55%, #0e110b 100%);
+        }
+
         body {
             font-family: var(--font-body);
         }
+
+        /* ---------- Atmosphere: khaki field grid + faint radial warmth ---------- */
+
+        body::before {
+            background:
+                radial-gradient(920px 540px at 80% -6%, rgba(163, 176, 76, 0.05), transparent 60%),
+                radial-gradient(780px 520px at 0% 104%, rgba(205, 184, 120, 0.04), transparent 60%),
+                linear-gradient(rgba(214, 204, 158, 0.022) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(214, 204, 158, 0.022) 1px, transparent 1px);
+            background-size: auto, auto, 44px 44px, 44px 44px;
+        }
+
+        /* ---------- Injected update banner (config.js) ---------- */
+
+        #stardust-update-banner {
+            border-bottom: 1px solid var(--line-2) !important;
+            background: rgba(23, 27, 15, 0.9) !important;
+            color: var(--olive) !important;
+            box-shadow: inset 0 1px 0 rgba(232, 226, 204, 0.05) !important;
+            font-family: var(--font-mono) !important;
+            font-size: 11px !important;
+            letter-spacing: 0.5px !important;
+            backdrop-filter: none !important;
+            -webkit-backdrop-filter: none !important;
+        }
+
+        #stardust-update-refresh {
+            background: rgba(163, 176, 76, 0.12) !important;
+            color: var(--olive) !important;
+            border: 1px solid rgba(163, 176, 76, 0.45) !important;
+            border-radius: var(--radius-control) !important;
+            text-transform: uppercase !important;
+            letter-spacing: 1.5px !important;
+            font-weight: 600 !important;
+        }
+
+        #stardust-update-refresh:hover {
+            background: rgba(163, 176, 76, 0.22) !important;
+            color: var(--text) !important;
+        }
+
+        /* ---------- App shell / header ---------- */
+
+        #app {
+            background: transparent;
+        }
+
+        header {
+            background: linear-gradient(180deg, rgba(28, 33, 19, 0.9), rgba(14, 17, 11, 0.95));
+            border-bottom: 1px solid var(--line);
+            box-shadow: var(--hl-top);
+            backdrop-filter: none;
+            -webkit-backdrop-filter: none;
+        }
+
+        header::after {
+            content: "";
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: -3px;
+            height: 4px;
+            pointer-events: none;
+            background:
+                linear-gradient(90deg, rgba(163, 176, 76, 0.45), rgba(163, 176, 76, 0.45)) left bottom / 100% 1px no-repeat,
+                repeating-linear-gradient(45deg, rgba(224, 107, 42, 0.5) 0 5px, transparent 5px 10px) right center / 180px 4px no-repeat;
+        }
+
+        .brand {
+            gap: 14px;
+        }
+
+        .logo {
+            position: relative;
+            width: 38px;
+            height: 38px;
+            border: 1px solid var(--line-2);
+            border-radius: 6px;
+            background: linear-gradient(180deg, var(--plate-a), var(--plate-b));
+            color: var(--sand);
+            font-size: 17px;
+            box-shadow: var(--hl-top);
+        }
+
+        .logo::before,
+        .logo::after {
+            content: "";
+            position: absolute;
+            width: 7px;
+            height: 7px;
+            border: 1px solid rgba(163, 176, 76, 0.55);
+        }
+
+        .logo::before {
+            top: 3px;
+            left: 3px;
+            border-right: 0;
+            border-bottom: 0;
+        }
+
+        .logo::after {
+            bottom: 3px;
+            right: 3px;
+            border-left: 0;
+            border-top: 0;
+        }
+
+        .brand h1 {
+            color: var(--text);
+            font-family: var(--font-stencil);
+            font-size: 18px;
+            letter-spacing: 6px;
+        }
+
+        .brand span {
+            color: var(--text-3);
+            font-family: var(--font-display);
+            font-size: 9px;
+            font-weight: 600;
+            letter-spacing: 3.5px;
+        }
+
+        .system-status {
+            border: 1px solid var(--line);
+            border-radius: var(--radius-control);
+            background: linear-gradient(180deg, rgba(21, 25, 15, 0.9), rgba(11, 13, 7, 0.9));
+            color: var(--text-2);
+            box-shadow: var(--hl-top);
+            font-family: var(--font-mono);
+            font-size: 9px;
+            font-weight: 600;
+            letter-spacing: 2px;
+        }
+
+        .status-dot {
+            background: var(--olive);
+            box-shadow: 0 0 9px rgba(163, 176, 76, 0.45);
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        .status-dot.offline {
+            background: var(--hazard);
+            box-shadow: 0 0 9px rgba(224, 107, 42, 0.4);
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.35;
+            }
+        }
+
+        /* ---------- Sidebar ---------- */
+
+        .sidebar {
+            background: linear-gradient(180deg, rgba(21, 25, 15, 0.92), rgba(11, 13, 7, 0.96));
+            border-right: 1px solid var(--line);
+            box-shadow: inset -1px 0 0 rgba(214, 204, 158, 0.04);
+            backdrop-filter: none;
+            -webkit-backdrop-filter: none;
+        }
+
+        .sidebar-section,
+        .sidebar-bottom {
+            gap: 3px;
+        }
+
+        .sidebar-label {
+            color: var(--text-3);
+            font-family: var(--font-stencil);
+            font-size: 9px;
+            letter-spacing: 2.5px;
+        }
+
+        .nav {
+            border: 1px solid transparent;
+            border-left: 2px solid transparent;
+            border-radius: var(--radius-control);
+            background: transparent;
+            color: var(--text-2);
+            font-size: 10px;
+            letter-spacing: 2px;
+        }
+
+        .nav:hover {
+            background: rgba(214, 204, 158, 0.05);
+            border-color: var(--line);
+            border-left-color: var(--line-2);
+            color: var(--text);
+        }
+
+        .nav.active {
+            background: linear-gradient(90deg, rgba(163, 176, 76, 0.14), transparent 70%);
+            border-color: transparent;
+            border-left-color: var(--olive);
+            color: var(--text);
+            box-shadow: none;
+        }
+
+        .nav-icon {
+            color: var(--text-3);
+        }
+
+        .nav.active .nav-icon {
+            color: var(--olive);
+        }
+
+        .nav.admin:hover {
+            color: var(--sand);
+            border-color: rgba(205, 184, 120, 0.3);
+            background: rgba(205, 184, 120, 0.06);
+        }
+
+        .nav.logout:hover {
+            color: var(--hazard-2);
+            border-color: rgba(224, 107, 42, 0.3);
+            background: rgba(224, 107, 42, 0.06);
+        }
+
+        .nav.coffee,
+        .logout.coffee {
+            color: var(--amber);
+        }
+
+        .nav.coffee:hover,
+        .logout.coffee:hover {
+            color: var(--sand);
+            border-color: rgba(201, 163, 95, 0.3);
+            background: rgba(201, 163, 95, 0.06);
+        }
+
+        /* ---------- Settings page ---------- */
 
         .settings-page {
             width: 100%;
@@ -30,20 +301,19 @@
             align-items: center;
             justify-content: space-between;
             padding-bottom: 20px;
-            border-bottom: 1px solid rgba(148, 184, 255, 0.1);
+            border-bottom: 1px solid var(--line);
         }
 
         .settings-title {
-            color: #e7eef6;
-            font-family: var(--font-display);
-            font-size: 26px;
-            font-weight: 700;
+            color: var(--text);
+            font-family: var(--font-stencil);
+            font-size: 25px;
             letter-spacing: 6px;
         }
 
         .settings-subtitle {
             margin-top: 7px;
-            color: #8a99a8;
+            color: var(--text-2);
             font-family: var(--font-display);
             font-size: 9px;
             font-weight: 600;
@@ -56,23 +326,24 @@
             align-items: center;
             gap: 9px;
             padding: 6px 12px;
-            border: 1px solid rgba(148, 184, 255, 0.12);
-            border-radius: 999px;
-            background: rgba(10, 15, 21, 0.5);
-            color: #8a99a8;
-            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
-            font-family: var(--font-display);
-            font-size: 10px;
+            border: 1px solid var(--line);
+            border-radius: var(--radius-control);
+            background: linear-gradient(180deg, rgba(21, 25, 15, 0.9), rgba(11, 13, 7, 0.9));
+            color: var(--text-2);
+            box-shadow: var(--hl-top);
+            font-family: var(--font-mono);
+            font-size: 9px;
             font-weight: 600;
             letter-spacing: 2px;
+            text-transform: uppercase;
         }
 
         .settings-status-dot {
             width: 7px;
             height: 7px;
             border-radius: 50%;
-            background: #e5533b;
-            box-shadow: 0 0 9px rgba(229, 83, 59, 0.35);
+            background: var(--hazard);
+            box-shadow: 0 0 9px rgba(224, 107, 42, 0.35);
         }
 
         .settings-grid {
@@ -82,11 +353,38 @@
             margin-top: 20px;
         }
 
+        /* ---------- Panels ---------- */
+
         .panel {
-            border: 1px solid rgba(148, 184, 255, 0.1);
-            background: linear-gradient(180deg, rgba(15, 22, 30, 0.68), rgba(8, 12, 18, 0.88));
-            border-radius: 12px;
-            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05), 0 22px 48px -28px rgba(0, 0, 0, 0.9);
+            position: relative;
+            border: 1px solid var(--line);
+            background: linear-gradient(180deg, var(--plate-a), var(--plate-b));
+            border-radius: var(--radius-panel);
+            box-shadow: var(--hl-top), var(--shadow-panel);
+            overflow: hidden;
+        }
+
+        .corner {
+            position: absolute;
+            width: 12px;
+            height: 12px;
+            border: 1px solid rgba(163, 176, 76, 0.45);
+            pointer-events: none;
+            z-index: 2;
+        }
+
+        .corner.tl {
+            top: 6px;
+            left: 6px;
+            border-right: 0;
+            border-bottom: 0;
+        }
+
+        .corner.br {
+            bottom: 6px;
+            right: 6px;
+            border-left: 0;
+            border-top: 0;
         }
 
         .panel-header {
@@ -95,21 +393,22 @@
             align-items: center;
             justify-content: space-between;
             padding: 0 18px;
-            border-bottom: 1px solid rgba(148, 184, 255, 0.1);
-            color: #8a99a8;
-            font-family: var(--font-display);
+            border-bottom: 1px solid var(--line);
+            color: var(--text-2);
+            font-family: var(--font-stencil);
             font-size: 10px;
-            font-weight: 600;
             letter-spacing: 2.5px;
             text-transform: uppercase;
         }
 
         .panel-indicator {
-            color: #5ee6a0;
+            color: var(--olive);
+            font-family: var(--font-mono);
             font-size: 9px;
-            letter-spacing: 2px;
-            text-transform: uppercase;
+            letter-spacing: 1px;
         }
+
+        /* ---------- Forms ---------- */
 
         .settings-form {
             padding: 18px;
@@ -122,7 +421,7 @@
         .form-label {
             display: block;
             margin-bottom: 7px;
-            color: #8a99a8;
+            color: var(--text-2);
             font-family: var(--font-display);
             font-size: 9px;
             font-weight: 600;
@@ -130,86 +429,84 @@
             text-transform: uppercase;
         }
 
-        .form-input {
-            width: 100%;
-            box-sizing: border-box;
-            height: 38px;
-            padding: 0 10px;
-            border: 1px solid rgba(148, 184, 255, 0.14);
-            outline: none;
-            background: rgba(5, 8, 12, 0.55);
-            color: #e7eef6;
-            font-family: inherit;
-            font-size: 11px;
-            border-radius: 8px;
-            transition: border-color 0.15s ease, box-shadow 0.15s ease;
-        }
-
-        .form-input:focus {
-            border-color: rgba(76, 201, 240, 0.5);
-            box-shadow: 0 0 0 2px rgba(76, 201, 240, 0.12);
-        }
-
-        .form-input:focus-visible {
-            outline: 2px solid rgba(76, 201, 240, 0.75);
-            outline-offset: 2px;
-        }
-
+        .form-input,
         .form-color {
             width: 100%;
             box-sizing: border-box;
             height: 38px;
-            padding: 4px 6px;
-            border: 1px solid rgba(148, 184, 255, 0.14);
+            padding: 0 10px;
+            border: 1px solid var(--line);
             outline: none;
-            background: rgba(5, 8, 12, 0.55);
-            cursor: pointer;
-            border-radius: 8px;
+            background: rgba(0, 0, 0, 0.25);
+            box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.35);
+            color: var(--text);
+            font-family: var(--font-mono);
+            font-size: 11px;
+            letter-spacing: 0.5px;
+            border-radius: var(--radius-control);
+            transition: border-color 0.15s ease, box-shadow 0.15s ease;
         }
 
+        .form-input:focus,
+        .form-color:focus {
+            border-color: rgba(163, 176, 76, 0.55);
+            box-shadow: 0 0 0 2px rgba(163, 176, 76, 0.12);
+        }
+
+        .form-input:focus-visible,
         .form-color:focus-visible {
-            outline: 2px solid rgba(76, 201, 240, 0.75);
+            outline: 2px solid rgba(205, 184, 120, 0.55);
             outline-offset: 2px;
+        }
+
+        .form-color {
+            padding: 4px 6px;
+            cursor: pointer;
         }
 
         .save-button {
             width: 100%;
             height: 40px;
-            border: 1px solid rgba(94, 230, 160, 0.35);
-            background: linear-gradient(180deg, rgba(21, 66, 46, 0.5), rgba(10, 32, 24, 0.7));
-            color: #5ee6a0;
+            border: 1px solid rgba(163, 176, 76, 0.55);
+            background: linear-gradient(180deg, rgba(163, 176, 76, 0.26), rgba(163, 176, 76, 0.1));
+            color: var(--olive);
             font-family: var(--font-display);
-            font-size: 10px;
-            font-weight: 600;
+            font-size: 11px;
+            font-weight: 700;
             letter-spacing: 2px;
             text-transform: uppercase;
             cursor: pointer;
-            border-radius: 8px;
-            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+            border-radius: var(--radius-control);
+            box-shadow: 0 0 14px rgba(163, 176, 76, 0.12), var(--hl-top);
             transition: color 0.15s ease, background-color 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
         }
 
         .save-button:hover {
-            background: rgba(21, 66, 46, 0.65);
-            border-color: #5ee6a0;
-            box-shadow: 0 0 18px rgba(94, 230, 160, 0.18);
+            background: rgba(163, 176, 76, 0.2);
+            border-color: var(--olive);
+            color: var(--text);
+            box-shadow: 0 0 20px rgba(163, 176, 76, 0.18);
         }
 
         .save-button:focus-visible {
-            outline: 2px solid rgba(94, 230, 160, 0.75);
+            outline: 2px solid rgba(205, 184, 120, 0.55);
             outline-offset: 2px;
         }
 
         .message {
             margin-top: 12px;
             padding: 12px 15px;
-            border: 1px solid rgba(148, 184, 255, 0.12);
-            background: rgba(5, 8, 12, 0.5);
-            color: #8a99a8;
+            border: 1px solid var(--line);
+            background: rgba(0, 0, 0, 0.25);
+            color: var(--text-2);
+            font-family: var(--font-mono);
             font-size: 10px;
-            border-radius: 8px;
+            letter-spacing: 0.5px;
+            border-radius: var(--radius-control);
             display: none;
         }
+
+        /* ---------- Account ---------- */
 
         .account-panel {
             padding: 18px;
@@ -220,16 +517,16 @@
             align-items: center;
             gap: 14px;
             padding-bottom: 15px;
-            border-bottom: 1px solid rgba(148, 184, 255, 0.08);
+            border-bottom: 1px solid var(--line);
         }
 
         .account-avatar {
             width: 44px;
             height: 44px;
-            border-radius: 50%;
-            border: 1px solid rgba(148, 184, 255, 0.2);
-            background: rgba(5, 8, 12, 0.6);
-            color: #5b6c7a;
+            border-radius: 6px;
+            border: 1px solid var(--line-2);
+            background: rgba(0, 0, 0, 0.25);
+            color: var(--text-3);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -239,12 +536,12 @@
         .account-avatar img {
             width: 100%;
             height: 100%;
-            border-radius: 50%;
+            border-radius: 6px;
             object-fit: cover;
         }
 
         .account-name {
-            color: #e7eef6;
+            color: var(--text);
             font-size: 11px;
             font-weight: 600;
             letter-spacing: 1px;
@@ -252,18 +549,18 @@
 
         .account-meta {
             margin-top: 5px;
-            color: #5b6c7a;
+            color: var(--text-3);
             font-family: var(--font-mono);
             font-size: 9px;
         }
 
         .account-field {
             padding: 12px 0;
-            border-bottom: 1px solid rgba(148, 184, 255, 0.08);
+            border-bottom: 1px solid var(--line);
         }
 
         .account-field-label {
-            color: #5b6c7a;
+            color: var(--text-3);
             font-family: var(--font-display);
             font-size: 8px;
             font-weight: 600;
@@ -273,7 +570,7 @@
 
         .account-field-value {
             margin-top: 6px;
-            color: #e7eef6;
+            color: var(--text);
             font-family: var(--font-mono);
             font-size: 10px;
         }
@@ -281,20 +578,19 @@
         .claim-status {
             margin-bottom: 12px;
             padding: 10px 12px;
-            border-left: 2px solid rgba(148, 184, 255, 0.2);
-            background: rgba(5, 8, 12, 0.5);
-            color: #5b6c7a;
-            font-family: var(--font-display);
-            font-size: 8px;
-            font-weight: 600;
+            border-left: 2px solid var(--line-2);
+            background: rgba(0, 0, 0, 0.25);
+            color: var(--text-3);
+            font-family: var(--font-stencil);
+            font-size: 9px;
             letter-spacing: 2px;
             text-transform: uppercase;
-            border-radius: 8px;
+            border-radius: var(--radius-control);
         }
 
         .claim-status.claimed {
-            border-left-color: #5ee6a0;
-            color: #5ee6a0;
+            border-left-color: var(--olive);
+            color: var(--olive);
         }
 
         .claim-actions {
@@ -305,53 +601,59 @@
         .claim-button {
             flex: 1;
             height: 36px;
-            border: 1px solid rgba(94, 230, 160, 0.3);
-            background: rgba(16, 58, 40, 0.35);
-            color: #5ee6a0;
+            border: 1px solid rgba(163, 176, 76, 0.45);
+            background: rgba(163, 176, 76, 0.12);
+            color: var(--olive);
             font-family: var(--font-display);
             font-size: 9px;
-            font-weight: 600;
+            font-weight: 700;
             letter-spacing: 2px;
             text-transform: uppercase;
             cursor: pointer;
-            border-radius: 8px;
+            border-radius: var(--radius-control);
             transition: color 0.15s ease, background-color 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
         }
 
         .claim-button:hover {
-            background: rgba(21, 66, 46, 0.6);
-            border-color: #5ee6a0;
-            box-shadow: 0 0 14px rgba(94, 230, 160, 0.15);
+            background: rgba(163, 176, 76, 0.2);
+            border-color: var(--olive);
+            color: var(--text);
+            box-shadow: 0 0 14px rgba(163, 176, 76, 0.12);
         }
 
         .claim-button:focus-visible {
-            outline: 2px solid rgba(94, 230, 160, 0.75);
+            outline: 2px solid rgba(205, 184, 120, 0.55);
             outline-offset: 2px;
         }
 
         .claim-button.secondary {
-            border-color: rgba(148, 184, 255, 0.14);
-            background: rgba(5, 8, 12, 0.45);
-            color: #8a99a8;
+            border-color: var(--line);
+            background: linear-gradient(180deg, var(--plate-a), var(--plate-b));
+            color: var(--text-2);
         }
 
         .claim-button.secondary:hover {
-            background: rgba(28, 40, 52, 0.45);
-            border-color: rgba(148, 184, 255, 0.25);
-            color: #e7eef6;
+            background: rgba(214, 204, 158, 0.06);
+            border-color: var(--line-2);
+            color: var(--text);
+            box-shadow: none;
         }
 
         .claim-message {
             margin-top: 10px;
+            font-family: var(--font-mono);
             font-size: 9px;
-            letter-spacing: 2px;
-            color: #8a99a8;
+            letter-spacing: 1px;
+            color: var(--text-2);
             display: none;
+            text-transform: uppercase;
         }
 
         .claim-message.error {
-            color: #e5533b;
+            color: var(--hazard);
         }
+
+        /* ---------- Roster ---------- */
 
         .roster-panel {
             grid-column: 1 / -1;
@@ -366,7 +668,7 @@
             align-items: center;
             gap: 12px;
             padding: 10px 8px;
-            border-bottom: 1px solid rgba(148, 184, 255, 0.08);
+            border-bottom: 1px solid var(--line);
             contain: content;
         }
 
@@ -378,31 +680,32 @@
             width: 8px;
             height: 8px;
             flex-shrink: 0;
-            background: #5ee6a0;
-            box-shadow: 0 0 8px rgba(94, 230, 160, 0.35);
+            background: var(--olive);
+            box-shadow: 0 0 8px rgba(163, 176, 76, 0.35);
         }
 
         .roster-country {
             flex: 1;
             min-width: 0;
-            color: #e7eef6;
+            color: var(--text);
             font-size: 10px;
             font-weight: 600;
-            letter-spacing: 1px;
+            letter-spacing: 1.5px;
+            font-family: var(--font-display);
         }
 
         .roster-commander {
-            color: #5b6c7a;
+            color: var(--text-3);
             font-family: var(--font-mono);
             font-size: 9px;
+            letter-spacing: 0.5px;
         }
 
         .roster-empty {
             padding: 16px;
-            color: #5b6c7a;
-            font-family: var(--font-display);
+            color: var(--text-3);
+            font-family: var(--font-stencil);
             font-size: 9px;
-            font-weight: 600;
             letter-spacing: 2.5px;
             text-transform: uppercase;
             text-align: center;
@@ -410,8 +713,10 @@
 
         @media (prefers-reduced-motion: reduce) {
             .save-button,
-            .claim-button {
+            .claim-button,
+            .status-dot {
                 transition: none;
+                animation: none;
             }
         }
 
@@ -572,6 +877,7 @@
                 <div class="settings-grid">
 
                     <div class="panel">
+                        <span class="corner tl"></span><span class="corner br"></span>
 
                         <div class="panel-header">
 
@@ -628,7 +934,7 @@
                                     type="color"
                                     class="form-color"
                                     id="settingThemeColor"
-                                    value="#5ee6a0"
+                                    value="#a3b04c"
                                 >
 
                             </div>
@@ -700,6 +1006,7 @@
                     </div>
 
                     <div class="panel">
+                        <span class="corner tl"></span><span class="corner br"></span>
 
                         <div class="panel-header">
 
@@ -790,6 +1097,7 @@
                 </div>
 
                 <div class="panel roster-panel">
+                    <span class="corner tl"></span><span class="corner br"></span>
 
                     <div class="panel-header">
 
@@ -848,11 +1156,11 @@ function setSystemStatus(online) {
         }
 
         if (dot) {
-            dot.style.background = "#5ee6a0";
+            dot.style.background = "#a3b04c";
         }
 
         if (settingsDot) {
-            settingsDot.style.background = "#5ee6a0";
+            settingsDot.style.background = "#a3b04c";
         }
 
     } else {
@@ -866,11 +1174,11 @@ function setSystemStatus(online) {
         }
 
         if (dot) {
-            dot.style.background = "#e5533b";
+            dot.style.background = "#e06b2a";
         }
 
         if (settingsDot) {
-            settingsDot.style.background = "#e5533b";
+            settingsDot.style.background = "#e06b2a";
         }
     }
 }
@@ -885,7 +1193,7 @@ function showMessage(message, error) {
 
     element.textContent = message;
     element.style.display = "block";
-    element.style.color = error ? "#e5533b" : "#6d7d89";
+    element.style.color = error ? "#e06b2a" : "#aaa37f";
 }
 
 function buildAvatar(user) {
@@ -992,7 +1300,7 @@ async function loadSettings() {
             theme_color:
                 local.theme_color ||
                 settings.theme_color ||
-                "#5ee6a0"
+                "#a3b04c"
         };
 
         getElement("settingDisplayName").value =
@@ -1264,7 +1572,7 @@ function factionColorFor(country) {
 
     const key = normalizeFactionName(country);
 
-    return factionColors[key] || "#5ee6a0";
+    return factionColors[key] || "#a3b04c";
 }
 
 async function loadLeaders() {
@@ -1374,7 +1682,7 @@ async function pushSettings(payload) {
             window.stardustUserData.saveLocalSettings({
                 display_name: data.settings.display_name || payload.display_name || "",
                 country: data.settings.country || payload.country || "",
-                theme_color: data.settings.theme_color || payload.theme_color || "#5ee6a0"
+                theme_color: data.settings.theme_color || payload.theme_color || "#a3b04c"
             });
         }
 

@@ -1,6 +1,7 @@
 /* STARDUST TACTICAL OVERLAY STYLES
-   Re-themed: dark "green/blue ops console" — night-ops lambda glow.
-   Palette driven by CSS custom properties so future theming is trivial. */
+   FIELD KIT / TACTICAL STENCIL — solid metal plates, khaki hairlines,
+   olive live states, sand chrome accents, hazard only where it means danger.
+   Palette driven by CSS custom properties (defined by the host page). */
 
 #tacScroll {
     pointer-events: none;
@@ -13,22 +14,47 @@
     pointer-events: auto;
 }
 
+/* ---------- Legend ---------- */
+
 .tac-legend {
     position: absolute;
     top: 16px;
     right: 16px;
     width: 196px;
-    border: 1px solid rgba(94, 230, 160, 0.12);
-    background: linear-gradient(180deg, rgba(6, 14, 18, 0.88), rgba(3, 8, 12, 0.94));
-    border-radius: 10px;
+    border: 1px solid var(--line);
+    background: linear-gradient(180deg, var(--plate-a), var(--plate-b));
+    border-radius: var(--radius-panel, 8px);
     overflow: hidden;
-    box-shadow: inset 0 1px 0 rgba(148, 184, 255, 0.06), 0 0 30px -6px rgba(56, 189, 248, 0.12), 0 18px 40px -20px rgba(0, 0, 0, 0.8);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
+    box-shadow: var(--hl-top), 0 18px 40px -20px rgba(0, 0, 0, 0.8);
+}
+
+.tac-legend::before,
+.tac-legend::after {
+    content: "";
+    position: absolute;
+    z-index: 2;
+    width: 9px;
+    height: 9px;
+    border: 0 solid rgba(163, 176, 76, 0.4);
+    pointer-events: none;
+}
+
+.tac-legend::before {
+    left: 7px;
+    top: 7px;
+    border-left-width: 1px;
+    border-top-width: 1px;
+}
+
+.tac-legend::after {
+    right: 7px;
+    bottom: 7px;
+    border-right-width: 1px;
+    border-bottom-width: 1px;
 }
 
 .tac-legend:hover {
-    border-color: rgba(94, 230, 160, 0.22);
+    border-color: var(--line-2);
 }
 
 .tac-overlay-title {
@@ -36,13 +62,23 @@
     display: flex;
     align-items: center;
     padding: 0 13px;
-    border-bottom: 1px solid rgba(94, 230, 160, 0.1);
-    color: #6fd6ff;
-    font-family: var(--font-display);
+    border-bottom: 1px solid var(--line);
+    color: var(--text-2);
+    font-family: var(--font-display, "Rajdhani", "Segoe UI", sans-serif);
     font-size: 9px;
     font-weight: 600;
     letter-spacing: 2.5px;
     text-transform: uppercase;
+}
+
+.tac-overlay-title::before {
+    content: "";
+    width: 6px;
+    height: 6px;
+    margin-right: 9px;
+    background: var(--olive, #a3b04c);
+    box-shadow: 0 0 8px rgba(163, 176, 76, 0.35);
+    flex: 0 0 auto;
 }
 
 .tac-legend-row {
@@ -50,8 +86,8 @@
     align-items: center;
     gap: 9px;
     padding: 5px 13px;
-    color: #7d94a8;
-    font-family: var(--font-display);
+    color: var(--text-2);
+    font-family: var(--font-display, "Rajdhani", "Segoe UI", sans-serif);
     font-size: 8px;
     font-weight: 600;
     letter-spacing: 1.4px;
@@ -63,12 +99,12 @@
     height: 8px;
     border-radius: 50%;
     flex: 0 0 auto;
-    box-shadow: 0 0 8px rgba(94, 230, 160, 0.4);
+    box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.35), 0 0 7px rgba(163, 176, 76, 0.28);
 }
 
 .tac-swat-threat {
-    background: #ff6b57;
-    box-shadow: 0 0 9px rgba(255, 107, 87, 0.55);
+    background: var(--hazard, #e06b2a);
+    box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.35), 0 0 9px rgba(224, 107, 42, 0.5);
 }
 
 .tac-toggles {
@@ -76,79 +112,129 @@
     flex-wrap: wrap;
     gap: 6px;
     padding: 8px 13px 4px;
-    border-top: 1px solid rgba(94, 230, 160, 0.08);
+    border-top: 1px solid var(--line);
 }
 
 .tac-toggle {
     padding: 4px 8px;
-    border: 1px solid rgba(56, 189, 248, 0.18);
-    border-radius: 999px;
-    background: rgba(6, 14, 18, 0.5);
-    color: #5b6c7a;
-    font-family: var(--font-display);
+    border: 1px solid var(--line-2, rgba(214, 204, 158, 0.28));
+    border-radius: var(--radius-control, 4px);
+    background: rgba(11, 13, 7, 0.65);
+    color: var(--text-3);
+    font-family: var(--font-display, "Rajdhani", "Segoe UI", sans-serif);
     font-size: 8px;
     font-weight: 600;
     letter-spacing: 1.2px;
     cursor: pointer;
     text-transform: uppercase;
-    transition: color 0.15s, border-color 0.15s, background 0.15s;
+    box-shadow: inset 0 1px 0 rgba(0, 0, 0, 0.35);
+    transition: color 0.15s, border-color 0.15s, background 0.15s, box-shadow 0.15s;
 }
 
 .tac-toggle:hover {
-    color: #e7eef6;
-    border-color: rgba(94, 230, 160, 0.4);
+    color: var(--text);
+    border-color: rgba(205, 184, 120, 0.5);
 }
 
 .tac-toggle-on {
-    color: #e7eef6;
-    border-color: #5ee6a0;
-    background: rgba(94, 230, 160, 0.08);
-    box-shadow: 0 0 12px -2px rgba(94, 230, 160, 0.25);
+    color: var(--text);
+    border-color: rgba(163, 176, 76, 0.6);
+    background: rgba(163, 176, 76, 0.14);
+    box-shadow: inset 0 1px 0 rgba(0, 0, 0, 0.4), 0 0 12px -2px rgba(163, 176, 76, 0.25);
 }
 
 .tac-live {
-    padding: 7px 13px;
-    border-top: 1px solid rgba(94, 230, 160, 0.08);
-    color: #5ee6a0;
-    font-family: var(--font-mono);
+    padding: 8px 13px;
+    border-top: 1px solid var(--line);
+    color: var(--olive, #a3b04c);
+    font-family: var(--font-mono, "Courier New", Courier, monospace);
     font-size: 9px;
-    letter-spacing: 0.6px;
+    letter-spacing: 0.8px;
 }
+
+.tac-live::before {
+    content: "";
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    margin-right: 8px;
+    border-radius: 50%;
+    background: var(--olive, #a3b04c);
+    box-shadow: 0 0 8px rgba(163, 176, 76, 0.5);
+    animation: stardust-pulse 2s ease-in-out infinite;
+    vertical-align: middle;
+}
+
+@keyframes stardust-pulse {
+    0%,
+    100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.35;
+    }
+}
+
+/* ---------- Inspector ---------- */
 
 .tac-inspector {
     position: absolute;
     left: 16px;
     bottom: 16px;
     width: 248px;
-    border: 1px solid rgba(94, 230, 160, 0.12);
-    background: linear-gradient(180deg, rgba(6, 14, 18, 0.9), rgba(3, 8, 12, 0.96));
-    border-radius: 10px;
+    border: 1px solid var(--line);
+    background: linear-gradient(180deg, var(--plate-a), var(--plate-b));
+    border-radius: var(--radius-panel, 8px);
     overflow: hidden;
-    box-shadow: inset 0 1px 0 rgba(148, 184, 255, 0.05), 0 0 30px -6px rgba(56, 189, 248, 0.1), 0 18px 40px -20px rgba(0, 0, 0, 0.8);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
+    box-shadow: var(--hl-top), 0 18px 40px -20px rgba(0, 0, 0, 0.8);
+}
+
+.tac-inspector::before,
+.tac-inspector::after {
+    content: "";
+    position: absolute;
+    z-index: 2;
+    width: 9px;
+    height: 9px;
+    border: 0 solid rgba(163, 176, 76, 0.4);
+    pointer-events: none;
+}
+
+.tac-inspector::before {
+    left: 7px;
+    top: 7px;
+    border-left-width: 1px;
+    border-top-width: 1px;
+}
+
+.tac-inspector::after {
+    right: 7px;
+    bottom: 7px;
+    border-right-width: 1px;
+    border-bottom-width: 1px;
 }
 
 .tac-inspector-head {
-    padding: 10px 13px;
-    border-bottom: 1px solid rgba(56, 189, 248, 0.1);
-    border-left: 3px solid #5ee6a0;
-    background: linear-gradient(90deg, rgba(94, 230, 160, 0.06), transparent);
+    padding: 11px 13px;
+    border-bottom: 1px solid var(--line);
+    border-left: 3px solid var(--olive, #a3b04c);
+    background: linear-gradient(90deg, rgba(163, 176, 76, 0.08), transparent);
 }
 
 .tac-inspector-title {
     display: block;
-    color: #e7eef6;
-    font-family: var(--font-mono);
+    color: var(--text);
+    font-family: var(--font-mono, "Courier New", Courier, monospace);
     font-size: 12px;
     letter-spacing: 0.4px;
 }
 
 .tac-inspector-kind {
     display: block;
-    margin-top: 2px;
-    color: #6fd6ff;
-    font-family: var(--font-display);
+    margin-top: 3px;
+    color: var(--sand, #cdb878);
+    font-family: var(--font-display, "Rajdhani", "Segoe UI", sans-serif);
     font-size: 8px;
     font-weight: 600;
     letter-spacing: 2px;
@@ -159,24 +245,27 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
+    gap: 10px;
     padding: 6px 13px;
-    border-top: 1px solid rgba(94, 230, 160, 0.06);
+    border-top: 1px solid var(--line);
 }
 
 .tac-inspector-row span:first-child {
-    color: #5b6c7a;
-    font-family: var(--font-display);
+    color: var(--text-3);
+    font-family: var(--font-display, "Rajdhani", "Segoe UI", sans-serif);
     font-size: 8px;
     font-weight: 600;
     letter-spacing: 2px;
     text-transform: uppercase;
+    white-space: nowrap;
 }
 
 .tac-inspector-row span:last-child {
-    color: #d7e6f2;
-    font-family: var(--font-mono);
+    color: var(--text);
+    font-family: var(--font-mono, "Courier New", Courier, monospace);
     font-size: 9px;
     text-align: right;
+    font-variant-numeric: tabular-nums;
 }
 
 .tac-inspector-close {
@@ -184,68 +273,101 @@
 }
 
 .tac-inspector-close button {
-    background: transparent;
-    border: 1px solid rgba(56, 189, 248, 0.28);
-    color: #8a99a8;
-    font-family: var(--font-display);
+    padding: 4px 10px;
+    border: 1px solid var(--line-2, rgba(214, 204, 158, 0.28));
+    border-radius: var(--radius-control, 4px);
+    background: linear-gradient(180deg, var(--plate-a), var(--plate-b));
+    color: var(--text-2);
+    font-family: var(--font-display, "Rajdhani", "Segoe UI", sans-serif);
     font-size: 8px;
     font-weight: 600;
     letter-spacing: 1.5px;
-    padding: 3px 9px;
-    border-radius: 999px;
     cursor: pointer;
     text-transform: uppercase;
+    box-shadow: var(--hl-top, inset 0 1px 0 rgba(232, 226, 204, 0.06));
+    transition: color 0.15s, border-color 0.15s, box-shadow 0.15s;
 }
 
 .tac-inspector-close button:hover {
-    color: #e7eef6;
-    border-color: #5ee6a0;
-    box-shadow: 0 0 12px -2px rgba(94, 230, 160, 0.3);
+    color: var(--text);
+    border-color: var(--sand, #cdb878);
+    box-shadow: 0 0 10px rgba(205, 184, 120, 0.15);
 }
 
 .tac-chart {
-    padding: 8px 13px 2px;
-    border-top: 1px solid rgba(94, 230, 160, 0.07);
+    padding: 8px 13px 6px;
+    border-top: 1px solid var(--line);
 }
 
 .tac-chart-label {
-    color: #5b6c7a;
-    font-family: var(--font-display);
+    color: var(--text-3);
+    font-family: var(--font-display, "Rajdhani", "Segoe UI", sans-serif);
     font-size: 8px;
     font-weight: 600;
     letter-spacing: 2px;
     text-transform: uppercase;
-    margin-bottom: 3px;
+    margin-bottom: 4px;
 }
 
 .tac-chart canvas {
     width: 100%;
     height: 54px;
     display: block;
+    background: rgba(0, 0, 0, 0.22);
+    border-radius: 2px;
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.45);
 }
+
+/* ---------- Context menu ---------- */
 
 .tac-menu {
     position: absolute;
     min-width: 190px;
     max-width: 250px;
-    border: 1px solid rgba(56, 189, 248, 0.2);
-    background: linear-gradient(180deg, rgba(6, 14, 18, 0.95), rgba(3, 8, 12, 0.98));
-    border-radius: 8px;
+    border: 1px solid var(--line-2, rgba(214, 204, 158, 0.28));
+    background: linear-gradient(180deg, var(--plate-a), var(--plate-b));
+    border-radius: var(--radius-control, 4px);
     overflow: hidden;
-    box-shadow: 0 18px 40px -12px rgba(0, 0, 0, 0.85), 0 0 24px -6px rgba(94, 230, 160, 0.12);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
+    box-shadow: 0 18px 40px -12px rgba(0, 0, 0, 0.85), 0 0 18px -4px rgba(163, 176, 76, 0.1);
     z-index: 20;
+}
+
+.tac-menu::before,
+.tac-menu::after {
+    content: "";
+    position: absolute;
+    z-index: 2;
+    width: 8px;
+    height: 8px;
+    border: 0 solid rgba(163, 176, 76, 0.4);
+    pointer-events: none;
+}
+
+.tac-menu::before {
+    left: 6px;
+    top: 6px;
+    border-left-width: 1px;
+    border-top-width: 1px;
+}
+
+.tac-menu::after {
+    right: 6px;
+    bottom: 6px;
+    border-right-width: 1px;
+    border-bottom-width: 1px;
 }
 
 .tac-menu-head {
     padding: 8px 12px;
-    border-bottom: 1px solid rgba(94, 230, 160, 0.1);
-    border-left: 3px solid #5ee6a0;
-    color: #e7eef6;
-    font-family: var(--font-mono);
+    border-bottom: 1px solid var(--line);
+    border-left: 3px solid var(--olive, #a3b04c);
+    background: linear-gradient(90deg, rgba(163, 176, 76, 0.08), transparent);
+    color: var(--text);
+    font-family: var(--font-display, "Rajdhani", "Segoe UI", sans-serif);
     font-size: 10px;
-    letter-spacing: 0.3px;
+    font-weight: 600;
+    letter-spacing: 0.6px;
+    text-transform: uppercase;
 }
 
 .tac-menu-item {
@@ -254,28 +376,30 @@
     text-align: left;
     padding: 9px 12px;
     border: 0;
-    border-top: 1px solid rgba(56, 189, 248, 0.06);
+    border-top: 1px solid var(--line);
     background: transparent;
-    color: #8a99a8;
-    font-family: var(--font-display);
+    color: var(--text-2);
+    font-family: var(--font-display, "Rajdhani", "Segoe UI", sans-serif);
     font-size: 9px;
     font-weight: 600;
     letter-spacing: 1.5px;
     text-transform: uppercase;
     cursor: pointer;
+    transition: color 0.15s, background 0.15s;
 }
 
 .tac-menu-item:hover {
-    background: rgba(6, 22, 28, 0.6);
-    color: #e7eef6;
+    background: rgba(163, 176, 76, 0.08);
+    color: var(--text);
 }
 
 .tac-menu-spawn-label {
-    padding: 6px 12px 2px;
-    color: #5b6c7a;
-    font-family: var(--font-display);
+    padding: 7px 12px 2px;
+    border-top: 1px solid var(--line);
+    color: var(--hazard, #e06b2a);
+    font-family: var(--font-display, "Rajdhani", "Segoe UI", sans-serif);
     font-size: 8px;
-    font-weight: 600;
+    font-weight: 700;
     letter-spacing: 2px;
     text-transform: uppercase;
 }
@@ -284,6 +408,13 @@
     font-size: 8px;
     padding: 6px 12px;
 }
+
+.tac-menu-spawn:hover {
+    color: var(--hazard-2, #ff8a5c);
+    background: rgba(224, 107, 42, 0.08);
+}
+
+/* ---------- Toasts ---------- */
 
 #tacToasts {
     position: absolute;
@@ -299,29 +430,30 @@
 
 .tac-toast {
     padding: 7px 14px;
-    border-radius: 999px;
-    border: 1px solid rgba(94, 230, 160, 0.45);
-    background: rgba(6, 14, 18, 0.85);
-    color: #5ee6a0;
-    font-family: var(--font-display);
+    border: 1px solid rgba(163, 176, 76, 0.5);
+    border-radius: var(--radius-control, 4px);
+    background: linear-gradient(180deg, var(--plate-a), var(--plate-b));
+    color: var(--olive, #a3b04c);
+    font-family: var(--font-display, "Rajdhani", "Segoe UI", sans-serif);
     font-size: 9px;
     font-weight: 600;
     letter-spacing: 1.4px;
     text-transform: uppercase;
     box-shadow: 0 10px 24px -10px rgba(0, 0, 0, 0.8);
     transition: opacity 0.4s;
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
 }
 
 .tac-toast-error {
-    border-color: rgba(255, 107, 87, 0.55);
-    color: #ff8f7d;
+    border-color: rgba(224, 107, 42, 0.6);
+    background: linear-gradient(180deg, rgba(35, 22, 13, 0.9), rgba(16, 12, 7, 0.94));
+    color: var(--hazard-2, #ff8a5c);
 }
 
 .tac-toast-out {
     opacity: 0;
 }
+
+/* ---------- Responsive / motion ---------- */
 
 @media (max-width: 700px) {
     .tac-inspector {
@@ -332,4 +464,33 @@
         width: 168px;
     }
 }
-</content>
+
+@media (prefers-reduced-motion: reduce) {
+    .tac-live::before {
+        animation: none;
+    }
+
+    .tac-toggle,
+    .tac-menu-item,
+    .tac-inspector-close button {
+        transition: none;
+    }
+}
+
+/* Compact, calibrated tactical drawer for the command map. */
+.tac-legend { top:12px; right:12px; width:210px; border-radius:2px; background:rgba(16,26,41,.94); box-shadow:0 12px 32px rgba(0,0,0,.32); }
+.tac-legend::before,.tac-legend::after,.tac-inspector::before,.tac-inspector::after { display:none; }
+.tac-overlay-title { justify-content:space-between; height:34px; padding:0 10px; color:var(--text); background:linear-gradient(90deg,rgba(95,179,255,.12),transparent); }
+.tac-overlay-title::before { width:4px; height:4px; background:var(--cyan); box-shadow:0 0 8px var(--cyan); }
+.tac-drawer-toggle { margin-left:auto; width:24px; height:24px; border:1px solid var(--line); background:transparent; color:var(--text); font:600 16px/1 var(--font-mono); cursor:pointer; }
+.tac-drawer-toggle:hover,.tac-drawer-toggle:focus-visible { border-color:var(--cyan); color:var(--cyan); }
+.tac-legend-row { padding:4px 10px; font-size:8px; color:var(--text-2); }
+.tac-swat { width:6px; height:6px; border-radius:0; }
+.tac-toggles { padding:7px 10px; gap:4px; }.tac-toggle { border-radius:1px; padding:4px 6px; background:#0b1320; }.tac-toggle-on { border-color:var(--cyan); background:rgba(95,179,255,.12); color:var(--text); }
+.tac-live { padding:7px 10px; color:var(--cyan); background:rgba(95,179,255,.06); }.tac-live::before{background:var(--cyan);box-shadow:0 0 8px var(--cyan)}
+.tac-legend-collapsed { width:42px; }.tac-legend-collapsed > :not(.tac-overlay-title) { display:none; }.tac-legend-collapsed .tac-overlay-title > span,.tac-legend-collapsed .tac-overlay-title::before { display:none; }
+.tac-inspector { left:64px; bottom:12px; width:min(310px,calc(100% - 300px)); border-radius:2px; background:rgba(16,26,41,.94); box-shadow:0 12px 32px rgba(0,0,0,.32); }
+.tac-inspector-head { border-left-color:var(--cyan); background:rgba(95,179,255,.08); }.tac-inspector-kind{color:var(--cyan)}
+.tac-toast { border-radius:2px; border-color:var(--cyan); background:#101a29; color:var(--text); }
+@media (max-width:900px) { .tac-legend{top:10px;right:10px}.tac-inspector{left:60px;bottom:10px;width:min(310px,calc(100% - 70px));}.tac-legend-row{padding:3px 9px} }
+@media (max-width:600px) { .tac-legend{width:184px}.tac-inspector{display:none}.tac-toggles{display:grid;grid-template-columns:1fr 1fr}.tac-toggle{width:100%} }

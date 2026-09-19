@@ -1482,14 +1482,14 @@ function broadcastTac() {
                 isAdminConnection(
                     connection
                 );
-            const key =
-                !connection
-                    ? "anon"
-                    : admin
-                        ? "admin"
-                        : "c:" +
-                          (connection.country ||
-                              "");
+            const country = connection && connection.country
+                ? connection.country
+                : null;
+            const key = !connection
+                ? "anon"
+                : admin
+                    ? "admin"
+                    : "c:" + (country || "");
             let payload =
                 payloadCache.get(
                     key
@@ -1498,8 +1498,7 @@ function broadcastTac() {
                 payload =
                     JSON.stringify(
                         tactical.getPayload(
-                            connection.country ||
-                                null
+                            admin ? null : (country || "__NO_COUNTRY__")
                         )
                     );
                 payloadCache.set(
