@@ -14,20 +14,20 @@
 
     <style>
         :root {
-            --bg: #0e110b;
-            --bg-2: #15190f;
-            --plate-a: rgba(28, 33, 19, 0.78);
-            --plate-b: rgba(11, 13, 7, 0.92);
-            --line: rgba(214, 204, 158, 0.14);
-            --line-2: rgba(214, 204, 158, 0.28);
-            --text: #e8e2cc;
-            --text-2: #aaa37f;
-            --text-3: #6f6b54;
-            --olive: #a3b04c;
-            --sand: #cdb878;
-            --amber: #c9a35f;
-            --hazard: #e06b2a;
-            --hazard-2: #ff8a5c;
+            --bg: #0d0a1a;
+            --bg-2: #150f24;
+            --plate-a: rgba(34, 28, 65, 0.78);
+            --plate-b: rgba(13, 10, 26, 0.92);
+            --line: rgba(150, 140, 220, 0.14);
+            --line-2: rgba(150, 140, 220, 0.28);
+            --text: #e9e4f5;
+            --text-2: #b3a9d9;
+            --text-3: #7c74a8;
+            --blue: #6e8cff;
+            --violet: #9e7cff;
+            --lavender: #c9a8ff;
+            --hazard: #ff5f9e;
+            --hazard-2: #ff8ac0;
             --radius-panel: 8px;
             --radius-control: 4px;
             --font-stencil: "Black Ops One", "Stardos Stencil", "Rajdhani", "Segoe UI", sans-serif;
@@ -35,11 +35,11 @@
             --font-body: "Segoe UI", system-ui, -apple-system, sans-serif;
             --font-mono: "Courier New", Courier, ui-monospace, monospace;
             --shadow-panel: 0 24px 50px -28px rgba(0, 0, 0, 0.85);
-            --hl-top: inset 0 1px 0 rgba(232, 226, 204, 0.06);
-            --green: #a3b04c;
-            --cyan: #cdb878;
-            --red: #e06b2a;
-            --gold: #c9a35f;
+            --hl-top: inset 0 1px 0 rgba(235, 230, 255, 0.06);
+            --green: #6e8cff;
+            --cyan: #9e7cff;
+            --red: #ff5f9e;
+            --gold: #c9a8ff;
             --surface-1: var(--plate-a);
             --surface-2: var(--plate-b);
         }
@@ -72,7 +72,7 @@
             bottom: -1px;
             width: 180px;
             height: 4px;
-            background: repeating-linear-gradient(45deg, rgba(224, 107, 42, 0.5) 0 5px, transparent 5px 10px);
+            background: repeating-linear-gradient(45deg, rgba(255, 95, 160, 0.5) 0 5px, transparent 5px 10px);
             opacity: 0.55;
             pointer-events: none;
         }
@@ -100,11 +100,11 @@
             align-items: center;
             gap: 9px;
             padding: 6px 12px;
-            border: 1px solid rgba(163, 176, 76, 0.4);
+            border: 1px solid rgba(110, 140, 255, 0.4);
             border-radius: 999px;
             background: linear-gradient(180deg, var(--plate-a), var(--plate-b));
             color: var(--text);
-            box-shadow: var(--hl-top), 0 0 12px rgba(163, 176, 76, 0.07);
+            box-shadow: var(--hl-top), 0 0 12px rgba(110, 140, 255, 0.07);
             font-family: var(--font-display);
             font-size: 10px;
             font-weight: 600;
@@ -116,7 +116,7 @@
             height: 7px;
             border-radius: 50%;
             background: var(--hazard);
-            box-shadow: 0 0 9px rgba(224, 107, 42, 0.4);
+            box-shadow: 0 0 9px rgba(255, 95, 160, 0.4);
         }
 
         .orders-grid {
@@ -141,8 +141,8 @@
             top: 8px;
             width: 9px;
             height: 9px;
-            border-left: 1px solid rgba(163, 176, 76, 0.5);
-            border-top: 1px solid rgba(163, 176, 76, 0.5);
+            border-left: 1px solid rgba(110, 140, 255, 0.5);
+            border-top: 1px solid rgba(110, 140, 255, 0.5);
             pointer-events: none;
         }
 
@@ -153,8 +153,8 @@
             bottom: 8px;
             width: 9px;
             height: 9px;
-            border-right: 1px solid rgba(163, 176, 76, 0.5);
-            border-bottom: 1px solid rgba(163, 176, 76, 0.5);
+            border-right: 1px solid rgba(110, 140, 255, 0.5);
+            border-bottom: 1px solid rgba(110, 140, 255, 0.5);
             pointer-events: none;
         }
 
@@ -182,11 +182,11 @@
             width: 3px;
             height: 16px;
             transform: translateY(-50%);
-            background: rgba(163, 176, 76, 0.55);
+            background: rgba(110, 140, 255, 0.55);
         }
 
         .panel-indicator {
-            color: var(--olive);
+            color: var(--blue);
             font-size: 9px;
             letter-spacing: 2px;
             text-transform: uppercase;
@@ -207,12 +207,12 @@
         }
 
         .order:hover {
-            background: linear-gradient(90deg, rgba(163, 176, 76, 0.05), transparent 60%);
+            background: linear-gradient(90deg, rgba(110, 140, 255, 0.05), transparent 60%);
         }
 
         .order.active {
-            background: linear-gradient(90deg, rgba(163, 176, 76, 0.1), transparent 60%);
-            border-left: 2px solid var(--olive);
+            background: linear-gradient(90deg, rgba(110, 140, 255, 0.1), transparent 60%);
+            border-left: 2px solid var(--blue);
         }
 
         .order-top {
@@ -232,9 +232,9 @@
 
         .order-status {
             padding: 4px 9px;
-            border: 1px solid rgba(163, 176, 76, 0.4);
-            background: rgba(163, 176, 76, 0.08);
-            color: var(--olive);
+            border: 1px solid rgba(110, 140, 255, 0.4);
+            background: rgba(110, 140, 255, 0.08);
+            color: var(--blue);
             font-family: var(--font-display);
             font-size: 8px;
             font-weight: 600;
@@ -245,9 +245,9 @@
         }
 
         .order-status.pending {
-            color: var(--amber);
-            border-color: rgba(201, 163, 95, 0.35);
-            background: rgba(201, 163, 95, 0.06);
+            color: var(--lavender);
+            border-color: rgba(205, 168, 255, 0.35);
+            background: rgba(205, 168, 255, 0.06);
         }
 
         .order-status.completed {
@@ -274,13 +274,13 @@
 
         .order-priority.high,
         .order-priority.urgent {
-            color: var(--olive);
-            border-color: rgba(163, 176, 76, 0.45);
+            color: var(--blue);
+            border-color: rgba(110, 140, 255, 0.45);
         }
 
         .order-priority.critical {
             color: var(--hazard-2);
-            border-color: rgba(224, 107, 42, 0.5);
+            border-color: rgba(255, 95, 160, 0.5);
         }
 
         .order-priority.routine {
@@ -319,7 +319,7 @@
         }
 
         .order-country {
-            color: var(--sand);
+            color: var(--violet);
         }
 
         .create-form {
@@ -372,23 +372,23 @@
         .form-input:focus,
         .form-select:focus,
         .form-textarea:focus {
-            border-color: rgba(163, 176, 76, 0.6);
-            box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.45), 0 0 0 2px rgba(163, 176, 76, 0.12);
+            border-color: rgba(110, 140, 255, 0.6);
+            box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.45), 0 0 0 2px rgba(110, 140, 255, 0.12);
         }
 
         .form-input:focus-visible,
         .form-select:focus-visible,
         .form-textarea:focus-visible {
-            outline: 2px solid rgba(205, 184, 120, 0.55);
+            outline: 2px solid rgba(158, 122, 255, 0.55);
             outline-offset: 2px;
         }
 
         #app .create-button {
             width: 100%;
             height: 40px;
-            border: 1px solid rgba(163, 176, 76, 0.55);
-            background: linear-gradient(180deg, rgba(24, 28, 15, 0.55), rgba(10, 13, 6, 0.85));
-            color: var(--olive);
+            border: 1px solid rgba(110, 140, 255, 0.55);
+            background: linear-gradient(180deg, rgba(30, 24, 58, 0.55), rgba(12, 9, 25, 0.85));
+            color: var(--blue);
             font-family: var(--font-display);
             font-size: 10px;
             font-weight: 700;
@@ -396,18 +396,18 @@
             text-transform: uppercase;
             cursor: pointer;
             border-radius: var(--radius-control);
-            box-shadow: var(--hl-top), 0 0 14px rgba(163, 176, 76, 0.1);
+            box-shadow: var(--hl-top), 0 0 14px rgba(110, 140, 255, 0.1);
             transition: color 0.15s ease, background-color 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
         }
 
         #app .create-button:hover {
-            border-color: rgba(163, 176, 76, 0.8);
-            color: #d5e08d;
-            box-shadow: 0 0 18px rgba(163, 176, 76, 0.2);
+            border-color: rgba(110, 140, 255, 0.8);
+            color: #d7cfff;
+            box-shadow: 0 0 18px rgba(110, 140, 255, 0.2);
         }
 
         #app .create-button:focus-visible {
-            outline: 2px solid rgba(163, 176, 76, 0.75);
+            outline: 2px solid rgba(110, 140, 255, 0.75);
             outline-offset: 2px;
         }
 
@@ -496,36 +496,36 @@
         }
 
         #app .action-button:hover {
-            background: linear-gradient(180deg, rgba(24, 28, 17, 0.7), rgba(10, 12, 7, 0.9));
-            border-color: rgba(205, 184, 120, 0.5);
+            background: linear-gradient(180deg, rgba(30, 24, 58, 0.7), rgba(12, 9, 25, 0.9));
+            border-color: rgba(158, 122, 255, 0.5);
             color: var(--text);
         }
 
         #app .action-button:focus-visible {
-            outline: 2px solid rgba(205, 184, 120, 0.55);
+            outline: 2px solid rgba(158, 122, 255, 0.55);
             outline-offset: 2px;
         }
 
         #app .action-button.complete {
-            border-color: rgba(163, 176, 76, 0.4);
-            color: var(--olive);
+            border-color: rgba(110, 140, 255, 0.4);
+            color: var(--blue);
         }
 
         #app .action-button.complete:hover {
-            background: rgba(163, 176, 76, 0.08);
-            border-color: var(--olive);
-            box-shadow: 0 0 14px rgba(163, 176, 76, 0.14);
+            background: rgba(110, 140, 255, 0.08);
+            border-color: var(--blue);
+            box-shadow: 0 0 14px rgba(110, 140, 255, 0.14);
         }
 
         #app .action-button.danger {
-            border-color: rgba(224, 107, 42, 0.4);
+            border-color: rgba(255, 95, 160, 0.4);
             color: var(--hazard-2);
         }
 
         #app .action-button.danger:hover {
-            background: rgba(224, 107, 42, 0.1);
-            border-color: rgba(224, 107, 42, 0.7);
-            box-shadow: 0 0 14px rgba(224, 107, 42, 0.14);
+            background: rgba(255, 95, 160, 0.1);
+            border-color: rgba(255, 95, 160, 0.7);
+            box-shadow: 0 0 14px rgba(255, 95, 160, 0.14);
         }
 
         @media (prefers-reduced-motion: reduce) {
@@ -1003,11 +1003,11 @@ function setSystemStatus(online) {
         }
 
         if (dot) {
-            dot.style.background = "#a3b04c";
+            dot.style.background = "#6e8cff";
         }
 
         if (ordersDot) {
-            ordersDot.style.background = "#a3b04c";
+            ordersDot.style.background = "#6e8cff";
         }
 
     } else {
@@ -1021,11 +1021,11 @@ function setSystemStatus(online) {
         }
 
         if (dot) {
-            dot.style.background = "#e06b2a";
+            dot.style.background = "#ff5f9e";
         }
 
         if (ordersDot) {
-            ordersDot.style.background = "#e06b2a";
+            ordersDot.style.background = "#ff5f9e";
         }
     }
 }

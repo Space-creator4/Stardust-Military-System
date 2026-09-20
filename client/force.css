@@ -6,20 +6,20 @@
    idempotent with the shared :root block in style.css. */
 
 :root {
-    --bg: #0e110b;
-    --bg-2: #15190f;
-    --plate-a: rgba(28, 33, 19, 0.78);
-    --plate-b: rgba(11, 13, 7, 0.92);
-    --line: rgba(214, 204, 158, 0.14);
-    --line-2: rgba(214, 204, 158, 0.28);
-    --text: #e8e2cc;
-    --text-2: #aaa37f;
-    --text-3: #6f6b54;
-    --olive: #a3b04c;
-    --sand: #cdb878;
-    --amber: #c9a35f;
-    --hazard: #e06b2a;
-    --hazard-2: #ff8a5c;
+    --bg: #0d0a1a;
+    --bg-2: #150f24;
+    --plate-a: rgba(34, 28, 65, 0.78);
+    --plate-b: rgba(13, 10, 26, 0.92);
+    --line: rgba(150, 140, 220, 0.14);
+    --line-2: rgba(150, 140, 220, 0.28);
+    --text: #e9e4f5;
+    --text-2: #b3a9d9;
+    --text-3: #7c74a8;
+    --blue: #6e8cff;
+    --violet: #9e7cff;
+    --lavender: #c9a8ff;
+    --hazard: #ff5f9e;
+    --hazard-2: #ff8ac0;
     --radius-panel: 8px;
     --radius-control: 4px;
     --font-stencil: "Black Ops One", "Stardos Stencil", "Rajdhani", "Segoe UI", sans-serif;
@@ -27,11 +27,11 @@
     --font-body: "Segoe UI", system-ui, -apple-system, sans-serif;
     --font-mono: "Courier New", Courier, ui-monospace, monospace;
     --shadow-panel: 0 24px 50px -28px rgba(0, 0, 0, 0.85);
-    --hl-top: inset 0 1px 0 rgba(232, 226, 204, 0.06);
-    --green: #a3b04c;
-    --cyan: #cdb878;
-    --red: #e06b2a;
-    --gold: #c9a35f;
+    --hl-top: inset 0 1px 0 rgba(235, 230, 255, 0.06);
+    --green: #6e8cff;
+    --cyan: #9e7cff;
+    --red: #ff5f9e;
+    --gold: #c9a8ff;
     --surface-1: var(--plate-a);
     --surface-2: var(--plate-b);
 }
@@ -52,14 +52,14 @@
 
     padding: 6px 12px;
 
-    border: 1px solid rgba(163, 176, 76, 0.45);
+    border: 1px solid rgba(110, 140, 255, 0.45);
     border-radius: 999px;
 
     background: linear-gradient(180deg, var(--plate-a), var(--plate-b));
 
-    box-shadow: var(--hl-top), 0 0 14px rgba(163, 176, 76, 0.09);
+    box-shadow: var(--hl-top), 0 0 14px rgba(110, 140, 255, 0.09);
 
-    color: var(--olive);
+    color: var(--blue);
 
     font-family: var(--font-display);
     font-size: 10px;
@@ -76,9 +76,9 @@
 
     border-radius: 50%;
 
-    background: var(--olive);
+    background: var(--blue);
 
-    box-shadow: 0 0 10px rgba(163, 176, 76, 0.55);
+    box-shadow: 0 0 10px rgba(110, 140, 255, 0.55);
 
     animation: pulse 1.8s ease-in-out infinite;
 }
@@ -156,9 +156,9 @@
 
     width: 4px;
 
-    background: var(--olive);
+    background: var(--blue);
 
-    box-shadow: 0 0 10px rgba(163, 176, 76, 0.28);
+    box-shadow: 0 0 10px rgba(110, 140, 255, 0.28);
 }
 
 .stat-tile::after {
@@ -172,23 +172,23 @@
     width: 100px;
     height: 100px;
 
-    background: radial-gradient(circle, rgba(214, 204, 158, 0.05), transparent 65%);
+    background: radial-gradient(circle, rgba(150, 140, 220, 0.05), transparent 65%);
 
     pointer-events: none;
 }
 
 .stat-tile.info::before {
-    background: var(--sand);
-    box-shadow: 0 0 10px rgba(205, 184, 120, 0.22);
+    background: var(--violet);
+    box-shadow: 0 0 10px rgba(158, 122, 255, 0.22);
 }
 
 .stat-tile.online::before {
-    background: var(--olive);
+    background: var(--blue);
 }
 
 .stat-tile.moving::before {
-    background: var(--amber);
-    box-shadow: 0 0 10px rgba(201, 163, 95, 0.22);
+    background: var(--lavender);
+    box-shadow: 0 0 10px rgba(205, 168, 255, 0.22);
 }
 
 .stat-label {
@@ -208,7 +208,7 @@
 
     margin-top: 12px;
 
-    color: var(--olive);
+    color: var(--blue);
 
     font-family: var(--font-stencil);
     font-size: 30px;
@@ -216,21 +216,21 @@
     letter-spacing: 2px;
     line-height: 1;
 
-    text-shadow: 0 0 18px rgba(163, 176, 76, 0.18);
+    text-shadow: 0 0 18px rgba(110, 140, 255, 0.18);
 }
 
 .stat-tile.info .stat-value {
-    color: var(--sand);
-    text-shadow: 0 0 18px rgba(205, 184, 120, 0.16);
+    color: var(--violet);
+    text-shadow: 0 0 18px rgba(158, 122, 255, 0.16);
 }
 
 .stat-tile.online .stat-value {
-    color: var(--olive);
+    color: var(--blue);
 }
 
 .stat-tile.moving .stat-value {
-    color: var(--amber);
-    text-shadow: 0 0 18px rgba(201, 163, 95, 0.16);
+    color: var(--lavender);
+    text-shadow: 0 0 18px rgba(205, 168, 255, 0.16);
 }
 
 .stat-sub {
@@ -272,8 +272,8 @@
     width: 9px;
     height: 9px;
 
-    border-left: 1px solid rgba(163, 176, 76, 0.5);
-    border-top: 1px solid rgba(163, 176, 76, 0.5);
+    border-left: 1px solid rgba(110, 140, 255, 0.5);
+    border-top: 1px solid rgba(110, 140, 255, 0.5);
 
     pointer-events: none;
 }
@@ -289,8 +289,8 @@
     width: 9px;
     height: 9px;
 
-    border-right: 1px solid rgba(163, 176, 76, 0.5);
-    border-bottom: 1px solid rgba(163, 176, 76, 0.5);
+    border-right: 1px solid rgba(110, 140, 255, 0.5);
+    border-bottom: 1px solid rgba(110, 140, 255, 0.5);
 
     pointer-events: none;
 }
@@ -332,23 +332,23 @@
 
     transform: translateY(-50%);
 
-    background: rgba(163, 176, 76, 0.5);
+    background: rgba(110, 140, 255, 0.5);
 }
 
 .panel-green .panel-header::before {
-    background: var(--olive);
-    box-shadow: 0 0 8px rgba(163, 176, 76, 0.25);
+    background: var(--blue);
+    box-shadow: 0 0 8px rgba(110, 140, 255, 0.25);
 }
 
 .panel-amber .panel-header::before {
-    background: var(--amber);
-    box-shadow: 0 0 8px rgba(201, 163, 95, 0.22);
+    background: var(--lavender);
+    box-shadow: 0 0 8px rgba(205, 168, 255, 0.22);
 }
 
 .panel-cyan .panel-header::before,
 .panel-sky .panel-header::before,
 .panel-blue .panel-header::before {
-    background: var(--sand);
+    background: var(--violet);
 }
 
 .panel-muted .panel-header::before {
@@ -365,7 +365,7 @@
 }
 
 .panel-indicator span {
-    color: var(--olive);
+    color: var(--blue);
 
     font-family: var(--font-stencil);
     font-size: 11px;
@@ -442,9 +442,9 @@
 }
 
 .force-item:hover {
-    background: linear-gradient(90deg, rgba(163, 176, 76, 0.07), transparent 55%);
+    background: linear-gradient(90deg, rgba(110, 140, 255, 0.07), transparent 55%);
 
-    box-shadow: inset 2px 0 0 var(--olive);
+    box-shadow: inset 2px 0 0 var(--blue);
 
     transform: translateX(2px);
 }
@@ -465,7 +465,7 @@
 }
 
 .force-item:hover::after {
-    color: var(--sand);
+    color: var(--violet);
 
     transform: translateX(3px);
 }
@@ -491,57 +491,57 @@
 }
 
 .force-item[data-force="infantry"] .force-symbol {
-    border-color: rgba(163, 176, 76, 0.5);
-    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.5), 0 0 12px rgba(163, 176, 76, 0.1);
-    color: var(--olive);
+    border-color: rgba(110, 140, 255, 0.5);
+    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.5), 0 0 12px rgba(110, 140, 255, 0.1);
+    color: var(--blue);
 }
 
 .force-item[data-force="armour"] .force-symbol {
-    border-color: rgba(201, 163, 95, 0.5);
-    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.5), 0 0 12px rgba(201, 163, 95, 0.1);
-    color: var(--amber);
+    border-color: rgba(205, 168, 255, 0.5);
+    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.5), 0 0 12px rgba(205, 168, 255, 0.1);
+    color: var(--lavender);
 }
 
 .force-item[data-force="mechanized"] .force-symbol {
     border-color: rgba(138, 143, 106, 0.5);
     box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.5);
-    color: #8a8f6a;
+    color: #8a86c8;
 }
 
 .force-item[data-force="recon"] .force-symbol {
     border-color: rgba(138, 143, 106, 0.5);
     box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.5);
-    color: #8a8f6a;
+    color: #8a86c8;
 }
 
 .force-item[data-force="artillery"] .force-symbol {
-    border-color: rgba(224, 107, 42, 0.5);
-    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.5), 0 0 12px rgba(224, 107, 42, 0.1);
+    border-color: rgba(255, 95, 160, 0.5);
+    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.5), 0 0 12px rgba(255, 95, 160, 0.1);
     color: var(--hazard);
 }
 
 .force-item[data-force="logistics"] .force-symbol {
-    border-color: rgba(163, 176, 76, 0.45);
-    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.5), 0 0 12px rgba(163, 176, 76, 0.08);
-    color: var(--olive);
+    border-color: rgba(110, 140, 255, 0.45);
+    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.5), 0 0 12px rgba(110, 140, 255, 0.08);
+    color: var(--blue);
 }
 
 .force-item[data-force="air"] .force-symbol {
-    border-color: rgba(205, 184, 120, 0.5);
-    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.5), 0 0 12px rgba(205, 184, 120, 0.1);
-    color: var(--sand);
+    border-color: rgba(158, 122, 255, 0.5);
+    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.5), 0 0 12px rgba(158, 122, 255, 0.1);
+    color: var(--violet);
 }
 
 .force-item[data-force="helicopter"] .force-symbol {
-    border-color: rgba(205, 184, 120, 0.5);
-    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.5), 0 0 12px rgba(205, 184, 120, 0.1);
-    color: var(--sand);
+    border-color: rgba(158, 122, 255, 0.5);
+    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.5), 0 0 12px rgba(158, 122, 255, 0.1);
+    color: var(--violet);
 }
 
 .force-item[data-force="naval"] .force-symbol {
     border-color: rgba(125, 138, 95, 0.55);
     box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.5), 0 0 12px rgba(125, 138, 95, 0.1);
-    color: #7d8a5f;
+    color: #7d8ae6;
 }
 
 .force-information {
@@ -578,7 +578,7 @@
 .force-number span {
     display: block;
 
-    color: var(--sand);
+    color: var(--violet);
 
     font-family: var(--font-stencil);
     font-size: 22px;
@@ -646,9 +646,9 @@
 }
 
 .strategic-item:hover {
-    background: linear-gradient(90deg, rgba(163, 176, 76, 0.07), transparent 55%);
+    background: linear-gradient(90deg, rgba(110, 140, 255, 0.07), transparent 55%);
 
-    box-shadow: inset 2px 0 0 var(--amber);
+    box-shadow: inset 2px 0 0 var(--lavender);
 
     transform: translateX(2px);
 }
@@ -661,14 +661,14 @@
     align-items: center;
     justify-content: center;
 
-    border: 1px solid rgba(201, 163, 95, 0.4);
+    border: 1px solid rgba(205, 168, 255, 0.4);
     border-radius: var(--radius-control);
 
     background: rgba(0, 0, 0, 0.28);
 
     box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.5);
 
-    color: var(--amber);
+    color: var(--lavender);
 
     font-size: 14px;
 }
@@ -697,7 +697,7 @@
 }
 
 .strategic-item b {
-    color: var(--amber);
+    color: var(--lavender);
 
     font-family: var(--font-stencil);
     font-size: 18px;
@@ -757,34 +757,34 @@
 }
 
 #app .command-button:hover {
-    background: linear-gradient(180deg, rgba(24, 28, 17, 0.7), rgba(10, 12, 7, 0.9));
-    border-color: rgba(205, 184, 120, 0.5);
+    background: linear-gradient(180deg, rgba(30, 24, 58, 0.7), rgba(12, 9, 25, 0.9));
+    border-color: rgba(158, 122, 255, 0.5);
     color: var(--text);
 
-    box-shadow: var(--hl-top), 0 0 16px rgba(205, 184, 120, 0.08);
+    box-shadow: var(--hl-top), 0 0 16px rgba(158, 122, 255, 0.08);
 }
 
 #app .command-button.primary {
-    border-color: rgba(163, 176, 76, 0.55);
+    border-color: rgba(110, 140, 255, 0.55);
 
-    color: var(--olive);
+    color: var(--blue);
 
-    box-shadow: var(--hl-top), 0 0 14px rgba(163, 176, 76, 0.1);
+    box-shadow: var(--hl-top), 0 0 14px rgba(110, 140, 255, 0.1);
 }
 
 #app .command-button.primary:hover {
-    background: linear-gradient(180deg, rgba(33, 38, 21, 0.8), rgba(14, 17, 9, 0.95));
-    border-color: rgba(163, 176, 76, 0.8);
-    color: #d5e08d;
+    background: linear-gradient(180deg, rgba(41, 33, 77, 0.8), rgba(17, 13, 34, 0.95));
+    border-color: rgba(110, 140, 255, 0.8);
+    color: #d7cfff;
 
-    box-shadow: 0 0 18px rgba(163, 176, 76, 0.18);
+    box-shadow: 0 0 18px rgba(110, 140, 255, 0.18);
 }
 
 #app .command-button:focus-visible,
 #app .raise-button:focus-visible,
 #app .unit-action:focus-visible,
 #app .infra-upgrade-btn:focus-visible {
-    outline: 2px solid rgba(205, 184, 120, 0.55);
+    outline: 2px solid rgba(158, 122, 255, 0.55);
     outline-offset: 2px;
 }
 
@@ -799,7 +799,7 @@
 }
 
 #app .command-button.primary span {
-    color: var(--olive);
+    color: var(--blue);
 }
 
 /* ---------- Deployed units ---------- */
@@ -839,7 +839,7 @@
 }
 
 .unit-row:hover {
-    background: rgba(163, 176, 76, 0.04);
+    background: rgba(110, 140, 255, 0.04);
 }
 
 .unit-row-top {
@@ -858,9 +858,9 @@
 
     border-radius: 50%;
 
-    background: var(--olive);
+    background: var(--blue);
 
-    box-shadow: 0 0 10px rgba(163, 176, 76, 0.5);
+    box-shadow: 0 0 10px rgba(110, 140, 255, 0.5);
 }
 
 .unit-row-info {
@@ -919,19 +919,19 @@
 }
 
 .unit-badge.operational {
-    border-color: rgba(163, 176, 76, 0.5);
-    color: var(--olive);
-    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.4), 0 0 10px rgba(163, 176, 76, 0.08);
+    border-color: rgba(110, 140, 255, 0.5);
+    color: var(--blue);
+    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.4), 0 0 10px rgba(110, 140, 255, 0.08);
 }
 
 .unit-badge.moving {
-    border-color: rgba(201, 163, 95, 0.5);
-    color: var(--amber);
+    border-color: rgba(205, 168, 255, 0.5);
+    color: var(--lavender);
 }
 
 .unit-badge.reserve {
-    border-color: rgba(205, 184, 120, 0.5);
-    color: var(--sand);
+    border-color: rgba(158, 122, 255, 0.5);
+    color: var(--violet);
 }
 
 .unit-row-meta {
@@ -1005,17 +1005,17 @@
 }
 
 #app .unit-action:hover {
-    background: linear-gradient(180deg, rgba(24, 28, 17, 0.7), rgba(10, 12, 7, 0.9));
-    border-color: rgba(205, 184, 120, 0.55);
+    background: linear-gradient(180deg, rgba(30, 24, 58, 0.7), rgba(12, 9, 25, 0.9));
+    border-color: rgba(158, 122, 255, 0.55);
     color: var(--text);
 
-    box-shadow: var(--hl-top), 0 0 12px rgba(205, 184, 120, 0.08);
+    box-shadow: var(--hl-top), 0 0 12px rgba(158, 122, 255, 0.08);
 }
 
 #app .unit-action.danger:hover {
-    border-color: rgba(224, 107, 42, 0.6);
+    border-color: rgba(255, 95, 160, 0.6);
     color: var(--hazard-2);
-    box-shadow: 0 0 14px rgba(224, 107, 42, 0.14);
+    box-shadow: 0 0 14px rgba(255, 95, 160, 0.14);
 }
 
 .unit-edit {
@@ -1064,8 +1064,8 @@
 
 .unit-edit input:focus,
 .unit-edit select:focus {
-    border-color: rgba(163, 176, 76, 0.6);
-    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.45), 0 0 0 3px rgba(163, 176, 76, 0.1);
+    border-color: rgba(110, 140, 255, 0.6);
+    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.45), 0 0 0 3px rgba(110, 140, 255, 0.1);
 }
 
 /* ---------- Raise unit form ---------- */
@@ -1120,8 +1120,8 @@
 
 .unit-form input:focus,
 .unit-form select:focus {
-    border-color: rgba(163, 176, 76, 0.65);
-    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.45), 0 0 0 3px rgba(163, 176, 76, 0.12);
+    border-color: rgba(110, 140, 255, 0.65);
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.45), 0 0 0 3px rgba(110, 140, 255, 0.12);
 }
 
 .unit-form input::placeholder {
@@ -1142,12 +1142,12 @@
 
     padding: 13px 14px;
 
-    border: 1px solid rgba(163, 176, 76, 0.55);
+    border: 1px solid rgba(110, 140, 255, 0.55);
     border-radius: var(--radius-control);
 
-    background: linear-gradient(180deg, rgba(24, 28, 15, 0.55), rgba(10, 13, 6, 0.85));
+    background: linear-gradient(180deg, rgba(30, 24, 58, 0.55), rgba(12, 9, 25, 0.85));
 
-    color: var(--olive);
+    color: var(--blue);
 
     font-family: var(--font-display);
     font-size: 11px;
@@ -1157,7 +1157,7 @@
 
     cursor: pointer;
 
-    box-shadow: var(--hl-top), 0 0 14px rgba(163, 176, 76, 0.1);
+    box-shadow: var(--hl-top), 0 0 14px rgba(110, 140, 255, 0.1);
 
     transition:
         background-color 0.15s ease,
@@ -1167,11 +1167,11 @@
 }
 
 #app .raise-button:hover {
-    background: linear-gradient(180deg, rgba(33, 39, 20, 0.7), rgba(13, 16, 8, 0.95));
-    border-color: rgba(163, 176, 76, 0.8);
-    color: #d5e08d;
+    background: linear-gradient(180deg, rgba(41, 33, 77, 0.7), rgba(16, 12, 32, 0.95));
+    border-color: rgba(110, 140, 255, 0.8);
+    color: #d7cfff;
 
-    box-shadow: 0 0 20px rgba(163, 176, 76, 0.2);
+    box-shadow: 0 0 20px rgba(110, 140, 255, 0.2);
 }
 
 #app .raise-button:disabled {
@@ -1185,7 +1185,7 @@
 .unit-message {
     min-height: 12px;
 
-    color: var(--olive);
+    color: var(--blue);
 
     font-family: var(--font-display);
     font-size: 9px;
@@ -1244,8 +1244,8 @@
 }
 
 .base-panel select:focus {
-    border-color: rgba(163, 176, 76, 0.65);
-    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.45), 0 0 0 3px rgba(163, 176, 76, 0.12);
+    border-color: rgba(110, 140, 255, 0.65);
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.45), 0 0 0 3px rgba(110, 140, 255, 0.12);
 }
 
 .base-summary {
@@ -1271,13 +1271,13 @@
 }
 
 .base-summary.active {
-    border-color: rgba(205, 184, 120, 0.5);
+    border-color: rgba(158, 122, 255, 0.5);
 
-    color: var(--sand);
+    color: var(--violet);
 }
 
 .base-summary.error {
-    border-color: rgba(224, 107, 42, 0.55);
+    border-color: rgba(255, 95, 160, 0.55);
 
     color: var(--hazard-2);
 }
@@ -1311,9 +1311,9 @@
 }
 
 .infra-chip.active {
-    border-color: rgba(163, 176, 76, 0.45);
+    border-color: rgba(110, 140, 255, 0.45);
 
-    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.3), 0 0 12px rgba(163, 176, 76, 0.07);
+    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.3), 0 0 12px rgba(110, 140, 255, 0.07);
 }
 
 .infra-chip-label {
@@ -1341,21 +1341,21 @@
 
     border-radius: 2px;
 
-    background: #1d2114;
+    background: #211b3c;
 
     box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.6);
 }
 
 .infra-pip.filled {
-    background: var(--olive);
+    background: var(--blue);
 
-    box-shadow: 0 0 6px rgba(163, 176, 76, 0.4);
+    box-shadow: 0 0 6px rgba(110, 140, 255, 0.4);
 }
 
 .infra-pip.filled.mid {
-    background: var(--amber);
+    background: var(--lavender);
 
-    box-shadow: 0 0 6px rgba(201, 163, 95, 0.35);
+    box-shadow: 0 0 6px rgba(205, 168, 255, 0.35);
 }
 
 .infra-level-text {
@@ -1379,12 +1379,12 @@
     align-items: center;
     justify-content: center;
 
-    border: 1px solid rgba(163, 176, 76, 0.5);
+    border: 1px solid rgba(110, 140, 255, 0.5);
     border-radius: var(--radius-control);
 
     background: rgba(0, 0, 0, 0.3);
 
-    color: var(--olive);
+    color: var(--blue);
 
     font-family: inherit;
     font-size: 12px;
@@ -1399,9 +1399,9 @@
 }
 
 #app .infra-upgrade-btn:hover {
-    background: rgba(163, 176, 76, 0.14);
-    border-color: var(--olive);
-    box-shadow: 0 0 12px rgba(163, 176, 76, 0.18);
+    background: rgba(110, 140, 255, 0.14);
+    border-color: var(--blue);
+    box-shadow: 0 0 12px rgba(110, 140, 255, 0.18);
 }
 
 /* ---------- Unit requirement hint ---------- */
@@ -1423,7 +1423,7 @@
 }
 
 .unit-req-hint.ok {
-    color: var(--olive);
+    color: var(--blue);
 }
 
 .unit-req-hint.fail {
