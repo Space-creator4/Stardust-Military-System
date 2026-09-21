@@ -1286,10 +1286,12 @@ async function createGlobe() {
                     new Cesium.EllipsoidTerrainProvider(),
 
                 /* Local imagery keeps the command globe visible without an
-                   Ion token or external imagery service. */
+                   Ion token or external imagery service. Sized to 8192x4096
+                   so it fits within common GPU max-texture limits (larger
+                   tiles silently fail to render, leaving a bare blue globe). */
                 imageryProvider:
                     new Cesium.SingleTileImageryProvider({
-                        url: "assets/earth/earth-21600.jpg"
+                        url: "assets/earth/earth-8192.jpg"
                     }),
 
                 animation: false,
