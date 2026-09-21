@@ -1287,12 +1287,15 @@ async function createGlobe() {
 
                 /* Local imagery keeps the command globe visible without an
                    Ion token or external imagery service. Sized to 8192x4096
-                   so it fits within common GPU max-texture limits (larger
-                   tiles silently fail to render, leaving a bare blue globe). */
-                imageryProvider:
+                   to stay within common GPU max-texture limits. NOTE: the
+                   Viewer must be given an ImageryLayer (baseLayer) — the
+                   legacy imageryProvider option is ignored in this Cesium
+                   version and leaves the globe with no imagery at all. */
+                baseLayer: new Cesium.ImageryLayer(
                     new Cesium.SingleTileImageryProvider({
                         url: "assets/earth/earth-8192.jpg"
-                    }),
+                    })
+                ),
 
                 animation: false,
                 timeline: false,
