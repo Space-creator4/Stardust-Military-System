@@ -1,7 +1,6 @@
 const button = document.getElementById("discordLogin");
 const status = document.getElementById("loginStatus");
 const countryInput = document.getElementById("countryCode");
-const countryList = document.getElementById("countryCodesList");
 
 const params = new URLSearchParams(window.location.search);
 const error = params.get("error");
@@ -13,29 +12,6 @@ if (error === "invalid_country") {
 } else if (error) {
     status.textContent = "LOGIN FAILED — PLEASE TRY AGAIN.";
 }
-
-fetch(window.stardustApi("/api/country-codes"))
-    .then(response => response.json())
-    .then(data => {
-        if (
-            countryList &&
-            data &&
-            Array.isArray(data.codes)
-        ) {
-            data.codes.forEach(code => {
-                const option = document.createElement("option");
-                option.value = code.code;
-                option.textContent =
-                    (code.label || "") +
-                    (code.label ? " — " : "") +
-                    code.code;
-                countryList.appendChild(option);
-            });
-        }
-    })
-    .catch(() => {
-        /* keep quiet on transient network errors */
-    });
 
 countryInput.addEventListener("input", () => {
     countryInput.value =

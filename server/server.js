@@ -1967,6 +1967,21 @@ function handleOrderUpdate(
         return;
     }
 
+    if (
+        !canManageOrder(
+            socket.user,
+            existing
+        )
+    ) {
+        send(socket, {
+            type: "error",
+            message:
+                "You are not authorized to modify this order."
+        });
+
+        return;
+    }
+
     const next =
         message.order || {};
 
@@ -2106,18 +2121,45 @@ function handleOrderDelete(
             32
         );
 
-    if (
-        id &&
-        orders.delete(id)
-    ) {
-        broadcastOrders();
+    const existing =
+        id
+            ? orders.get(id)
+            : null;
 
-        addLog(
-            "INFO",
-            "orders",
-            `${getUserName(socket.user)} deleted order ${id}`
-        );
+    if (!existing) {
+        send(socket, {
+            type: "error",
+            message:
+                "Order not found."
+        });
+
+        return;
     }
+
+    if (
+        !canManageOrder(
+            socket.user,
+            existing
+        )
+    ) {
+        send(socket, {
+            type: "error",
+            message:
+                "You are not authorized to delete this order."
+        });
+
+        return;
+    }
+
+    orders.delete(id);
+
+    broadcastOrders();
+
+    addLog(
+        "INFO",
+        "orders",
+        `${getUserName(socket.user)} deleted order ${id}`
+    );
 }
 function makeUnitId() {
     return (
@@ -2643,6 +2685,43 @@ function handleUnitUpdate(
     const next =
         message.unit || {};
 
+    const requestedCountry =
+        typeof next.country === "string"
+            ? cleanString(
+                  next.country,
+                  MAX_COUNTRY_LENGTH
+              )
+            : null;
+
+    if (
+        requestedCountry &&
+        requestedCountry !==
+            cleanString(
+                existing.country,
+                MAX_COUNTRY_LENGTH
+            )
+    ) {
+        const leaderCountry =
+            getClaimedCountry(
+                String(userId)
+            );
+        if (
+            !isAdmin(socket.user) &&
+            !(
+                leaderCountry &&
+                leaderCountry === requestedCountry
+            )
+        ) {
+            send(socket, {
+                type: "error",
+                message:
+                    "Only an admin or the destination country's leader can change a unit's country."
+            });
+
+            return;
+        }
+    }
+
     if (
         typeof next.name ===
         "string"
@@ -2854,6 +2933,47 @@ function canManageUnit(user, unitRecord) {
     return (
         userCountry &&
         userCountry === unitCountry
+    );
+}
+function canManageOrder(user, orderRecord) {
+    if (!user || !orderRecord) {
+        return false;
+    }
+    if (isAdmin(user)) {
+        return true;
+    }
+    if (
+        orderRecord.createdBy &&
+        String(orderRecord.createdBy.id) === String(user.id)
+    ) {
+        return true;
+    }
+    const country =
+        cleanString(
+            orderRecord.country,
+            MAX_COUNTRY_LENGTH
+        );
+    if (!country) {
+        return false;
+    }
+    const leaderCountry =
+        getClaimedCountry(
+            String(user.id)
+        );
+    if (
+        leaderCountry &&
+        leaderCountry === country
+    ) {
+        return true;
+    }
+    const userCountry =
+        cleanString(
+            user.country,
+            MAX_COUNTRY_LENGTH
+        );
+    return (
+        userCountry &&
+        userCountry === country
     );
 }
 function handleBaseCreate(
@@ -3216,17 +3336,6 @@ app.get("/api/version", (req, res) => {
                 current
             )
     });
-});
-app.get("/api/country-codes", (req, res) => {
-    const codes = [];
-    for (const [code, label] of
-            countryCodes) {
-        codes.push({
-            code,
-            label
-        });
-    }
-    return res.json({ codes });
 });
 function frontendLoginUrl(params = {}) {
     if (!APP_ORIGIN) {

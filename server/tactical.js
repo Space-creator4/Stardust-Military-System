@@ -355,23 +355,21 @@ function createTactical(context) {
             if (st.task && st.task.kind === "move") {
                 st.vspeed = 0;
             } else {
-                const targetMiss =
-                    Math.abs(
-                        (Number(TYPE_ALT_M[unit.type]) || 12) -
-                            st.alt
-                    );
-                if (targetMiss > 120 && speedBase > 0) {
+                const targetAlt =
+                    Number(TYPE_ALT_M[unit.type]) || 12;
+                const miss =
+                    targetAlt - st.alt;
+                if (Math.abs(miss) > 120 && speedBase > 0) {
                     const step = Math.min(
-                        targetMiss,
+                        Math.abs(miss),
                         120 * dt
                     );
                     st.alt +=
-                        targetMiss > 0 ? step : 0;
+                        miss > 0 ? step : -step;
                     st.vspeed = step / Math.max(dt, 0.001);
                     moved = true;
                 } else {
-                    st.alt =
-                        Number(TYPE_ALT_M[unit.type]) || 12;
+                    st.alt = targetAlt;
                     st.vspeed = 0;
                 }
             }
